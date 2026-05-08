@@ -1,0 +1,2 @@
+method,scale,background_split,background_n,development_explain_n,temporal_test_explain_n,feature_count,expected_logit_background_mean,expected_prob_background_mean,temporal_test_used_for_background,temporal_test_used_for_selection
+GradientExplainer,logit,Train development subset only,64,384,256,65,-0.14314834773540497,0.46427389887403686,False,False

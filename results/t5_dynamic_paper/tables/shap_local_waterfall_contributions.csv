@@ -1,0 +1,25 @@
+Case_Label,Rank_From_Top,Feature_Label,Feature_Value_Transformed,SHAP_Logit_Contribution
+Patient A,1,global: Time_In_Normal,-1.130,0.3902955517593012
+Patient A,2,global: logTSH_Current,-1.025,0.3602636547168164
+Patient A,3,global: CoreWindow_6M->12M,1.883,0.23100948014528133
+Patient A,4,global: FT4_Current,-0.860,0.2094039326629748
+Patient A,5,static: ThyroidW,4.685,0.2082654332894453
+Patient A,6,global: FT3_Current,0.398,0.19732779911072584
+Patient A,7,global: Ever_Hypo_Before,-0.679,0.1341694823865766
+Patient A,8,global: FT3_Current_x_CoreWindow_6M->12M,1.982,0.11607678321876994
+Patient A,9,global: Delta_TSH_k0_x_CoreWindow_6M->12M,-1.427,0.10214084122827241
+Patient A,10,static: Dose,2.491,0.07201334496079839
+Patient A,11,static: Sex,1.842,0.0520054764831375
+Patient A,12,54 other features + residual,,0.0771917960447901
+Patient B,1,global: Ever_Hypo_Before,1.472,-0.4777321364662353
+Patient B,2,global: Time_In_Normal,0.529,-0.40981464346341595
+Patient B,3,global: Interval_Width,0.619,-0.2870882538328294
+Patient B,4,global: logTSH_Current,0.269,-0.2305380953372099
+Patient B,5,global: FT3_Current,-0.144,-0.18634812342657592
+Patient B,6,global: FT3_Current_x_CoreWindow_1M->3M,-0.386,-0.14756803124811083
+Patient B,7,global: CoreWindow_6M->12M,-0.531,-0.13231513052131474
+Patient B,8,global: Start_Time,1.390,-0.07447874848765837
+Patient B,9,global: CoreWindow_3M->6M,-0.420,-0.07193862241551478
+Patient B,10,local: PrevState_1,0.808,-0.05139521073743366
+Patient B,11,local: Window_18M->24M,1.719,-0.04646744589897095
+Patient B,12,54 other features + residual,,-0.1729337204390906

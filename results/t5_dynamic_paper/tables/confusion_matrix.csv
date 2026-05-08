@@ -1,0 +1,4 @@
+Split,Threshold,TP,FP,TN,FN
+Train,0.785,97,284,1366,49
+Validation,0.785,17,49,228,6
+TemporalTest,0.785,25,78,395,16

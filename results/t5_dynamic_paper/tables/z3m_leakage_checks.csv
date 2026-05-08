@@ -1,0 +1,4 @@
+Split,Rows,Rows_StartBefore3M,Components_Zero_Before3M,Availability_Zero_Before3M,TimeFeature_Zero_Before3M,Z3M_Source_Rule
+Train,1796,239,True,True,True,fit uses OOF; validation uses fit-context; test uses final fit+val encoder
+Validation,300,43,True,True,True,fit uses OOF; validation uses fit-context; test uses final fit+val encoder
+TemporalTest,514,68,True,True,True,fit uses OOF; validation uses fit-context; test uses final fit+val encoder

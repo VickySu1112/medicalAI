@@ -1,4 +1,0 @@
-Case_Type,Patient_ID,Y,proba,Max_Interval_Risk,Mean_Interval_Risk,Intervals,First_Window,Last_Window,Aggregation,Risk_Group,Split,Unique_Windows,Window_Signature,Window_Signature_Label,BoundaryGap
-High-risk relapse case,210514,1,0.4690058835153905,0.1862835818335773,0.1169016217287721,5,3M->6M,18M->24M,product,Q4,TemporalTest,4,"('3M->6M', '6M->12M', '12M->18M', '18M->24M')",3M->6M | 6M->12M | 12M->18M | 18M->24M,
-Low-risk non-relapse case,210802,0,0.1070175776106611,0.0600746129618545,0.0277182076548167,4,3M->6M,18M->24M,product,Q1,TemporalTest,4,"('3M->6M', '6M->12M', '12M->18M', '18M->24M')",3M->6M | 6M->12M | 12M->18M | 18M->24M,
-Threshold-adjacent case,210436,0,0.2049249698113756,0.1378975447056478,0.054329074280562,4,3M->6M,18M->24M,product,Q2,TemporalTest,4,"('3M->6M', '6M->12M', '12M->18M', '18M->24M')",3M->6M | 6M->12M | 12M->18M | 18M->24M,0.004924969811375579

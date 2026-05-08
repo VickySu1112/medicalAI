@@ -1,0 +1,71 @@
+Feature,Feature_Group,中文含义
+Age,人口学,年龄
+BMI,人口学,体重指数
+D_FT3_3M-0M,早期变化量,FT3_3M-0M 的差值变化量
+D_FT3_6M-0M,早期变化量,FT3_6M-0M 的差值变化量
+D_FT3_6M-3M,早期变化量,FT3_6M-3M 的差值变化量
+D_FT4_3M-0M,早期变化量,FT4_3M-0M 的差值变化量
+D_FT4_6M-0M,早期变化量,FT4_6M-0M 的差值变化量
+D_FT4_6M-3M,早期变化量,FT4_6M-3M 的差值变化量
+D_TSH_3M-0M,早期变化量,TSH_3M-0M 的差值变化量
+D_TSH_6M-0M,早期变化量,TSH_6M-0M 的差值变化量
+D_TSH_6M-3M,早期变化量,TSH_6M-3M 的差值变化量
+Dose,RAI 剂量/摄取,放射性碘治疗剂量
+Dose_per_Uptake24h,标准化剂量,一个变量按另一个变量标准化后的比值
+Dose_x_HalfLife,交互项,放射性碘治疗剂量 与 有效半衰期 的乘积交互
+Dose_x_ThyroidW,交互项,放射性碘治疗剂量 与 甲状腺重量/体积负荷 的乘积交互
+Dose_x_Uptake24h,交互项,放射性碘治疗剂量 与 24 小时摄碘率 的乘积交互
+Estimated_TID_Dose_x_Uptake24h_x_HalfLife,RAI 剂量/摄取,估计总碘暴露量：剂量、摄取率和半衰期的组合
+Exophthalmos,基线体征,突眼情况
+FT3_0M,甲功当前值,0M 时点 游离三碘甲状腺原氨酸 FT3
+FT3_1M,甲功当前值,1M 时点 游离三碘甲状腺原氨酸 FT3
+FT3_3M,甲功当前值,3M 时点 游离三碘甲状腺原氨酸 FT3
+FT3_6M,甲功当前值,6M 时点 游离三碘甲状腺原氨酸 FT3
+FT3_last_minus_prev,早期变化量,当前 landmark 数值减去上一个随访时点数值
+FT3_last_over_FT4_last,甲功比值,当前 landmark FT3 / FT4 比值
+FT3_mean,早期轨迹摘要,截至当前 landmark 的 游离三碘甲状腺原氨酸 FT3 均值
+FT3_std,早期轨迹摘要,截至当前 landmark 的 游离三碘甲状腺原氨酸 FT3 标准差
+FT4_0M,甲功当前值,0M 时点 游离甲状腺素 FT4
+FT4_1M,甲功当前值,1M 时点 游离甲状腺素 FT4
+FT4_3M,甲功当前值,3M 时点 游离甲状腺素 FT4
+FT4_6M,甲功当前值,6M 时点 游离甲状腺素 FT4
+FT4_last_minus_prev,早期变化量,当前 landmark 数值减去上一个随访时点数值
+FT4_last_over_TSH_last_plus1,甲功比值,当前 landmark FT4 / (TSH + 1) 比值
+FT4_mean,早期轨迹摘要,截至当前 landmark 的 游离甲状腺素 FT4 均值
+FT4_std,早期轨迹摘要,截至当前 landmark 的 游离甲状腺素 FT4 标准差
+HalfLife,RAI 剂量/摄取,有效半衰期
+Height,人口学,身高
+IDPG_Dose_per_ThyroidW,RAI 剂量/摄取,单位甲状腺重量放射性碘剂量
+IDPG_x_FT3_Response_0_3M,交互项,单位甲状腺重量放射性碘剂量 与 FT3 从 0M 到 3M 的治疗反应幅度 的乘积交互
+IDPG_x_FT4_Response_0_3M,交互项,单位甲状腺重量放射性碘剂量 与 FT4 从 0M 到 3M 的治疗反应幅度 的乘积交互
+Likely_Hyper_3M,早期状态标记,3M 时点仍处于或接近甲亢轨道的标记
+MaxUptake,RAI 剂量/摄取,最大摄碘率
+PctDrop_FT3_0_1M,早期反应,FT3_0_1M 的百分比下降幅度
+PctDrop_FT3_0_3M,早期反应,FT3_0_3M 的百分比下降幅度
+PctDrop_FT4_0_1M,早期反应,FT4_0_1M 的百分比下降幅度
+PctDrop_FT4_0_3M,早期反应,FT4_0_3M 的百分比下降幅度
+RAI3d,RAI 剂量/摄取,RAI 治疗后 3 日相关测量值
+Sex,人口学,性别
+TGAb,抗体,甲状腺球蛋白抗体
+TGAb_HighQ75,高值分层,TGAb 高于训练集第 75 百分位的标记
+TGAb_HighQ90,高值分层,TGAb 高于训练集第 90 百分位的标记
+TPOAb,抗体,甲状腺过氧化物酶抗体
+TPOAb_HighQ75,高值分层,TPOAb 高于训练集第 75 百分位的标记
+TRAb,抗体,促甲状腺激素受体抗体
+TRAb_HighQ75,高值分层,TRAb 高于训练集第 75 百分位的标记
+TRAb_HighQ90,高值分层,TRAb 高于训练集第 90 百分位的标记
+TRAb_x_FT3_last,交互项,促甲状腺激素受体抗体 与 当前 landmark 的 游离三碘甲状腺原氨酸 FT3 的乘积交互
+TSH_0M,甲功当前值,0M 时点 促甲状腺激素 TSH
+TSH_1M,甲功当前值,1M 时点 促甲状腺激素 TSH
+TSH_3M,甲功当前值,3M 时点 促甲状腺激素 TSH
+TSH_6M,甲功当前值,6M 时点 促甲状腺激素 TSH
+TSH_Recovered_3M,早期恢复标记,3M 时点 TSH 是否恢复的标记
+TSH_last_minus_prev,早期变化量,当前 landmark TSH 减去上一个随访时点 TSH
+ThyroidW,甲状腺负荷,甲状腺重量/体积负荷
+ThyroidW_x_FT3_Response_0_3M,交互项,甲状腺重量/体积负荷 与 FT3 从 0M 到 3M 的治疗反应幅度 的乘积交互
+ThyroidW_x_FT3_last,交互项,甲状腺重量/体积负荷 与 当前 landmark 的 游离三碘甲状腺原氨酸 FT3 的乘积交互
+ThyroidW_x_FT4_Response_0_3M,交互项,甲状腺重量/体积负荷 与 FT4 从 0M 到 3M 的治疗反应幅度 的乘积交互
+ThyroidW_x_logTSH_3M,交互项,甲状腺重量/体积负荷 与 3M 时点 log 转换后的 TSH 的乘积交互
+TreatCount,治疗史,第几次 RAI 治疗
+Uptake24h,RAI 剂量/摄取,24 小时摄碘率
+Weight,人口学,体重

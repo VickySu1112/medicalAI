@@ -40,10 +40,19 @@ draft/.browser_data/
 # 大型模型缓存
 *.pkl
 
-# 结果目录：只保留 README 实际引用到的两个子目录，其余历史/探索性结果不入库
+# 结果目录：只保留当前主线报告，其余历史/探索性结果不入库
 results/*
-!results/fixed_landmark_binary/
-!results/relapse_teacher_frozen_fuse/
+!results/landmark_focus/
+!results/landmark_focus/**
+!results/t5_dynamic_paper/
+!results/t5_dynamic_paper/**
+results/**/.DS_Store
+results/**/*.pkl
+results/**/*.joblib
+results/**/*.pt
+results/**/*.pdf
+results/**/*.docx
+results/t5_dynamic_paper/README.*
 
 # 早期探索重跑缓存
 artifacts_rerun_*/

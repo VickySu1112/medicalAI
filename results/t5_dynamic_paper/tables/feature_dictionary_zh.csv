@@ -1,0 +1,66 @@
+Branch,Feature,英文特征名,中文含义
+static,Sex,static::Sex,患者性别
+static,Age,static::Age,患者年龄
+static,Height,static::Height,身高
+static,Weight,static::Weight,体重
+static,BMI,static::BMI,体质指数
+static,Exophthalmos,static::Exophthalmos,是否合并突眼症
+static,ThyroidW,static::ThyroidW,甲状腺重量/体积负荷
+static,RAI3d,static::RAI3d,治疗后第 3 天残余辐射量
+static,TreatCount,static::TreatCount,既往放射性碘治疗次数
+static,TGAb,static::TGAb,治疗前甲状腺球蛋白抗体（TGAb）
+static,TPOAb,static::TPOAb,治疗前甲状腺过氧化物酶抗体（TPOAb）
+static,TRAb,static::TRAb,治疗前促甲状腺激素受体抗体（TRAb）
+static,Uptake24h,static::Uptake24h,24 小时碘摄取率
+static,MaxUptake,static::MaxUptake,最大碘摄取率
+static,HalfLife,static::HalfLife,放射性碘有效半衰期
+static,Dose,static::Dose,放射性碘治疗剂量
+local,FT3_Current,local::FT3_Current,当前游离三碘甲状腺原氨酸 FT3
+local,FT4_Current,local::FT4_Current,当前游离甲状腺素 FT4
+local,logTSH_Current,local::logTSH_Current,当前 TSH 对数变换
+local,Delta_FT4_1step,local::Delta_FT4_1step,最近一步 FT4 变化
+local,Delta_TSH_1step,local::Delta_TSH_1step,最近一步 TSH 变化
+local,Window_12M->18M,local::Window_12M->18M,当前动态预测窗口指示变量：12M->18M
+local,Window_18M->24M,local::Window_18M->24M,当前动态预测窗口指示变量：18M->24M
+local,Window_1M->3M,local::Window_1M->3M,当前动态预测窗口指示变量：1M->3M
+local,Window_3M->6M,local::Window_3M->6M,当前动态预测窗口指示变量：3M->6M
+local,Window_6M->12M,local::Window_6M->12M,当前动态预测窗口指示变量：6M->12M
+local,PrevState_0,local::PrevState_0,当前窗口起点状态 one-hot：甲亢/Hyper
+local,PrevState_1,local::PrevState_1,当前窗口起点状态 one-hot：正常/Normal
+local,PrevState_2,local::PrevState_2,当前窗口起点状态 one-hot：甲减/Hypo
+global,Time_In_Normal,global::Time_In_Normal,此前处于正常甲功状态的累计次数
+global,FT3_Current,global::FT3_Current,当前游离三碘甲状腺原氨酸 FT3
+global,Delta_TSH_k0,global::Delta_TSH_k0,当前 TSH 相对基线变化
+global,FT4_Current,global::FT4_Current,当前游离甲状腺素 FT4
+global,logTSH_Current,global::logTSH_Current,当前 TSH 对数变换
+global,Prior_Relapse_Count,global::Prior_Relapse_Count,此前复发次数
+global,Ever_Hyper_Before,global::Ever_Hyper_Before,此前是否出现过甲亢状态
+global,Ever_Hypo_Before,global::Ever_Hypo_Before,此前是否出现过甲减状态
+global,Start_Time,global::Start_Time,当前 landmark 时间（月）
+global,Interval_Width,global::Interval_Width,当前预测区间宽度（月）
+global,CoreWindow_1M->3M,global::CoreWindow_1M->3M,高风险窗口指示变量：1M->3M
+global,Time_In_Normal_x_CoreWindow_1M->3M,global::Time_In_Normal_x_CoreWindow_1M->3M,此前处于正常甲功状态的累计次数 与高风险窗口 1M->3M 的交互
+global,FT3_Current_x_CoreWindow_1M->3M,global::FT3_Current_x_CoreWindow_1M->3M,当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 1M->3M 的交互
+global,Delta_TSH_k0_x_CoreWindow_1M->3M,global::Delta_TSH_k0_x_CoreWindow_1M->3M,当前 TSH 相对基线变化 与高风险窗口 1M->3M 的交互
+global,CoreWindow_3M->6M,global::CoreWindow_3M->6M,高风险窗口指示变量：3M->6M
+global,Time_In_Normal_x_CoreWindow_3M->6M,global::Time_In_Normal_x_CoreWindow_3M->6M,此前处于正常甲功状态的累计次数 与高风险窗口 3M->6M 的交互
+global,FT3_Current_x_CoreWindow_3M->6M,global::FT3_Current_x_CoreWindow_3M->6M,当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 3M->6M 的交互
+global,Delta_TSH_k0_x_CoreWindow_3M->6M,global::Delta_TSH_k0_x_CoreWindow_3M->6M,当前 TSH 相对基线变化 与高风险窗口 3M->6M 的交互
+global,CoreWindow_6M->12M,global::CoreWindow_6M->12M,高风险窗口指示变量：6M->12M
+global,Time_In_Normal_x_CoreWindow_6M->12M,global::Time_In_Normal_x_CoreWindow_6M->12M,此前处于正常甲功状态的累计次数 与高风险窗口 6M->12M 的交互
+global,FT3_Current_x_CoreWindow_6M->12M,global::FT3_Current_x_CoreWindow_6M->12M,当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 6M->12M 的交互
+global,Delta_TSH_k0_x_CoreWindow_6M->12M,global::Delta_TSH_k0_x_CoreWindow_6M->12M,当前 TSH 相对基线变化 与高风险窗口 6M->12M 的交互
+z3M,selected_z3m_00,z3M::selected_z3m_00,3M early-response encoder 的第 00 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_01,z3M::selected_z3m_01,3M early-response encoder 的第 01 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_02,z3M::selected_z3m_02,3M early-response encoder 的第 02 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_03,z3M::selected_z3m_03,3M early-response encoder 的第 03 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_04,z3M::selected_z3m_04,3M early-response encoder 的第 04 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_05,z3M::selected_z3m_05,3M early-response encoder 的第 05 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_06,z3M::selected_z3m_06,3M early-response encoder 的第 06 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_07,z3M::selected_z3m_07,3M early-response encoder 的第 07 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_08,z3M::selected_z3m_08,3M early-response encoder 的第 08 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_09,z3M::selected_z3m_09,3M early-response encoder 的第 09 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_10,z3M::selected_z3m_10,3M early-response encoder 的第 10 个潜在表征维度（不单独等同于某个临床变量）
+z3M,selected_z3m_11,z3M::selected_z3m_11,3M early-response encoder 的第 11 个潜在表征维度（不单独等同于某个临床变量）
+z3M,z3m_available,z3M::z3m_available,3M early-response 表征是否可用（3M 前为 0）
+z3M,z3m_time_since_3m,z3M::z3m_time_since_3m,距离 3M landmark 的归一化时间（3M 前为 0）
