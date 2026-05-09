@@ -95,9 +95,28 @@ Bootstrap 95% CI 保存在 `tables/3m_lr_lgbm_bootstrap_ci.csv`。
 
 ![3M 混淆矩阵](figures/Figure_3M_LR_vs_LGBM_Confusion.png)
 
+![3M LGBM SHAP summary](figures/Figure_3M_LGBM_SHAP_Summary.png)
+
 ![3M LGBM SHAP 条形图](figures/Figure_3M_LGBM_SHAP_Bar.png)
 
 ![3M LR 系数图](figures/Figure_3M_LR_Coefficients.png)
+
+### 3M 图表完整性核查
+
+3M 二分类主线的关键医学预测图表已经齐全。树模型解释使用 SHAP summary 和 mean(|SHAP|) 条形图；线性解释使用 sparse Elastic LR 的系数、OR forest、nomogram-style points 和局部贡献图。DCA、calibration、threshold sensitivity、confusion matrix、错题本和单变量 benchmark 均已落盘并在正文引用。
+
+| 模块 | 状态 | 正文/文件位置 |
+| --- | --- | --- |
+| ROC / PR curve | 已包含 | `figures/Figure_3M_LR_vs_LGBM_ROC_PR.png` |
+| Calibration + DCA | 已包含 | `figures/Figure_3M_LR_vs_LGBM_Calibration_DCA.png`、`figures/Figure_LR_Sparse_Calibration_DCA.png` |
+| Confusion matrix | 已包含 | `figures/Figure_3M_LR_vs_LGBM_Confusion.png` |
+| LGBM SHAP summary | 已包含 | `figures/Figure_3M_LGBM_SHAP_Summary.png` |
+| LGBM SHAP bar | 已包含 | `figures/Figure_3M_LGBM_SHAP_Bar.png` |
+| Sparse LR coefficient / OR / nomogram | 已包含 | `figures/Figure_3M_LR_Coefficients.png`、`figures/Figure_LR_Sparse_OR_Forest.png`、`figures/Figure_LR_Sparse_OR_Nomogram.png` |
+| Threshold sensitivity | 已包含 | `figures/Figure_LR_Sparse_Threshold_Sensitivity.png` |
+| Error casebook / error profile | 已包含 | `tables/3m_lr_sparse_error_casebook.csv`、`figures/Figure_LR_Sparse_Error_Profile.png` |
+| Single-feature benchmark | 已包含 | `tables/3m_lr_sparse_single_feature_benchmarks.csv`、`figures/Figure_LR_Sparse_Single_Feature_Benchmarks.png` |
+| Feature dictionary | 已包含 | 文末“附录：特征名中文释义”与 `tables/feature_name_chinese_appendix.csv` |
 
 ## Sparse Elastic LR 可解释模型线
 
@@ -351,34 +370,3 @@ Stable feature selection 由三部分组成：强制保留临床核心变量、t
 | TreatCount | 治疗史 | 第几次 RAI 治疗 |
 | Uptake24h | RAI 剂量/摄取 | 24 小时摄碘率 |
 | Weight | 人口学 | 体重 |
-
-## Artifact Index
-
-```text
-results/landmark_focus/
-  README.md
-  tables/
-    3m_lr_lgbm_15_metrics.csv
-    3m_lr_lgbm_bootstrap_ci.csv
-    3m_lgbm_top25_30seed_summary.csv
-    3m_lr_sparse_coefficients_or.csv
-    3m_lr_sparse_nonzero_coefficients.csv
-    3m_lr_sparse_threshold_sensitivity.csv
-    3m_lr_sparse_calibration_bins.csv
-    3m_lr_sparse_error_casebook.csv
-    3m_lr_sparse_error_feature_profile.csv
-    3m_lr_sparse_single_feature_benchmarks.csv
-    feature_name_chinese_appendix.csv
-    fixed_landmark_binary_metrics_derived.csv
-    3m_multiclass_probe_metrics.csv
-    6m_multiclass_probe_metrics.csv
-  figures/
-    Figure_3M_LR_vs_LGBM_ROC_PR.png
-    Figure_3M_LR_vs_LGBM_Calibration_DCA.png
-    Figure_3M_LR_vs_LGBM_Confusion.png
-    Figure_3M_LGBM_SHAP_Bar.png
-    Figure_3M_LR_Coefficients.png
-    Figure_LR_Sparse_*.png
-    Figure_6M_Binary_*.png
-    multiclass_3m_6m_temporal_performance.png
-```
