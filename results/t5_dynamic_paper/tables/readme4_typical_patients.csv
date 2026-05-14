@@ -1,4 +1,4 @@
-Split,Patient_ID,N_Intervals,Patient_Event,Cumulative_Risk,Max_Interval_Risk,Mean_Interval_Risk,First_Start_Time,Last_Stop_Time,Case_Type,Case_Label
-TemporalTest,210850,4,1,0.9941246984165563,0.81001365,0.6869839925,1.0,24.0,High-risk relapse,Patient A
-TemporalTest,210802,4,0,0.5500373835432422,0.31621414,0.17519313000000003,3.0,24.0,Low-risk non-relapse,Patient B
-TemporalTest,210464,4,0,0.7976262017869333,0.5871871,0.302750485,3.0,24.0,Threshold-adjacent,Patient C
+Split,Patient_ID,N_Intervals,Patient_Event,Max_Interval_Risk,Mean_Interval_Risk,Ever_Alert,First_Start_Time,Last_Stop_Time,Case_Type,Case_Label
+TemporalTest,210850,4,1,0.81001365,0.6869839925,0,1.0,24.0,High-risk relapse,Patient A
+TemporalTest,210802,4,0,0.31621414,0.17519313000000003,0,3.0,24.0,Low-risk non-relapse,Patient B
+TemporalTest,210848,4,0,0.84367394,0.595709166,0,3.0,24.0,Threshold-adjacent,Patient C

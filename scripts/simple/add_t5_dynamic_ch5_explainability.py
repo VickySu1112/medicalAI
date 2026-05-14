@@ -630,7 +630,7 @@ def fig_local(payload: dict[str, object], model: direct.ThreeBranchHazardNet, da
 
 def heatmap_marginals() -> None:
     pred_path = TAB / "readme4_patient_interval_predictions.csv"
-    patient_path = TAB / "readme4_patient_cumulative_risk.csv"
+    patient_path = TAB / "readme4_patient_aggregated_risk.csv"
     if pred_path.exists() and patient_path.exists():
         pred = pd.read_csv(pred_path)
         patient = pd.read_csv(patient_path)
@@ -642,14 +642,15 @@ def heatmap_marginals() -> None:
         patient = (
             pred[pred["Split"].eq("TemporalTest")]
             .groupby("Patient_ID", as_index=False)
-            .agg(Patient_Event=("Y_Relapse", "max"), Cumulative_Risk=("DirectProb", lambda s: 1.0 - float(np.prod(1.0 - np.clip(s, 0, 1)))), N_Intervals=("Interval_ID", "count"))
+            .agg(Patient_Event=("Y_Relapse", "max"), Mean_Interval_Risk=("DirectProb", "mean"), Max_Interval_Risk=("DirectProb", "max"), N_Intervals=("Interval_ID", "count"))
         )
         pred = pred[pred["Split"].eq("TemporalTest")].copy()
     test = pred[pred["Split"].eq("TemporalTest")].copy() if "Split" in pred.columns else pred.copy()
     order = test[["Interval_Name", "Start_Time", "Stop_Time"]].drop_duplicates().sort_values(["Start_Time", "Stop_Time"])
     windows = order["Interval_Name"].astype(str).tolist()
     patient_order = patient[patient["Split"].eq("TemporalTest")].copy() if "Split" in patient.columns else patient.copy()
-    patient_order = patient_order.sort_values(["Patient_Event", "Cumulative_Risk"], ascending=[False, False])
+    risk_col = "Mean_Interval_Risk" if "Mean_Interval_Risk" in patient_order.columns else "Max_Interval_Risk"
+    patient_order = patient_order.sort_values(["Patient_Event", risk_col], ascending=[False, False])
     event_pids = patient_order[patient_order["Patient_Event"].eq(1)]["Patient_ID"].astype(str).tolist()
     nonevent_pids = patient_order[patient_order["Patient_Event"].eq(0)]["Patient_ID"].astype(str).tolist()
 
@@ -705,18 +706,18 @@ def heatmap_marginals() -> None:
         mat = matrix(pids)
         im = ax.imshow(np.ma.masked_invalid(mat), aspect="auto", cmap=cmap, norm=RISK_NORM)
         ims.append(im)
-        ax.set_title(f"{title} sorted by cumulative risk")
+        ax.set_title(f"{title} sorted by mean interval risk")
         ax.set_ylabel("Patients")
         ax.set_yticks([])
         sub = patient_order.set_index("Patient_ID").reindex(pids)
-        risks = sub["Cumulative_Risk"].to_numpy(dtype=float)
+        risks = sub[risk_col].to_numpy(dtype=float)
         ypos = np.arange(len(pids))
         rax.barh(ypos, risks, color=RISK_CMAP(RISK_NORM(risks)), height=0.85)
         rax.invert_yaxis()
         rax.set_xlim(0, 1)
         rax.set_xticks([0, 0.5, 1.0])
         rax.set_yticks([])
-        rax.set_title("Patient\ncumulative risk", fontsize=8)
+        rax.set_title("Patient\nmean risk", fontsize=8)
         rax.grid(axis="x", alpha=0.2)
     axes[0].tick_params(labelbottom=False)
     axes[1].set_xticks(range(len(windows)), windows, rotation=30, ha="right")
@@ -832,11 +833,11 @@ def joint_risk_window_heatmap() -> None:
 def update_heatmap_caption(text: str) -> str:
     old = (
         "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示：列是随访窗口，行是患者，颜色是该 interval 的复发风险。"
-        "复发患者和未复发患者分面展示，并在各自面板内按累计风险排序。"
+        "复发患者和未复发患者分面展示，并在各自面板内按 mean risk 排序。"
     )
     new = (
         "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示，并升级为带边际条图的热图：主矩阵中列是随访窗口、行是患者、颜色是该 interval 的复发风险；"
-        "顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的累计风险 `1 - product(1 - p_t)`。复发患者和未复发患者分面展示，并在各自面板内按累计风险排序。"
+        "顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的 mean interval risk。复发患者和未复发患者分面展示，并在各自面板内按 mean risk 排序。"
     )
     return text.replace(old, new)
 
@@ -939,8 +940,8 @@ def update_readme(dev_imp: pd.DataFrame, test_imp: pd.DataFrame, branch_imp: pd.
     )
     if "Figure 29 是标准的 joint heatmap" not in text:
         text = text.replace(
-            "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示，并升级为带边际条图的热图：主矩阵中列是随访窗口、行是患者、颜色是该 interval 的复发风险；顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的累计风险 `1 - product(1 - p_t)`。复发患者和未复发患者分面展示，并在各自面板内按累计风险排序。",
-            "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示，并升级为带边际条图的热图：主矩阵中列是随访窗口、行是患者、颜色是该 interval 的复发风险；顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的累计风险 `1 - product(1 - p_t)`。复发患者和未复发患者分面展示，并在各自面板内按累计风险排序。\n\n" + joint_block,
+            "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示，并升级为带边际条图的热图：主矩阵中列是随访窗口、行是患者、颜色是该 interval 的复发风险；顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的 mean interval risk。复发患者和未复发患者分面展示，并在各自面板内按 mean risk 排序。",
+            "Figure 19 将 temporal test 的 patient-interval 风险矩阵化显示，并升级为带边际条图的热图：主矩阵中列是随访窗口、行是患者、颜色是该 interval 的复发风险；顶部边际条同时显示各窗口的平均预测风险和真实复发率；右侧边际条显示同一患者的 mean interval risk。复发患者和未复发患者分面展示，并在各自面板内按 mean risk 排序。\n\n" + joint_block,
         )
     block = explainability_block(dev_imp, test_imp, branch_imp, manifest, concord)
     if CH5_START in text and CH5_END in text:
