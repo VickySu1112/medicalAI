@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>四分支动态复发预警模型</title>
+  <title>3M表征增强的四分支动态复发预警模型</title>
   <style>
 
 html {
@@ -170,7 +170,7 @@ vertical-align: middle;
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">四分支动态复发预警模型</h1>
+<h1 class="title">3M表征增强的四分支动态复发预警模型</h1>
 </header>
 <h1 id="m-表征增强的四分支动态复发预警模型">3M
 表征增强的四分支动态复发预警模型</h1>
@@ -1357,11 +1357,82 @@ Training / Validation / Temporal validation
 <h2 id="附录-b.-特征英文名称与实际含义对照表">附录 B.
 特征英文名称与实际含义对照表</h2>
 <p>当前四分支动态复发模型共使用 <code>65</code> 个输入特征，按来源分为
-Static / Local / Global / z3M
-四组。下表给出报告中使用的英文特征名和临床/工程含义；z3M embedding
-维度只解释为 3M early-response latent
-component，不把单个维度硬翻译成具体临床变量。完整 CSV 保存在
-<code>tables/feature_dictionary_zh.csv</code>。</p>
+Static / Local / Global / z3M 四组。完整逐项 CSV 保存在
+<code>tables/feature_dictionary_zh.csv</code>，其中增加了“特征类别”列。这里把重复结构按家族解释，避免同一类窗口特征反复写三遍。</p>
+<h3 id="如何读窗口特异特征">如何读窗口特异特征</h3>
+<p>特征名里的 <code>_x_</code> 表示“乘以”，但这里不是复杂数学，只是一个
+0/1 开关：</p>
+<pre class="text"><code>CoreWindow_1M-&gt;3M =
+  如果当前预测窗口是 1M-&gt;3M，则为 1；
+  如果不是 1M-&gt;3M，则为 0。
+
+FT3_Current_x_CoreWindow_1M-&gt;3M =
+  FT3_Current 乘以 CoreWindow_1M-&gt;3M
+  = 如果当前窗口是 1M-&gt;3M，就等于当前 FT3；
+  = 如果当前窗口不是 1M-&gt;3M，就等于 0。</code></pre>
+<p>所以 <code>global::FT3_Current_x_CoreWindow_1M-&gt;3M</code>
+的人话解释是：<strong>1M-&gt;3M 这个窗口专用的当前
+FT3</strong>。它让模型可以学习“同样的 FT3 数值，在
+1M-&gt;3M、3M-&gt;6M、6M-&gt;12M
+这些不同随访阶段，风险含义可能不同”。例如 FT3 在 1M-&gt;3M
+仍偏高，可能代表早期治疗反应不足；但 6M-&gt;12M
+再次偏高，可能更接近复发轨道。</p>
+<h3 id="特征家族总览">特征家族总览</h3>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>特征家族</th>
+<th>英文形式</th>
+<th>人话解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>治疗前静态背景</td>
+<td><code>static::*</code></td>
+<td>治疗前已经知道的患者背景、疾病负荷、抗体、摄碘率和 RAI 剂量。</td>
+</tr>
+<tr>
+<td>当前甲功/近期变化</td>
+<td><code>FT3_Current</code>, <code>FT4_Current</code>,
+<code>logTSH_Current</code>, <code>Delta_*</code></td>
+<td>当前 landmark 的甲功状态，以及相对上一次或基线的变化。</td>
+</tr>
+<tr>
+<td>窗口 0/1 开关</td>
+<td><code>Window_*</code>, <code>CoreWindow_*</code></td>
+<td>当前这一行预测的是哪个随访区间；是该窗口为 1，不是为 0。</td>
+</tr>
+<tr>
+<td>当前状态 0/1 开关</td>
+<td><code>PrevState_0/1/2</code></td>
+<td>当前窗口起点是 Hyper / Normal / Hypo 中哪一种。</td>
+</tr>
+<tr>
+<td>累计病程摘要</td>
+<td><code>Time_In_Normal</code>, <code>Prior_Relapse_Count</code>,
+<code>Ever_*</code></td>
+<td>截至当前 landmark，患者过去病程累计到什么程度。</td>
+</tr>
+<tr>
+<td>窗口特异特征</td>
+<td><code>基础特征_x_CoreWindow_窗口</code></td>
+<td>某个基础特征只在指定窗口打开，其他窗口填
+0，用来学习“同一指标在不同随访阶段的不同意义”。</td>
+</tr>
+<tr>
+<td>3M 早期反应潜在表征</td>
+<td><code>selected_z3m_00</code> 到 <code>selected_z3m_11</code></td>
+<td>3M 二分类 encoder
+压缩出来的早期反应表示；单个维度不硬翻译成某个临床变量。</td>
+</tr>
+</tbody>
+</table>
 <h3 id="静态基线特征static-branch">静态基线特征（Static branch）</h3>
 <table>
 <thead>
@@ -1372,67 +1443,51 @@ component，不把单个维度硬翻译成具体临床变量。完整 CSV 保存
 </thead>
 <tbody>
 <tr>
-<td>static::Sex</td>
+<td><code>static::Sex</code></td>
 <td>患者性别</td>
 </tr>
 <tr>
-<td>static::Age</td>
+<td><code>static::Age</code></td>
 <td>患者年龄</td>
 </tr>
 <tr>
-<td>static::Height</td>
+<td><code>static::Height</code></td>
 <td>身高</td>
 </tr>
 <tr>
-<td>static::Weight</td>
+<td><code>static::Weight</code></td>
 <td>体重</td>
 </tr>
 <tr>
-<td>static::BMI</td>
+<td><code>static::BMI</code></td>
 <td>体质指数</td>
 </tr>
 <tr>
-<td>static::Exophthalmos</td>
+<td><code>static::Exophthalmos</code></td>
 <td>是否合并突眼症</td>
 </tr>
 <tr>
-<td>static::ThyroidW</td>
+<td><code>static::ThyroidW</code></td>
 <td>甲状腺重量/体积负荷</td>
 </tr>
 <tr>
-<td>static::RAI3d</td>
+<td><code>static::RAI3d</code></td>
 <td>治疗后第 3 天残余辐射量</td>
 </tr>
 <tr>
-<td>static::TreatCount</td>
-<td>既往放射性碘治疗次数</td>
+<td><code>static::TreatCount</code></td>
+<td>既往 RAI 治疗次数</td>
 </tr>
 <tr>
-<td>static::TGAb</td>
-<td>治疗前甲状腺球蛋白抗体（TGAb）</td>
+<td><code>static::TGAb / TPOAb / TRAb</code></td>
+<td>治疗前甲状腺相关抗体</td>
 </tr>
 <tr>
-<td>static::TPOAb</td>
-<td>治疗前甲状腺过氧化物酶抗体（TPOAb）</td>
+<td><code>static::Uptake24h / MaxUptake / HalfLife</code></td>
+<td>碘摄取与有效半衰期</td>
 </tr>
 <tr>
-<td>static::TRAb</td>
-<td>治疗前促甲状腺激素受体抗体（TRAb）</td>
-</tr>
-<tr>
-<td>static::Uptake24h</td>
-<td>24 小时碘摄取率</td>
-</tr>
-<tr>
-<td>static::MaxUptake</td>
-<td>最大碘摄取率</td>
-</tr>
-<tr>
-<td>static::HalfLife</td>
-<td>放射性碘有效半衰期</td>
-</tr>
-<tr>
-<td>static::Dose</td>
+<td><code>static::Dose</code></td>
 <td>放射性碘治疗剂量</td>
 </tr>
 </tbody>
@@ -1440,6 +1495,10 @@ component，不把单个维度硬翻译成具体临床变量。完整 CSV 保存
 <h3 id="局部近期窗口特征local-branch">局部近期窗口特征（Local
 branch）</h3>
 <table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
 <thead>
 <tr>
 <th>英文特征名</th>
@@ -1448,56 +1507,20 @@ branch）</h3>
 </thead>
 <tbody>
 <tr>
-<td>local::FT3_Current</td>
-<td>当前游离三碘甲状腺原氨酸 FT3</td>
+<td><code>local::FT3_Current / FT4_Current / logTSH_Current</code></td>
+<td>当前窗口起点的甲功状态</td>
 </tr>
 <tr>
-<td>local::FT4_Current</td>
-<td>当前游离甲状腺素 FT4</td>
+<td><code>local::Delta_FT4_1step / Delta_TSH_1step</code></td>
+<td>最近一次随访到当前随访的变化</td>
 </tr>
 <tr>
-<td>local::logTSH_Current</td>
-<td>当前 TSH 对数变换</td>
+<td><code>local::Window_1M-&gt;3M / 3M-&gt;6M / 6M-&gt;12M / 12M-&gt;18M / 18M-&gt;24M</code></td>
+<td>当前预测区间是哪一段；对应窗口为 1，其余为 0</td>
 </tr>
 <tr>
-<td>local::Delta_FT4_1step</td>
-<td>最近一步 FT4 变化</td>
-</tr>
-<tr>
-<td>local::Delta_TSH_1step</td>
-<td>最近一步 TSH 变化</td>
-</tr>
-<tr>
-<td>local::Window_12M-&gt;18M</td>
-<td>当前动态预测窗口指示变量：12M-&gt;18M</td>
-</tr>
-<tr>
-<td>local::Window_18M-&gt;24M</td>
-<td>当前动态预测窗口指示变量：18M-&gt;24M</td>
-</tr>
-<tr>
-<td>local::Window_1M-&gt;3M</td>
-<td>当前动态预测窗口指示变量：1M-&gt;3M</td>
-</tr>
-<tr>
-<td>local::Window_3M-&gt;6M</td>
-<td>当前动态预测窗口指示变量：3M-&gt;6M</td>
-</tr>
-<tr>
-<td>local::Window_6M-&gt;12M</td>
-<td>当前动态预测窗口指示变量：6M-&gt;12M</td>
-</tr>
-<tr>
-<td>local::PrevState_0</td>
-<td>当前窗口起点状态 one-hot：甲亢/Hyper</td>
-</tr>
-<tr>
-<td>local::PrevState_1</td>
-<td>当前窗口起点状态 one-hot：正常/Normal</td>
-</tr>
-<tr>
-<td>local::PrevState_2</td>
-<td>当前窗口起点状态 one-hot：甲减/Hypo</td>
+<td><code>local::PrevState_0 / PrevState_1 / PrevState_2</code></td>
+<td>当前窗口起点状态：Hyper / Normal / Hypo 的 0/1 编码</td>
 </tr>
 </tbody>
 </table>
@@ -1516,92 +1539,47 @@ branch）</h3>
 </thead>
 <tbody>
 <tr>
-<td>global::Time_In_Normal</td>
-<td>此前处于正常甲功状态的累计次数</td>
+<td><code>global::Time_In_Normal</code></td>
+<td>截至当前窗口，患者此前处于正常甲功状态的累计次数</td>
 </tr>
 <tr>
-<td>global::FT3_Current</td>
-<td>当前游离三碘甲状腺原氨酸 FT3</td>
+<td><code>global::FT3_Current / FT4_Current / logTSH_Current</code></td>
+<td>当前甲功状态在 global branch 中的副本</td>
 </tr>
 <tr>
-<td>global::Delta_TSH_k0</td>
-<td>当前 TSH 相对基线变化</td>
+<td><code>global::Delta_TSH_k0</code></td>
+<td>当前 TSH 相对基线的变化</td>
 </tr>
 <tr>
-<td>global::FT4_Current</td>
-<td>当前游离甲状腺素 FT4</td>
-</tr>
-<tr>
-<td>global::logTSH_Current</td>
-<td>当前 TSH 对数变换</td>
-</tr>
-<tr>
-<td>global::Prior_Relapse_Count</td>
+<td><code>global::Prior_Relapse_Count</code></td>
 <td>此前复发次数</td>
 </tr>
 <tr>
-<td>global::Ever_Hyper_Before</td>
-<td>此前是否出现过甲亢状态</td>
+<td><code>global::Ever_Hyper_Before / Ever_Hypo_Before</code></td>
+<td>此前是否出现过甲亢或甲减状态</td>
 </tr>
 <tr>
-<td>global::Ever_Hypo_Before</td>
-<td>此前是否出现过甲减状态</td>
+<td><code>global::Start_Time / Interval_Width</code></td>
+<td>当前 landmark 时间和预测区间宽度</td>
 </tr>
 <tr>
-<td>global::Start_Time</td>
-<td>当前 landmark 时间（月）</td>
+<td><code>global::CoreWindow_1M-&gt;3M / 3M-&gt;6M / 6M-&gt;12M</code></td>
+<td>核心随访窗口 0/1 开关；是该窗口为 1，否则为 0</td>
 </tr>
 <tr>
-<td>global::Interval_Width</td>
-<td>当前预测区间宽度（月）</td>
+<td><code>global::Time_In_Normal_x_CoreWindow_{1M-&gt;3M,3M-&gt;6M,6M-&gt;12M}</code></td>
+<td>对应窗口专用的“正常状态累计次数”：如果当前行属于该窗口，就取
+<code>Time_In_Normal</code>；否则填 0</td>
 </tr>
 <tr>
-<td>global::CoreWindow_1M-&gt;3M</td>
-<td>高风险窗口指示变量：1M-&gt;3M</td>
+<td><code>global::FT3_Current_x_CoreWindow_{1M-&gt;3M,3M-&gt;6M,6M-&gt;12M}</code></td>
+<td>对应窗口专用的当前 FT3：如果当前行属于该窗口，就取
+<code>FT3_Current</code>；否则填 0</td>
 </tr>
 <tr>
-<td>global::Time_In_Normal_x_CoreWindow_1M-&gt;3M</td>
-<td>此前处于正常甲功状态的累计次数 与高风险窗口 1M-&gt;3M 的交互</td>
-</tr>
-<tr>
-<td>global::FT3_Current_x_CoreWindow_1M-&gt;3M</td>
-<td>当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 1M-&gt;3M 的交互</td>
-</tr>
-<tr>
-<td>global::Delta_TSH_k0_x_CoreWindow_1M-&gt;3M</td>
-<td>当前 TSH 相对基线变化 与高风险窗口 1M-&gt;3M 的交互</td>
-</tr>
-<tr>
-<td>global::CoreWindow_3M-&gt;6M</td>
-<td>高风险窗口指示变量：3M-&gt;6M</td>
-</tr>
-<tr>
-<td>global::Time_In_Normal_x_CoreWindow_3M-&gt;6M</td>
-<td>此前处于正常甲功状态的累计次数 与高风险窗口 3M-&gt;6M 的交互</td>
-</tr>
-<tr>
-<td>global::FT3_Current_x_CoreWindow_3M-&gt;6M</td>
-<td>当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 3M-&gt;6M 的交互</td>
-</tr>
-<tr>
-<td>global::Delta_TSH_k0_x_CoreWindow_3M-&gt;6M</td>
-<td>当前 TSH 相对基线变化 与高风险窗口 3M-&gt;6M 的交互</td>
-</tr>
-<tr>
-<td>global::CoreWindow_6M-&gt;12M</td>
-<td>高风险窗口指示变量：6M-&gt;12M</td>
-</tr>
-<tr>
-<td>global::Time_In_Normal_x_CoreWindow_6M-&gt;12M</td>
-<td>此前处于正常甲功状态的累计次数 与高风险窗口 6M-&gt;12M 的交互</td>
-</tr>
-<tr>
-<td>global::FT3_Current_x_CoreWindow_6M-&gt;12M</td>
-<td>当前游离三碘甲状腺原氨酸 FT3 与高风险窗口 6M-&gt;12M 的交互</td>
-</tr>
-<tr>
-<td>global::Delta_TSH_k0_x_CoreWindow_6M-&gt;12M</td>
-<td>当前 TSH 相对基线变化 与高风险窗口 6M-&gt;12M 的交互</td>
+<td><code>global::Delta_TSH_k0_x_CoreWindow_{1M-&gt;3M,3M-&gt;6M,6M-&gt;12M}</code></td>
+<td>对应窗口专用的 TSH 相对基线变化：如果当前行属于该窗口，就取
+<code>Delta_TSH_k0</code>；否则填 0</td>
 </tr>
 </tbody>
 </table>
@@ -1620,72 +1598,18 @@ branch）</h3>
 </thead>
 <tbody>
 <tr>
-<td>z3M::selected_z3m_00</td>
-<td>3M early-response encoder 的第 00
-个潜在表征维度（不单独等同于某个临床变量）</td>
+<td><code>z3M::selected_z3m_00</code> 到
+<code>z3M::selected_z3m_11</code></td>
+<td>3M early-response encoder 的 12 个潜在表征维度；它们整体代表 3M
+早期治疗反应轨道，不把单个维度硬解释为某一个临床变量</td>
 </tr>
 <tr>
-<td>z3M::selected_z3m_01</td>
-<td>3M early-response encoder 的第 01
-个潜在表征维度（不单独等同于某个临床变量）</td>
+<td><code>z3M::z3m_available</code></td>
+<td>3M 表征是否可用：3M 前为 0，3M 及之后为 1</td>
 </tr>
 <tr>
-<td>z3M::selected_z3m_02</td>
-<td>3M early-response encoder 的第 02
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_03</td>
-<td>3M early-response encoder 的第 03
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_04</td>
-<td>3M early-response encoder 的第 04
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_05</td>
-<td>3M early-response encoder 的第 05
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_06</td>
-<td>3M early-response encoder 的第 06
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_07</td>
-<td>3M early-response encoder 的第 07
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_08</td>
-<td>3M early-response encoder 的第 08
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_09</td>
-<td>3M early-response encoder 的第 09
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_10</td>
-<td>3M early-response encoder 的第 10
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::selected_z3m_11</td>
-<td>3M early-response encoder 的第 11
-个潜在表征维度（不单独等同于某个临床变量）</td>
-</tr>
-<tr>
-<td>z3M::z3m_available</td>
-<td>3M early-response 表征是否可用（3M 前为 0）</td>
-</tr>
-<tr>
-<td>z3M::z3m_time_since_3m</td>
-<td>距离 3M landmark 的归一化时间（3M 前为 0）</td>
+<td><code>z3M::z3m_time_since_3m</code></td>
+<td>距离 3M landmark 的归一化时间；3M 前为 0</td>
 </tr>
 </tbody>
 </table>

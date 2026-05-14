@@ -289,6 +289,8 @@ def derive_binary_metrics_from_fixed() -> pd.DataFrame:
     for landmark in ["3_Month", "6_Month"]:
         p = FIXED / f"Performance_{landmark}_Test_Temporal.csv"
         if not p.exists():
+            p = TABLES / f"Performance_{landmark}_Test_Temporal.csv"
+        if not p.exists():
             continue
         df = pd.read_csv(p).set_index("Metric")
         n, events = 208, 80

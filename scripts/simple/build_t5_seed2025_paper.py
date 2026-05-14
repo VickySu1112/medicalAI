@@ -43,7 +43,9 @@ from scripts import relapse_threehead_landmark as base
 from utils.config import STATIC_NAMES
 
 
-SRC = Path("/tmp/medical_direct_4branch_timegate_focused_sweep/T5_gate005/seed_2025")
+TMP_SRC = Path("/tmp/medical_direct_4branch_timegate_focused_sweep/T5_gate005/seed_2025")
+LOCAL_SRC = ROOT / "results" / "t5_seed2025_paper"
+SRC = TMP_SRC if TMP_SRC.exists() else LOCAL_SRC
 SWEEP = Path("/tmp/medical_direct_4branch_timegate_focused_sweep")
 TRAIN_BRANCH_ABLATION_RUNS = {
     "full": Path("/tmp/medical_direct_4branch_timegate_focused_sweep/T5_gate005/seed_2025"),
@@ -590,10 +592,28 @@ def build_feature_dictionary(feature_df: pd.DataFrame) -> pd.DataFrame:
         ("z3M", z3m_cols),
     ]:
         for col in cols:
-            rows.append({"Branch": branch, "Feature": col, "中文含义": translate_feature(col)})
+            rows.append({"Branch": branch, "Feature": col, "特征类别": feature_group(col), "中文含义": translate_feature(col)})
     out = pd.DataFrame(rows)
     out.to_csv(TAB / "feature_dictionary_zh.csv", index=False)
     return out
+
+
+def feature_group(name: str) -> str:
+    if name.startswith("Window_") or name.startswith("CoreWindow_"):
+        return "窗口0/1开关"
+    if "_x_CoreWindow_" in name:
+        return "窗口特异特征"
+    if name.startswith("PrevState_"):
+        return "当前状态0/1开关"
+    if name.startswith("selected_z3m_"):
+        return "3M早期反应潜在表征"
+    if name.startswith("z3m_"):
+        return "3M表征可用性/时间"
+    if name in STATIC_NAMES:
+        return "治疗前静态背景"
+    if name in {"FT3_Current", "FT4_Current", "logTSH_Current", "Delta_FT4_1step", "Delta_TSH_1step", "Delta_TSH_k0"}:
+        return "当前甲功/近期变化"
+    return "累计病程摘要"
 
 
 def translate_feature(name: str) -> str:
@@ -602,14 +622,17 @@ def translate_feature(name: str) -> str:
     if name in STATIC_NAMES:
         return f"基线静态特征：{name}"
     if name.startswith("Window_"):
-        return "当前动态预测窗口指示变量：" + name.replace("Window_", "")
+        window = name.replace("Window_", "")
+        return f"0/1 开关：当前预测区间是 {window} 时为 1，否则为 0"
     if name.startswith("PrevState_"):
         return "当前窗口起点状态 one-hot：" + name.replace("PrevState_", "")
     if name.startswith("CoreWindow_"):
-        return "高风险窗口指示变量：" + name.replace("CoreWindow_", "")
+        window = name.replace("CoreWindow_", "")
+        return f"0/1 开关：当前预测区间是 {window} 时为 1，否则为 0"
     if "_x_CoreWindow_" in name:
         left, right = name.split("_x_CoreWindow_", 1)
-        return f"{translate_feature(left)} 与高风险窗口 {right} 的交互"
+        base_desc = translate_feature(left)
+        return f"{right} 窗口专用版的“{base_desc}”：当前预测区间是 {right} 时，取原特征数值；不是这个窗口时填 0。这样模型可以学习同一指标在不同随访阶段的不同含义"
     if name.startswith("selected_z3m_"):
         return "3M early-response encoder 的第 " + name.rsplit("_", 1)[-1] + " 个嵌入维度"
     return name
@@ -823,6 +846,9 @@ def training_branch_ablation() -> pd.DataFrame:
             metrics["Best_Epoch"] = int(summary_df[summary_df["Split"].eq(split)]["Best_Epoch"].iloc[0])
             rows.append(metrics)
     if missing:
+        cached = TAB / "branch_training_ablation_importance.csv"
+        if cached.exists():
+            return pd.read_csv(cached)
         raise FileNotFoundError("Missing training-time branch ablation runs: " + "; ".join(missing))
     out = pd.DataFrame(rows)
     full = out[out["Variant"].eq("full")][["Split", "AUC", "PR_AUC", "Brier"]].rename(
