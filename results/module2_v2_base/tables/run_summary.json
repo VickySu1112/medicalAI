@@ -1,0 +1,146 @@
+{
+  "n_episodes": 1003,
+  "n_landmark_rows": 4012,
+  "splits": {
+    "Development": 802,
+    "Temporal": 201
+  },
+  "prevalence": 0.3728813559322034,
+  "blocks_features": {
+    "A": [
+      "Sex",
+      "ThyroidW",
+      "TRAb",
+      "TGAb",
+      "TPOAb",
+      "FT4_0M",
+      "TSH_0M",
+      "log1p_DiseaseDuration_Months_Aug"
+    ],
+    "B": [
+      "Uptake24h",
+      "HalfLife"
+    ],
+    "C": [
+      "TSH_current",
+      "FT4_current"
+    ],
+    "D": [
+      "TSH_velocity",
+      "FT4_velocity"
+    ],
+    "E": [
+      "landmark_time_centered",
+      "is_baseline_landmark",
+      "velocity_observed",
+      "lm_x_TSH_current",
+      "lm_x_FT4_current",
+      "lm_x_TSH_velocity",
+      "lm_x_FT4_velocity"
+    ]
+  },
+  "ablation_steps": [
+    {
+      "label": "M2-Base.0 (A only)",
+      "blocks": [
+        "A"
+      ],
+      "n_features": 8,
+      "tmp_pooled_roc": 0.6857962697274032,
+      "tmp_pooled_brier": 0.2085122351955815,
+      "tmp_6M_roc": 0.6857962697274032
+    },
+    {
+      "label": "M2-Base.1 (+ B)",
+      "blocks": [
+        "A",
+        "B"
+      ],
+      "n_features": 10,
+      "tmp_pooled_roc": 0.6851813896290223,
+      "tmp_pooled_brier": 0.20824599727901383,
+      "tmp_6M_roc": 0.6851813896290223
+    },
+    {
+      "label": "M2-Base.2 (+ C)",
+      "blocks": [
+        "A",
+        "B",
+        "C"
+      ],
+      "n_features": 12,
+      "tmp_pooled_roc": 0.7037622976019676,
+      "tmp_pooled_brier": 0.20505540272137684,
+      "tmp_6M_roc": 0.6871285099405616
+    },
+    {
+      "label": "M2-Base.3 (+ D)",
+      "blocks": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "n_features": 14,
+      "tmp_pooled_roc": 0.711698093871695,
+      "tmp_pooled_brier": 0.203474632106155,
+      "tmp_6M_roc": 0.7153105144496823
+    },
+    {
+      "label": "M2-Base.4 (+ E full)",
+      "blocks": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "n_features": 21,
+      "tmp_pooled_roc": 0.7386247181799549,
+      "tmp_pooled_brier": 0.19580254827287966,
+      "tmp_6M_roc": 0.7699323631891781
+    }
+  ],
+  "consecutive_delta_temporal_pooled": [
+    {
+      "step": "M2-Base.1 (+ B)",
+      "block_added": "B",
+      "delta_mean": -0.0006368289294014277,
+      "delta_ci": [
+        -0.004444940476190396,
+        0.0035870406494510477
+      ],
+      "ci_excludes_zero": false
+    },
+    {
+      "step": "M2-Base.2 (+ C)",
+      "block_added": "C",
+      "delta_mean": 0.018537996821767808,
+      "delta_ci": [
+        0.005422271777782544,
+        0.032551211671004214
+      ],
+      "ci_excludes_zero": true
+    },
+    {
+      "step": "M2-Base.3 (+ D)",
+      "block_added": "D",
+      "delta_mean": 0.007912034262472296,
+      "delta_ci": [
+        3.519677560478453e-05,
+        0.016291226856596393
+      ],
+      "ci_excludes_zero": true
+    },
+    {
+      "step": "M2-Base.4 (+ E full)",
+      "block_added": "E",
+      "delta_mean": 0.026797457721945594,
+      "delta_ci": [
+        0.0022554146221425027,
+        0.05449001102525823
+      ],
+      "ci_excludes_zero": true
+    }
+  ]
+}
