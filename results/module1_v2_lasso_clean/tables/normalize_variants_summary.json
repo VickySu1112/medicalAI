@@ -1,0 +1,7 @@
+{
+  "best_tmp_AUC": 0.6824524633138499,
+  "best_tmp_variant": "V1_ThyroidW",
+  "raw_tmp_AUC": 0.6824524633138499,
+  "any_variant_sig_better_than_raw_tmp": false,
+  "any_variant_sig_worse_than_raw_tmp": false
+}
