@@ -1,0 +1,66 @@
+{
+  "feature_set": "ABCDE + Eval_1M_{Hyper,Normal,Hypo,Missing} + Eval_3M_{Hyper,Normal,Hypo,Missing}",
+  "note": "Eval_6M not added — stage2 source has Eval_6M_* all zero (data missing for 6M Eval). Iter 3 candidate: source from v1 raw data.",
+  "performance": [
+    {
+      "Landmark": "0M",
+      "N": 201,
+      "Events": 82,
+      "ROC_AUC": 0.6855913096946096,
+      "PR_AUC": 0.6668661567783067,
+      "Brier": 0.2082348498086838,
+      "ROC_AUC_CI_Low": 0.6063233716687643,
+      "ROC_AUC_CI_High": 0.7634763338283025,
+      "CalibIntercept": 0.03211308645174778,
+      "CalibSlope": 0.94653876058852
+    },
+    {
+      "Landmark": "1M",
+      "N": 201,
+      "Events": 82,
+      "ROC_AUC": 0.7213568354170936,
+      "PR_AUC": 0.6828780170475843,
+      "Brier": 0.20093232506807338,
+      "ROC_AUC_CI_Low": 0.6488967987120375,
+      "ROC_AUC_CI_High": 0.7940187626774848,
+      "CalibIntercept": 0.11269017640754524,
+      "CalibSlope": 1.0147698677847763
+    },
+    {
+      "Landmark": "3M",
+      "N": 201,
+      "Events": 82,
+      "ROC_AUC": 0.8467923754867801,
+      "PR_AUC": 0.8217918309399546,
+      "Brier": 0.14911102669378837,
+      "ROC_AUC_CI_Low": 0.7884082073668763,
+      "ROC_AUC_CI_High": 0.9029222494948301,
+      "CalibIntercept": 0.1284130743288088,
+      "CalibSlope": 1.0931693394966153
+    },
+    {
+      "Landmark": "6M",
+      "N": 201,
+      "Events": 82,
+      "ROC_AUC": 0.7884812461569993,
+      "PR_AUC": 0.7513282465171887,
+      "Brier": 0.17793433943219022,
+      "ROC_AUC_CI_Low": 0.7247928037686809,
+      "ROC_AUC_CI_High": 0.8534878863826233,
+      "CalibIntercept": 0.08961745269723972,
+      "CalibSlope": 0.9803222039009427
+    },
+    {
+      "Landmark": "Pooled",
+      "N": 804,
+      "Events": 328,
+      "ROC_AUC": 0.7700220332035254,
+      "PR_AUC": 0.7393332482651449,
+      "Brier": 0.18405313525068395,
+      "ROC_AUC_CI_Low": 0.712860204812461,
+      "ROC_AUC_CI_High": 0.826798180630883,
+      "CalibIntercept": 0.10712376102124836,
+      "CalibSlope": 1.0432633510610483
+    }
+  ]
+}
