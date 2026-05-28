@@ -62,6 +62,10 @@ results/*
 !results/module4b_trajectory_clustering/**
 !results/Module4_患者分层与风险轨迹聚类.md
 !results/Module4_患者分层与风险轨迹聚类.html
+!results/整合论文_RAI三模块双时间尺度框架.md
+!results/整合论文_RAI三模块双时间尺度框架.html
+!results/fig_framework_overview.png
+!results/fig_dual_horizon_summary.png
 
 # 数据集级别的派生表/预测长表/归属表 — 永远不入库（即使在白名单目录内）
 results/**/baseline_augmented_1003_treatment_episodes.csv

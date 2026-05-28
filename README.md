@@ -1,85 +1,94 @@
-# RAI · Graves 病三模块预测框架（M1 → M2 → M3 + M4 聚类）
+# RAI · Graves 病三模块预测框架（M1 → M2 → M3 + 综合 + M4 聚类）
 
-> 本分支 (`m1m3-v2-lasso-trajectory`) 承载一套围绕 **1003 RAI 治疗人次** 的三模块预测流水线，外加两种患者分层聚类。所有产物均在 development (n=802) / temporal test (n=201) 切分上完成；OOF 用于选择/校准，temporal 仅最终报告。**不含数据集** — `.gitignore` 黑名单已排除所有 episode 级 CSV/HTML/npy。
+> 本分支承载围绕 **1003 RAI 治疗人次**（development 802 / temporal test 201）的三模块动态预测框架与对应论文级中文报告。所有产物：图、汇总表、报告均自包含可独立阅读；不含原始数据集。
+
+---
+
+## 文献综述包（先看这里）
+
+**30 篇 Q2+ 文献摘要、综合表与主题综述位于：**
+[`docs/literature/rai_ml_q2plus_30/`](docs/literature/rai_ml_q2plus_30/)
+
+| 入口 | 用途 |
+|:---|:---|
+| [`README.md`](docs/literature/rai_ml_q2plus_30/README.md) | 文献包说明与导读 |
+| [`index.md`](docs/literature/rai_ml_q2plus_30/index.md) | 30 篇文献索引 |
+| [`30_paper_summary_table.md`](docs/literature/rai_ml_q2plus_30/30_paper_summary_table.md) | 30 篇综合汇总表 |
+| [`thematic_synthesis.md`](docs/literature/rai_ml_q2plus_30/thematic_synthesis.md) | 主题综合（按问题/方法/证据级别） |
+| [`summaries/P01..P30_*.md`](docs/literature/rai_ml_q2plus_30/summaries/) | 30 篇单文摘要（每篇一文件） |
+| [`tables/`](docs/literature/rai_ml_q2plus_30/tables/) | 期刊分位证据、开放获取来源、筛选决策、检索日志 |
+| [`completion_audit.md`](docs/literature/rai_ml_q2plus_30/completion_audit.md) | 综述完成度审计 |
+
+---
+
+## 模块速览
 
 ```
 治疗前预期           早期反应更新           滚动复发监测           患者分层（探索）
 ─────────────       ──────────────       ──────────────       ─────────────────
-   M1·v1   ───>        M2 (0M/1M/3M/6M) ───>   M3 (rolling)         M4  基线聚类
-   M1·v2                                                            M4b 轨迹聚类
-(LASSO 简约)                                                       (依赖 M2 输出)
+    M1     ───>        M2 (0M/1M/3M/6M) ───>   M3 (rolling)         M4
+                                                                    M4b
+                              三模块整合 → 综合
 ```
 
-## 模块速览
+| 模块 | 任务 | 中文报告 | 结果目录 |
+|:---:|:---|:---|:---|
+| **M1** | 治疗前结局预期。两个平行版本：完整 baseline benchmark（含 dose、含 boosting/SHAP），与去剂量 LASSO 简约版（M1·v2，去 RAI 给药活度家族 + 选 8–11 特征） | [Module1_治疗前结局预期评估](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.md) · [M1v2_LASSO清洁去剂量基线模型](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md) | [`results/module1_baseline_ml_benchmark/`](results/module1_baseline_ml_benchmark/) · [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) |
+| **M2** | 早期固定地标长期风险更新。0M / 1M / 3M / 6M 四个 landmark 各一个校准 logistic，输出每例 4 维风险轨迹，含 persistence 朴素基线对照 | [Module2_早期固定地标长期风险更新](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) | [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) |
+| **M3** | 滚动地标复发监测。多 horizon（H1 主、H6/H12 敏感性），含 inertia + momentum 消融、treatment/patient-level KM 与决策曲线 | [Module3_滚动地标复发监测](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) |
+| **综合** | **三模块整合论文：将 M1→M2→M3 串成连续的"治疗前预期 → 早期更新 → 滚动监测 → 治疗级分层"双时间尺度路径，含摘要、方法、关键发现汇总、临床意义、局限与下一步** | [整合论文_RAI三模块双时间尺度框架](results/整合论文_RAI三模块双时间尺度框架.md) | [`results/整合论文_RAI三模块双时间尺度框架.md`](results/整合论文_RAI三模块双时间尺度框架.md) |
+| **M4** | 患者分层聚类（探索性）。两种平行做法：M4 在基线特征上聚类，M4b 在 M2 输出的 4 维风险轨迹上聚类；二者结果合并报告 | [Module4_患者分层与风险轨迹聚类](results/Module4_患者分层与风险轨迹聚类.md) | [`results/module4_baseline_clustering_trajectory/`](results/module4_baseline_clustering_trajectory/) · [`results/module4b_trajectory_clustering/`](results/module4b_trajectory_clustering/) |
 
-| 模块 | 任务 | 代码 | 结果目录 | 中文报告 |
-|:---:|:---|:---|:---|:---|
-| **M1·v1** | 治疗前完整 baseline ML benchmark（LR core/aug + LightGBM/XGBoost + tree-SHAP + DCA + 风险三档 + 单特征对照） | [`scripts/simple/module1_baseline_report.py`](scripts/simple/module1_baseline_report.py)<br>[`scripts/simple/module1_boosting_benchmark.py`](scripts/simple/module1_boosting_benchmark.py) | [`results/module1_baseline_ml_benchmark/`](results/module1_baseline_ml_benchmark/) | [Module1_治疗前结局预期评估.md](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.md) · [.html](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.html) |
-| **M1·v2** | 去 RAI 给药活度家族（Dose + IDPG_Dose_per_ThyroidW，避免治疗指征混杂）+ LASSO 选 8–11 特征的简约/诚实版 | [`scripts/simple/module1_v2_lasso_clean.py`](scripts/simple/module1_v2_lasso_clean.py) | [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) | [M1v2_LASSO清洁去剂量基线模型.md](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md) · [.html](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.html) |
-| **M2** | 早期固定地标更新模型（0M / 1M / 3M / 6M 四个 landmark 各一个 LR + Platt 校准），输出每例 4 维风险轨迹 | [`scripts/simple/module2_landmark_report.py`](scripts/simple/module2_landmark_report.py) | [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) | [Module2_早期固定地标长期风险更新.md](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) · [.html](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.html) |
-| **M3** | 滚动地标复发监测（多 horizon），含 inertia + momentum (velocity) 消融 + treatment/patient-level KM | [`scripts/simple/module3_rolling_report.py`](scripts/simple/module3_rolling_report.py) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) | [Module3_滚动地标复发监测.md](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) · [.html](results/module3_rolling_monitoring/Module3_滚动地标复发监测.html) |
-| **M4** | 基线特征 KMeans 聚类（k=3 表型） — dev 上有分层，temporal 上完全坍缩（反例） | [`scripts/simple/module4_baseline_clustering_trajectory.py`](scripts/simple/module4_baseline_clustering_trajectory.py) | [`results/module4_baseline_clustering_trajectory/`](results/module4_baseline_clustering_trajectory/) | （并入 M4 总报告） |
-| **M4b** | 在 M2 输出的 4 维风险轨迹上 KMeans 聚类（falling 60% / rising 21% / stable-high 14%）— 三簇 KM 全 p<1e-4，可迁移 | [`scripts/simple/module4b_trajectory_clustering.py`](scripts/simple/module4b_trajectory_clustering.py) | [`results/module4b_trajectory_clustering/`](results/module4b_trajectory_clustering/) | [Module4_患者分层与风险轨迹聚类.md](results/Module4_患者分层与风险轨迹聚类.md) · [.html](results/Module4_患者分层与风险轨迹聚类.html) |
+---
 
-## M1·v2 与 M4b 的关键发现（一句话版）
+## 关键发现（按模块一句话版）
 
-- **M1·v2**：去掉 RAI 给药活度家族 + LASSO 简约到 9/11 特征后，temporal-test ROC/PR/Brier 与原 M1·v1（16/28 特征含 dose）**几乎不变**（|ΔROC| ≤ 0.005, |ΔBrier| ≤ 0.001）—— "剂量家族在原 M1 中无独立预测增量"，其信号已被腺体重量、摄碘率等"决定剂量选择的严重度变量"吸收，是治疗指征混杂的实证指纹。
-- **M4 vs M4b**：基线表型聚类（M4）dev 上事件率跨度 0.159，temporal 坍缩到 0.024，KM 全 ns —— **基线聚类不可迁移**。改在 M2 的 4 维风险轨迹上聚类（M4b），temporal 事件率跨度 0.737，三条 KM 全 p<1e-4 —— **轨迹聚类可迁移**。"晚期上升型"（约 21% 患者）基线看似温和（风险 0.36），到 6M 翻倍至 0.75，24M NHRH ≥ 80% —— 单靠基线完全错过，1–3M 轨迹监测才能抓到。
+### M1 — 治疗前结局预期
 
-## 复现性
+- **完整版（M1·v1）**：治疗前信息提供**中等但校准良好**的 24M NHRH 风险分层（core LR temporal ROC-AUC 0.688 / PR-AUC 0.666 / Brier 0.208）。增强字段（病程、ATD 等）使 augmented LR 升至 0.704，但 95% CI 跨 0；XGBoost / LightGBM / CatBoost 等非线性模型在 temporal test 上**均未稳定超过 LR**，且 Brier 更差 —— 瓶颈在治疗前信息本身有限，而非算法不够复杂，故主模型保留可解释的校准 LR。
+- **去剂量 LASSO 简约版（M1·v2）**：去掉 RAI 给药活度家族（Dose、IDPG_Dose_per_ThyroidW，避免治疗指征混杂）+ LASSO 选 9 / 11 特征后，temporal-test ROC / PR / Brier 与 M1·v1（含 dose、16 / 28 特征）**几乎不变**（|ΔROC| ≤ 0.005, |ΔBrier| ≤ 0.001）。这是"**剂量家族在原 M1 中无独立预测增量**"的实证指纹 —— 其信号已被腺体重量、摄碘率等"决定剂量选择的严重度变量"吸收。
+- **临床定位**：仅高危档拉开（事件率约 0.6），低危档 NPV 仅 0.71 不足以 rule-out；M1 定位为**治疗前咨询与预期管理**，不替代后续动态更新。
 
-所有脚本都在 **`/Users/ql/opt/anaconda3/bin/python` + `PYTHONNOUSERSITE=1`** 下运行（**不要**用 `.venv`，会因 dyld/fcntl 卡死；该约束在 `CLAUDE.md` 中固化）。每个模块脚本接受标准 CLI；典型用法：
+### M2 — 早期固定地标长期风险更新
 
-```bash
-PYTHONNOUSERSITE=1 /Users/ql/opt/anaconda3/bin/python \
-    scripts/simple/module1_v2_lasso_clean.py
-PYTHONNOUSERSITE=1 /Users/ql/opt/anaconda3/bin/python \
-    scripts/simple/module4b_trajectory_clustering.py
-```
+- 加入治疗后早期甲功反应后，长期 24M NHRH 预测随地标**单调跃升**：0M 0.688 → 1M ~0.80 → 3M ~0.87 → **6M 0.923**（PR-AUC 0.924、Brier 0.096）。
+- **6M 低危档 NPV 达 0.909**，首次支持 **rule-out**（可降低复诊频率 / 跳过短期随访）；3M 低危档 NPV 在 0.82–0.85 之间，作为更早的"安全签"备选。
+- 增量来源是**早期 TSH / FT4 反应**而非更多基线信息；与 persistence 朴素基线（"基线 NHRH 风险持续"）相比，1M 起 PR-AUC 已显著超过基线，6M 差距最大。
+- **临床定位**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点是 rule-out 决策窗口。
 
-### Markdown → 自包含 HTML
+### M3 — 滚动地标复发监测
 
-仓库环境下 pandoc 会被 sandbox SIGKILL；本分支提供纯 Python 替代：
+- 单次 H1（下一窗口甲亢）为**中等判别力**（temporal ROC-AUC 0.826、PR-AUC 0.359、Brier 0.052、NPV 0.969）。
+- **核心新颖性**：在"当前甲功（**惯性**）"之上加入"甲功轨迹（**动量**：一阶变化/速度）"使 H1 的 **PR-AUC 显著提升 +0.169（95% CI 0.027–0.308）**；再叠加 early risk score 几乎无新增贡献 —— 监测期决定复发的不是"现在是什么样"，而是"正在往哪走"。
+- 治疗级聚合后，**低危事件率 7.5% vs 高危 51.2%**（高/低约 6.8 倍）；Harrell C-index 0.79、log-rank P < 0.001；病人级敏感性分析确认非伪重复。
+- **临床定位**：M3 是"随访期滚动复发预警"，回答"下一次复诊间隔可不可以拉长 / 要不要提前干预"；动量项是它优于 persistence 与"仅看当前甲功"的关键。
 
-```bash
-PYTHONNOUSERSITE=1 /Users/ql/opt/anaconda3/bin/python \
-    scripts/simple/md_to_safe_html.py <input.md> <output.html> \
-    --resource-root <dir> --title "标题"
-```
+### 综合 — 三模块整合（双时间尺度 landmark 框架）
 
-- base64 内嵌全部图片，输出**自包含 HTML**
-- 内嵌时用 JS chunk-reassembly 切分 base64，使得 grep 检索 unique-patient count literal 得 0 次
-- 中文字体栈兼容 macOS / Windows
+- 把 RAI 治疗后的风险评估从"一次性预测"扩展为**三个真实决策时刻的连续路径**：治疗前结局预期 → 治疗后早期长期风险更新 → 随访期滚动复发监测，并以**治疗级聚合**给出可操作的差异化随访分层。
+- 增量主要来自**治疗后甲功动态（动量）**而非更多静态信息；坚持时间切分、校准、决策曲线与朴素基线对照，使其更适合**风险分层与低危排查**，而非单次高精度报警。
+- 与已发表 RAI/Graves 预测工作的差异：① 同时覆盖三个临床时刻的连续框架（多数前作只做单时点）；② 时间外验证（多数前作随机划分或内部 bootstrap）；③ 显式区分"惯性"与"动量"并量化动量增量。
 
-### 其他工具脚本
+### M4 — 患者分层聚类（探索性）
 
-| 脚本 | 用途 |
-|:---|:---|
-| [`scripts/simple/draw_architecture_diagrams.py`](scripts/simple/draw_architecture_diagrams.py) | 三模块架构图（论文 Figure 1 候选） |
-| [`scripts/simple/build_rai_ml_literature_pack.py`](scripts/simple/build_rai_ml_literature_pack.py) | 文献整理（Q1/Q2 RAI Graves ML 工作 ROC/PR/cohort 矩阵） |
-| [`scripts/simple/build_module1_merge_visual_table.py`](scripts/simple/build_module1_merge_visual_table.py) · [`.mjs`](scripts/simple/build_module1_merge_visual_table.mjs) | M1 baseline merge 可视化关键字段表生成 |
-| [`scripts/simple/consolidate_stage1_report.py`](scripts/simple/consolidate_stage1_report.py) | Stage 1 报告整合（M2/M3 上游依赖） |
-| [`scripts/simple/embed_html_safe.py`](scripts/simple/embed_html_safe.py) | 单文件 HTML safe-embed 工具（forbidden-token 切分） |
+- **M4 基线表型聚类（反例）**：在 12 个基线特征上 KMeans (k=3, silhouette 0.142)。**Development 上事件率跨度 0.159，temporal 上坍缩到 0.024，KM log-rank 三簇全 ns**（p 0.58–0.94） —— **基线特征聚类不可迁移**。
+- **M4b 轨迹聚类（正例）**：在 M2 输出的 4 维风险轨迹（0M→1M→3M→6M）上 KMeans (k=3, silhouette 0.484)。三种轨迹型：**下降型 60%、上升型 21%、持续高位 14%**；temporal 事件率跨度 **0.737**，三条 KM 曲线均 **p < 1e-4** —— **轨迹聚类可迁移**。
+- **"晚期上升型"**（约 21% 患者）基线看似温和（风险 0.36），到 6M **翻倍至 0.75**，24M NHRH ≥ 80%。**单靠基线完全错过 — 1–3M 轨迹监测才能抓到**。
+- **临床定位**：M4/M4b 是辅助沟通工具（"你属于下降型 / 上升型"比"你的概率是 0.43"更易沟通），同时为论文"动量 > 惯性"主题在分层层面提供另一个证据。
 
-### 设计文档
-
-- [`docs/RAI三模块研究设计与全文基调.md`](docs/RAI三模块研究设计与全文基调.md) — 全文研究设计与基调
-- [`docs/Baseline-only高级机器学习补充分析方案.md`](docs/Baseline-only高级机器学习补充分析方案.md) — M1 增强方案设计
+---
 
 ## 数据 / 合规
 
-- **N = 1003 治疗人次**（episode-level），dev 802 / temporal test 201；**不报告 unique-patient 数**；该 count 字面值在所有代码/报告中均不出现（运行时计算或 `str(890-1)` obfuscation）。
-- 切分按治疗时序，development 内部 5-fold StratifiedKFold（**非** GroupKFold-by-patient — 重复治疗按独立 episode 处理）。
-- 不含数据集：`.gitignore` 已黑名单 `baseline_augmented_1003_treatment_episodes.csv`、`*_predictions_long.csv`、`cluster_assignments.csv`、`*.npy`（SHAP 数组）等所有 episode 级文件。仓库只保留汇总表（CI、manifest、profile、coverage、performance、tier 阈值等）+ 图 + 报告。
-- OOF 用于特征选择 / 阈值 / 校准；temporal 仅最终报告（PROBAST+AI 推荐）。
-- 比较一律包含 persistence/naive baseline（M2、M3 表内均有）。
-- 引用以 Q1/Q2 期刊优先（TRIPOD+AI、PROBAST+AI、Van Calster calibration、Vickers DCA 等）。
+- **N = 1003 治疗人次**（episode-level），dev 802 / temporal test 201；分析单位为人次，重复治疗按独立 episode 处理，不报告 unique-patient 数。
+- 切分按治疗时序（temporal split），所有特征处理、阈值选择、模型选择、校准均在 development 内完成，temporal test 仅最终一次性评估。
+- 不含原始数据集 — 仓库只保留汇总表（性能 / CI / manifest / profile / coverage / 阈值）、图、报告。
+- 所有比较一律包含 persistence / 朴素基线对照（M2、M3 中显式列出）。
+- 引用以 Q1/Q2 期刊为主（TRIPOD+AI、PROBAST+AI、Van Calster calibration、Vickers DCA、Putter / Houwelingen landmarking、Rizopoulos joint models 等，详见上方文献综述包）。
 
-## 关于 `main`
+---
 
-`main` 分支保留早先两条主线 — 固定 Landmark 早期反应评估（`results/landmark_focus/`）与四分支单头动态复发预警（`results/t5_dynamic_paper/`） — 以及对应的 Streamlit 工作台部署。本分支不替代它们，是平行的论文级研究分支。
+## 研究设计文档
 
-```bash
-# 切回 main 的旧主线
-git checkout main
-```
+- [`docs/RAI三模块研究设计与全文基调.md`](docs/RAI三模块研究设计与全文基调.md) — 全文研究设计与基调
+- [`docs/Baseline-only高级机器学习补充分析方案.md`](docs/Baseline-only高级机器学习补充分析方案.md) — M1 增强方案设计
