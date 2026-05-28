@@ -67,6 +67,16 @@ results/*
 !results/fig_framework_overview.png
 !results/fig_dual_horizon_summary.png
 
+# M2 v2 three-track redesign (Base supermodel + 10-method horizontal + 3-arch vertical + synthesis)
+!results/module2_v2_base/
+!results/module2_v2_base/**
+!results/module2_v2_horizontal/
+!results/module2_v2_horizontal/**
+!results/module2_v2_vertical/
+!results/module2_v2_vertical/**
+!results/module2_v2_synthesis/
+!results/module2_v2_synthesis/**
+
 # 数据集级别的派生表/预测长表/归属表 — 永远不入库（即使在白名单目录内）
 results/**/baseline_augmented_1003_treatment_episodes.csv
 results/**/baseline_merge_visual_1003_treatment_episodes.html
