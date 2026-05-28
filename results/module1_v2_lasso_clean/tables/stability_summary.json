@@ -1,0 +1,27 @@
+{
+  "core": {
+    "pool_size": 14,
+    "chosen_C": 0.15,
+    "stable_threshold": 0.6,
+    "bootstrap_stable_count": 9,
+    "subsample_stable_count": 4,
+    "subgroup_stable_count": 3,
+    "triad_stable_features": [
+      "TPOAb",
+      "ThyroidW"
+    ],
+    "triad_stable_count": 2
+  },
+  "aug": {
+    "pool_size": 26,
+    "chosen_C": 0.08,
+    "stable_threshold": 0.6,
+    "bootstrap_stable_count": 8,
+    "subsample_stable_count": 2,
+    "subgroup_stable_count": 1,
+    "triad_stable_features": [
+      "ThyroidW"
+    ],
+    "triad_stable_count": 1
+  }
+}

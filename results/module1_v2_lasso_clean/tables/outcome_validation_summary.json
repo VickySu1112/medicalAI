@@ -1,0 +1,13 @@
+{
+  "tier_spreads_temporal": {
+    "3": 0.28745644599303133,
+    "4": 0.40606060606060607,
+    "5": 0.343764817449028
+  },
+  "top_tier_temporal_rate_5tiers": 0.6140350877192983,
+  "bottom_tier_temporal_rate_5tiers": 0.275,
+  "spearman_predrisk_vs_dose_dev": 0.6854257322733492,
+  "spearman_predrisk_vs_dose_per_gram_dev": -0.23234549498624882,
+  "spearman_predrisk_vs_dose_temporal": 0.795561579812803,
+  "spearman_predrisk_vs_dose_per_gram_temporal": -0.2819427983808038
+}

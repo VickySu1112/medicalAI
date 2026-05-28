@@ -1,0 +1,27 @@
+Feature,PrettyLabel,Frequency_k_over_n,Count,Total
+ThyroidW,Thyroid weight,1.0,100,100
+log1p_DiseaseDuration_Months_Aug,Log disease duration,0.62,62,100
+PreRAI_ATD_Use_Missing_Aug,Pre-RAI ATD use (missing),0.58,58,100
+PreRAI_ATD_Use_Clean_Aug,Pre-RAI ATD use,0.58,58,100
+Sex,Sex,0.47,47,100
+TSH_0M,TSH (baseline),0.4,40,100
+FT4_0M,FT4 (baseline),0.37,37,100
+PreRAI_ATD_Stop_Missing_Aug,Pre-RAI ATD stop (missing),0.35,35,100
+TRAb,TRAb,0.32,32,100
+PreRAI_ATD_Stop_Days_Aug,Pre-RAI ATD stop (days),0.28,28,100
+TPOAb,TPOAb,0.19,19,100
+Uptake24h,24h RAI uptake,0.18,18,100
+log1p_PreRAI_ATD_Stop_Days_Aug,Log pre-RAI ATD stop (days),0.11,11,100
+TSH_Recovered_0M,TSH recovered at baseline,0.09,9,100
+Comorbidity_TextPresent,Comorbidity present,0.09,9,100
+logTSH_0M,log TSH (baseline),0.09,9,100
+MaxUptake,Max uptake,0.09,9,100
+TGAb,TgAb,0.08,8,100
+EyeSigns_Source_Positive_Aug,Eye signs positive,0.07,7,100
+EyeSigns_Source_Missing_Aug,Eye signs (missing),0.07,7,100
+Age,Age,0.05,5,100
+FT3_0M,FT3 (baseline),0.04,4,100
+DiseaseDuration_Missing_Aug,Disease duration (missing),0.03,3,100
+HalfLife,Effective iodine half-life,0.03,3,100
+DiseaseDuration_Months_Aug,Disease duration (months),0.02,2,100
+PreRAI_ATD_NotUsed_FromStop_Aug,Pre-RAI ATD not used,0.0,0,100

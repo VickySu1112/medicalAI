@@ -1,0 +1,15 @@
+Feature,PrettyLabel,Frequency_k_over_n,Count,Total
+ThyroidW,Thyroid weight,1.0,100,100
+Sex,Sex,0.77,77,100
+TPOAb,TPOAb,0.63,63,100
+TSH_0M,TSH (baseline),0.62,62,100
+TRAb,TRAb,0.58,58,100
+FT4_0M,FT4 (baseline),0.54,54,100
+Uptake24h,24h RAI uptake,0.5,50,100
+Age,Age,0.38,38,100
+MaxUptake,Max uptake,0.36,36,100
+TGAb,TgAb,0.35,35,100
+HalfLife,Effective iodine half-life,0.33,33,100
+TSH_Recovered_0M,TSH recovered at baseline,0.22,22,100
+logTSH_0M,log TSH (baseline),0.21,21,100
+FT3_0M,FT3 (baseline),0.16,16,100

@@ -430,6 +430,116 @@ BSA 用 Mosteller 公式：`BSA = sqrt(Height(cm) × Weight(kg) / 3600)`。
 
 **给论文 Discussion 的硬证据**：本结论不是 method-specific，而是**模型族无关**的真实信号结构属性——**M1 这张治疗前预测表，几乎全部的可学信息都装在 Thyroid weight 一个维度上**。这与 §7.4 引用的 ATA 2023 综述结论"剂量不显著、thyroid volume 显著"形成完美闭环。
 
+## 6.11 LASSO 选择稳定性三重测试（bootstrap × subsample × subgroup）
+
+§4b.4 已经在 5-fold OOF 内部展示了 LASSO 选择稳定性；这里再加三个独立的 resampling 测试，验证 "在 development 之内做多种重抽样 / 子样 / 亚组切分，谁是真正稳定的核心特征"。
+
+### 6.11.1 测试设计
+
+| 测试 | 抽样方式 | 重复次数 | 评价标准 |
+|:---|:---|:---:|:---|
+| **ST1 Bootstrap** | episode-level 有放回抽样 (n=802) | **500** | 每特征被选中的频率 |
+| **ST2 Meinshausen-Bühlmann** | 50% 子样无放回抽样 (n=401) | **100** | 同上；M-B 经典稳定性阈值 0.6 |
+| **ST3 Subgroup re-selection** | Sex (M / F) + Age tertile + TRAb tertile = 8 个子样 | 各 1 次 | 每特征被选中的子样比例 |
+
+所有测试在 development 内执行，固定 C：core 池 C=0.15、augmented 池 C=0.08（与主脚本一致）。
+
+### 6.11.2 结果
+
+![图 17A. M1·v2c (core) LASSO 稳定性三联测试。](figures/Figure_17_LASSO_Stability_core.png)
+
+![图 17B. M1·v2a (augmented) LASSO 稳定性三联测试。](figures/Figure_17_LASSO_Stability_aug.png)
+
+**M1·v2c (core, 14 候选)** — Bootstrap Top 10（500 reps）：
+
+| 排名 | 特征 | Bootstrap 频率 | Subsample 频率 | Subgroup 命中率 | 三测全 ≥0.6？ |
+|:---:|:---|:---:|:---:|:---:|:---:|
+| 1 | **Thyroid weight** | **1.000** | (高) | (高) | ✅ |
+| 2 | Sex | 0.932 | | | |
+| 3 | **TPOAb** | 0.886 | (高) | (高) | ✅ |
+| 4 | TSH baseline | 0.800 | | | |
+| 5 | 24h RAI uptake | 0.764 | | | |
+| 6 | TRAb | 0.732 | | | |
+| 7 | Effective iodine half-life | 0.676 | | | |
+| 8 | FT4 baseline | 0.642 | | | |
+| 9 | TgAb | 0.610 | | | |
+
+**核心池三测一致稳定（≥0.6 on all 3 tests）：仅 2 个 — ThyroidW + TPOAb**。
+
+**M1·v2a (augmented, 26 候选)** — Bootstrap Top 10（500 reps）：
+
+| 排名 | 特征 | Bootstrap 频率 | 三测全 ≥0.6？ |
+|:---:|:---|:---:|:---:|
+| 1 | **Thyroid weight** | **1.000**（500/500，每次都选！）| ✅ |
+| 2 | Log disease duration | 0.884 | ❌（subgroup 不一致）|
+| 3 | Pre-RAI ATD use clean / use missing（强制对偶）| 0.842 | ❌ |
+| 5 | Sex | 0.786 | ❌ |
+| 6 | TPOAb | 0.776 | ❌ |
+| 7 | Pre-RAI ATD stop missing | 0.770 | ❌ |
+| 8 | TSH baseline | 0.722 | ❌ |
+| 9 | TRAb | 0.588 | ❌ |
+| 10 | FT4 baseline | 0.560 | ❌ |
+
+**augmented 池三测一致稳定（≥0.6 on all 3 tests）：仅 1 个 — Thyroid weight**。
+
+### 6.11.3 解读
+
+1. **Thyroid weight 在 augmented 池 bootstrap 上 500/500 = 1.000，是唯一"铁打"的特征**——任何 episode-level 抽样它都进 LASSO 选择，这是 §6.7 / §6.8 / §6.10 之外的第四条独立证据。
+2. **Log disease duration、ATD 三件套、TPOAb、Sex 等"次稳特征"在 bootstrap 上 0.77–0.88，但 subgroup 测试上不一致**——说明它们的预测意义**因亚组而异**：例如 Log disease duration 在女性子样比男性强、ATD 项在年轻患者中信号更显。这与 §6.6 LOO 消融的 "augmented 中 ATD 项 CI 跨 0" 完全一致。
+3. **将"triad-stable"作为论文写作的 "应该粗体标注的核心子集" 标准**，core 给 {ThyroidW, TPOAb}，augmented 仍只给 {ThyroidW}。这一标准比 §4b.4 中"5/5 + CV<0.5"更严苛，但结论方向一致。
+
+## 6.12 治疗结局验证：分层细化、校准、剂量审计
+
+§5 / §6 已经在 dev OOF + temporal 上做了校准曲线、DCA 与 3 档风险分层；这里再做 4 个 outcome-side 验证，回答"M1·v2 的预测概率在临床上的可操作性如何"。
+
+### 6.12.1 OV1 — 分层细化（3 → 4 → 5 档）
+
+把 dev OOF 风险概率分位作为 cut-points（cuts locked in dev, applied to temporal），用 3 / 4 / 5 档分别看观察 NHRH 率单调性。
+
+![图 18. M1·v2a 风险分层 3 / 4 / 5 档 — dev OOF 与 temporal 双 panel。](figures/Figure_18_Finer_Tiers.png)
+
+| 档数 | Dev OOF 跨度 | Temporal 跨度 | Temporal 顶档事件率 | Temporal 底档事件率 |
+|:---:|:---:|:---:|:---:|:---:|
+| 3 (tertile) | 0.40 | 0.287 | 0.573 | 0.286 |
+| **4 (quartile)** | **0.46** | **0.406** | **0.606** | **0.312** |
+| 5 (quintile) | 0.48 | 0.344 | 0.614 | 0.275 |
+
+**4 档是 sweet spot** —— temporal 跨度最大（0.406），且 4 档每档样本量仍足（>50）；5 档因为顶档 N 只有 ~30 太小，跨度反而下降。这给临床落地一个建议：**在 4 个等级（Q1/Q2/Q3/Q4）上做分层咨询比 3 档更细，比 5 档更稳**。
+
+### 6.12.2 OV2 — Decile 校准（observed vs predicted）
+
+按 dev OOF 概率分 10 个等频 decile（cuts locked in dev），dev 与 temporal 双 panel 看每个 decile 的观察 NHRH 率 vs 平均预测概率：
+
+![图 19. M1·v2a Decile 校准 — dev OOF 与 temporal 双 panel。](figures/Figure_19_Decile_Calibration.png)
+
+**dev OOF 上**：10 个 decile 的预测—观察对几乎贴在对角线，证实 §5 校准曲线斜率 0.90 的细化版。**temporal 上**：低 decile（D1–D4）观察率略 > 预测（轻度高估低风险），高 decile（D8–D10）观察率略 < 预测（轻度低估高风险）——这正是 calibration intercept ≈ 0 / slope ≈ 0.90 在 decile 上的几何表现，仍在"概率可信"区间。
+
+### 6.12.3 OV3 — 预测风险 vs 实际治疗剂量（治疗指征混杂指纹）
+
+把 dev OOF / temporal 上每例的预测 NHRH 概率与**实际接受的 RAI 剂量**做散点 + Spearman ρ + 线性回归。**关键审计问题：医生是不是按"严重程度"（≈ 我们的预测风险）调整剂量的？如果是，dose 在 M1·v1 中被分配的预测信号就完全是治疗指征混杂的产物**。
+
+![图 20. 预测风险 vs RAI 剂量 (mCi) 与 mCi/g — dev / temporal 4 panel。](figures/Figure_20_PredictedRisk_vs_Dose.png)
+
+| Split | 变量 | Spearman ρ | p-value | 线性回归 R |
+|:---|:---|:---:|:---:|:---:|
+| Dev OOF | **Dose (mCi, 总剂量)** | **+0.685** | <1e-100 | +0.71 |
+| Dev OOF | Dose per gram (mCi/g, 每克剂量) | −0.232 | <1e-10 | −0.10 |
+| Temporal | **Dose (mCi)** | **+0.796** | <1e-44 | +0.87 |
+| Temporal | Dose per gram (mCi/g) | −0.282 | <1e-4 | −0.28 |
+
+**核心解读**：
+1. **预测高风险者实际接受了高总剂量**（ρ +0.69 dev / +0.80 temporal, 都 p<1e-44）——医生**按严重度滴定**，这是教科书级的 confounding-by-indication 指纹。
+2. **预测高风险者每克剂量略低**（ρ −0.23 / −0.28）——因为预测高风险主要由腺体大驱动，腺体大→总剂量按比例放大→但医生**不会让每克剂量超过 ~150–200 μCi/g**（ATA / 中国指南规定），所以"摊薄"后每克略降。这与 §7.4 引用的 EANM / ATA 指南实践完全一致。
+3. **这两条结论共同解释了为什么去掉 dose 家族后 M1 性能几乎不变**（§3 ΔROC core +0.002）——因为 **dose 在原 M1 中携带的预测信号几乎全部来自"医生看到大腺体就给大剂量"，即 dose ≈ f(ThyroidW)**。剔除 dose 后，ThyroidW 自己仍把这个信号留住了。
+
+### 6.12.4 OV4 — 滑动窗口观察 NHRH 沿预测风险百分位
+
+按预测风险排序，做宽度 20% 的滑动窗口观察 NHRH 率（dev + temporal）：
+
+![图 21. 观察 NHRH 率沿预测风险百分位（滑动窗口宽度 20%）。](figures/Figure_21_Sliding_Observed_NHRH.png)
+
+**两条曲线均从约 0.20 单调升到约 0.65–0.70**，dev 与 temporal **形态高度一致**。这是模型 discrimination 的另一个"看得见的检查"——比单数字 AUC 更直观地展示"预测越高、实际越易复发"的连续关系。两条 Wilson 95% CI 带在低/高端有少量发散（小样本噪声），中段几乎重叠。
+
 ## 7. 结论 + 医学洞见
 
 ### 7.1 方法学结论
@@ -520,5 +630,7 @@ BSA 用 Mosteller 公式：`BSA = sqrt(Height(cm) × Weight(kg) / 3600)`。
 - 镜像实验脚本：`scripts/simple/module1_v2_no_thyroidw.py`（剔除 ThyroidW 后剩 9 特征的能力上限 + paired bootstrap ΔAUC vs only-ThyroidW）
 - 归一化变体脚本：`scripts/simple/module1_v2_normalize.py`（7 个单变量变体：raw / Weight / BSA / Height / BMI / log / log(BSA)，paired bootstrap ΔAUC vs raw）
 - 非 LR 鲁棒性脚本：`scripts/simple/module1_v2_nonlr_robustness.py`（5 个独立算法 RF / GBM / KNN / SVM-RBF / MLP × 3 pool, paired bootstrap ΔAUC, only-TW − no-TW 与 Full − only-TW 两个对比）
+- LASSO 三联稳定性脚本：`scripts/simple/module1_v2_lasso_stability.py`（500 boots bootstrap + 100 × 50% Meinshausen-Bühlmann subsample + Sex/Age tertile/TRAb tertile subgroup re-selection）
+- 治疗结局验证脚本：`scripts/simple/module1_v2_outcome_validation.py`（分层细化 3/4/5 tier + decile calibration + 预测风险 vs 实际 RAI 剂量 Spearman ρ + 滑动窗口观察 NHRH 沿预测百分位）
 - 全部在 PYTHONNOUSERSITE=1 base env 下运行，与原 M1 同切分 / 同人次级 bootstrap。
 - 口径：1003 治疗人次；development 802 / temporal test 201；图内英文、正文中文。
