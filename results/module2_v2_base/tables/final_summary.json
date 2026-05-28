@@ -1,0 +1,19 @@
+{
+  "architecture": "per-landmark 4-LR (legacy)",
+  "features": "A+B+C+D+E (mechanism block ABCDE, 19 features per landmark)",
+  "temporal_pooled_roc": 0.7543682106989137,
+  "per_landmark_roc": {
+    "0M": 0.6855913096946096,
+    "1M": 0.7238163558106169,
+    "3M": 0.7996515679442509,
+    "6M": 0.7884812461569993,
+    "Pooled": 0.7543682106989137
+  },
+  "low_tier_NPV_per_landmark_temporal": {
+    "0M": 0.7,
+    "1M": 0.7692307692307692,
+    "3M": 0.8305084745762712,
+    "6M": 0.8545454545454545
+  },
+  "multi_seed_pooled_std": 0.0010673673726909593
+}
