@@ -1,0 +1,8 @@
+File,Description,Function
+Figure_01_Horizon_ROC_PR.png,H1/H6/H12 temporal ROC and PR curves,plot_roc_pr
+Figure_02_H1_Ablation_Inertia_Momentum.png,A/B/C/D H1 ablation with bootstrap CIs,custom kit-style matplotlib
+Figure_03_Treatment_Level_Risk_Tiers.png,Treatment-level dynamic risk tiers,custom plot_risk_tiers style
+Figure_04_Treatment_Level_KM.png,Treatment-level Kaplan-Meier-style cumulative event curves,custom KM
+Figure_05_Sensitivity_One_Row_Per_Source_ID.png,One-row-per-source-ID sensitivity KM curves,custom KM
+Figure_06_H1_Calibration.png,H1 temporal calibration curve,custom kit-style calibration
+Figure_07_H1_DCA.png,H1 temporal decision curve,plot_dca

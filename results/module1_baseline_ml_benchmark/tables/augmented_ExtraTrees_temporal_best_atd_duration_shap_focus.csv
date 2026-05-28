@@ -1,0 +1,13 @@
+Explanation_Model,Feature,MeanAbsSHAP,MeanSignedSHAP,Spearman_Feature_SHAP,Is_Augmented_Feature,Rank,Direction_Interpretation
+ExtraTrees_temporal_best,PreRAI_ATD_Use_Clean_Aug,0.0188,0.0002,0.7276,True,2,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,log1p_DiseaseDuration_Months_Aug,0.0158,-0.0016,0.9436,True,3,higher value lowers predicted NHRH risk
+ExtraTrees_temporal_best,PreRAI_ATD_NotUsed_FromStop_Aug,0.0119,0.0009,-0.6782,True,5,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,EyeSigns_Source_Positive_Aug,0.0096,0.0027,-0.6915,True,6,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,DiseaseDuration_Months_Aug,0.0049,-0.0009,0.9399,True,9,higher value lowers predicted NHRH risk
+ExtraTrees_temporal_best,PreRAI_ATD_Use_Missing_Aug,0.0027,-0.0008,-0.3766,True,11,higher value lowers predicted NHRH risk
+ExtraTrees_temporal_best,log1p_PreRAI_ATD_Stop_Days_Aug,0.0022,0.0001,0.4776,True,13,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,PreRAI_ATD_Stop_Missing_Aug,0.0012,0.0006,-0.1719,True,18,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,Comorbidity_TextPresent,0.0005,-0.0001,0.3582,True,19,higher value lowers predicted NHRH risk
+ExtraTrees_temporal_best,PreRAI_ATD_Stop_Days_Aug,0.0004,0.0,0.3472,True,20,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,DiseaseDuration_Missing_Aug,0.0,0.0,,True,27,higher value increases predicted NHRH risk
+ExtraTrees_temporal_best,EyeSigns_Source_Missing_Aug,0.0,0.0,0.1721,True,28,higher value increases predicted NHRH risk

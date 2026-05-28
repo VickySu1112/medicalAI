@@ -1,0 +1,7 @@
+FeatureSet,Model,ConfigID,DevSelectionScore,ConfigJSON
+M1_v1_1003_core,XGBoost,XGBoost_cfg01,1.119806596534401,"{""colsample_bytree"": 0.8, ""learning_rate"": 0.025, ""max_depth"": 2, ""min_child_weight"": 5, ""n_estimators"": 220, ""reg_alpha"": 0.1, ""reg_lambda"": 5.0, ""subsample"": 0.8}"
+M1_v1_1003_core,LightGBM,LightGBM_cfg02,1.1230127551869202,"{""colsample_bytree"": 0.75, ""learning_rate"": 0.035, ""max_depth"": 3, ""min_child_samples"": 35, ""n_estimators"": 180, ""num_leaves"": 11, ""reg_lambda"": 5.0, ""subsample"": 0.85}"
+M1_v1_1003_core,CatBoost,CatBoost_cfg00,1.1230592007681943,"{""depth"": 2, ""iterations"": 180, ""l2_leaf_reg"": 5.0, ""learning_rate"": 0.035}"
+M1_v2_1003_augmented,XGBoost,XGBoost_cfg01,1.1352715100169446,"{""colsample_bytree"": 0.8, ""learning_rate"": 0.025, ""max_depth"": 2, ""min_child_weight"": 5, ""n_estimators"": 220, ""reg_alpha"": 0.1, ""reg_lambda"": 5.0, ""subsample"": 0.8}"
+M1_v2_1003_augmented,LightGBM,LightGBM_cfg02,1.1271543310904317,"{""colsample_bytree"": 0.75, ""learning_rate"": 0.035, ""max_depth"": 3, ""min_child_samples"": 35, ""n_estimators"": 180, ""num_leaves"": 11, ""reg_lambda"": 5.0, ""subsample"": 0.85}"
+M1_v2_1003_augmented,CatBoost,CatBoost_cfg01,1.1225715247457728,"{""depth"": 2, ""iterations"": 240, ""l2_leaf_reg"": 8.0, ""learning_rate"": 0.025}"

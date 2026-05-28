@@ -1,0 +1,6 @@
+Feature,Dev_Positive_Episodes,Included
+Comorbidity_Hypertension,0,False
+Comorbidity_Diabetes,0,False
+Comorbidity_Cardiovascular,3,False
+Comorbidity_ThyroidRelated,5,False
+Comorbidity_TextPresent,25,True

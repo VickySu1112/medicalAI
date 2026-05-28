@@ -1,0 +1,29 @@
+Audit,Landmark,Item,Available,Pass,Conclusion
+Feature time-safety,0M,clinical_core,True,True,16 features; forbidden future-feature hits = nan
+Feature time-safety,0M,stable_selected,True,True,30 features; forbidden future-feature hits = nan
+Feature time-safety,0M,clinical_plus_response,True,True,19 features; forbidden future-feature hits = nan
+Feature time-safety,0M,stable_plus_missing,True,True,33 features; forbidden future-feature hits = nan
+Feature time-safety,0M,clinical_core_12,True,True,10 features; forbidden future-feature hits = nan
+Feature time-safety,1M,clinical_core,True,True,18 features; forbidden future-feature hits = nan
+Feature time-safety,1M,stable_selected,True,True,30 features; forbidden future-feature hits = nan
+Feature time-safety,1M,clinical_plus_response,True,True,32 features; forbidden future-feature hits = nan
+Feature time-safety,1M,stable_plus_missing,True,True,37 features; forbidden future-feature hits = nan
+Feature time-safety,1M,clinical_core_12,True,True,12 features; forbidden future-feature hits = nan
+Feature time-safety,3M,clinical_core,True,True,18 features; forbidden future-feature hits = nan
+Feature time-safety,3M,stable_selected,True,True,30 features; forbidden future-feature hits = nan
+Feature time-safety,3M,clinical_plus_response,True,True,42 features; forbidden future-feature hits = nan
+Feature time-safety,3M,stable_plus_missing,True,True,41 features; forbidden future-feature hits = nan
+Feature time-safety,3M,clinical_core_12,True,True,12 features; forbidden future-feature hits = nan
+Feature time-safety,6M,clinical_core,True,True,18 features; forbidden future-feature hits = nan
+Feature time-safety,6M,stable_selected,True,True,30 features; forbidden future-feature hits = nan
+Feature time-safety,6M,clinical_plus_response,True,True,46 features; forbidden future-feature hits = nan
+Feature time-safety,6M,stable_plus_missing,True,True,45 features; forbidden future-feature hits = nan
+Feature time-safety,6M,clinical_core_12,True,True,12 features; forbidden future-feature hits = nan
+Medication timing,All,Structured_Pre_RAI_ATD_Use,False,True,Not used: Workbook has no structured pre-RAI ATD use/duration/washout field.
+Medication timing,All,TreatCount,True,True,Retained as static clinical background: Treatment-origin count is available before prediction but is not equivalent to ATD history.
+Medication timing,All,Medication_1M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.
+Medication timing,All,Medication_3M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.
+Medication timing,All,Medication_6M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.
+Medication timing,All,Medication_12M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.
+Medication timing,All,Medication_18M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.
+Medication timing,All,Medication_24M,True,True,Excluded from primary fixed-landmark models: Post-RAI prescribing may encode physician response to evolving thyroid status.

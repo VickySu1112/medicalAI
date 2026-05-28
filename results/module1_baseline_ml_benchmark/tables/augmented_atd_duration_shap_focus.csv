@@ -1,0 +1,13 @@
+Model,Feature,MeanAbsSHAP,MeanSignedSHAP,Coef_or_NA,Is_Augmented_Feature,Rank,Direction_Interpretation
+RandomForest,log1p_DiseaseDuration_Months_Aug,0.0634,,,True,4,near-zero average direction
+RandomForest,DiseaseDuration_Months_Aug,0.0503,,,True,6,near-zero average direction
+RandomForest,log1p_PreRAI_ATD_Stop_Days_Aug,0.0191,,,True,15,near-zero average direction
+RandomForest,PreRAI_ATD_Stop_Days_Aug,0.0188,,,True,16,near-zero average direction
+RandomForest,PreRAI_ATD_NotUsed_FromStop_Aug,0.0088,,,True,18,near-zero average direction
+RandomForest,PreRAI_ATD_Use_Clean_Aug,0.0081,,,True,19,near-zero average direction
+RandomForest,EyeSigns_Source_Positive_Aug,0.0071,,,True,21,near-zero average direction
+RandomForest,Comorbidity_TextPresent,0.0025,,,True,23,near-zero average direction
+RandomForest,PreRAI_ATD_Stop_Missing_Aug,0.0011,,,True,24,near-zero average direction
+RandomForest,PreRAI_ATD_Use_Missing_Aug,0.0007,,,True,25,near-zero average direction
+RandomForest,DiseaseDuration_Missing_Aug,0.0,,,True,27,near-zero average direction
+RandomForest,EyeSigns_Source_Missing_Aug,0.0,,,True,28,near-zero average direction

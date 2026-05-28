@@ -1,0 +1,7 @@
+TrajCluster,TrajLabel,Domain,N,Events,EventRate
+0,falling,Development,494,46,0.093117
+0,falling,Temporal,110,11,0.1
+1,rising,Development,209,168,0.803828
+1,rising,Temporal,49,41,0.836735
+2,stable-high,Development,99,78,0.787879
+2,stable-high,Temporal,42,30,0.714286

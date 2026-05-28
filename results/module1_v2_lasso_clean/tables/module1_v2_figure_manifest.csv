@@ -1,0 +1,12 @@
+Figure,Path,Content,KitFunction
+Figure_01_LASSO_Path.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_01_LASSO_Path.png,LASSO selection path: 5-fold average nonzero coefficients vs C for each feature pool.,custom
+Figure_02_ROC_PR_core_vs_augmented.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_02_ROC_PR_core_vs_augmented.png,Temporal-test ROC and PR curves for LASSO-clean core vs augmented.,plot_roc_pr
+Figure_03_OR_Forest_Selected_core.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_03_OR_Forest_Selected_core.png,Standardized odds-ratio forest plot for selected core features.,plot_or_forest
+Figure_03_OR_Forest_Selected_augmented.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_03_OR_Forest_Selected_augmented.png,Standardized odds-ratio forest plot for selected augmented features.,plot_or_forest
+Figure_04_Calibration_core.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_04_Calibration_core.png,Temporal-test calibration curve for M1_v2c.,plot_calibration
+Figure_04_Calibration_augmented.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_04_Calibration_augmented.png,Temporal-test calibration curve for M1_v2a.,plot_calibration
+Figure_04D_Calibration_Summary.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_04D_Calibration_Summary.png,"Calibration summary: Brier, intercept and slope for LASSO-clean pools.",plot_calibration_summary
+Figure_05_DCA_core.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_05_DCA_core.png,Temporal-test decision-curve analysis for M1_v2c.,plot_dca
+Figure_05_DCA_augmented.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_05_DCA_augmented.png,Temporal-test decision-curve analysis for M1_v2a.,plot_dca
+Figure_06_Risk_Tiers_core_paired.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_06_Risk_Tiers_core_paired.png,Paired development OOF vs temporal test risk-tier figure for M1_v2c.,plot_risk_tiers_dev_vs_temporal
+Figure_06_Risk_Tiers_augmented_paired.png,/Users/ql/cursor/medical/medicalAI/results/module1_v2_lasso_clean/figures/Figure_06_Risk_Tiers_augmented_paired.png,Paired development OOF vs temporal test risk-tier figure for M1_v2a.,plot_risk_tiers_dev_vs_temporal

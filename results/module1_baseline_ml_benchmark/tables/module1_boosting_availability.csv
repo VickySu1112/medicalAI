@@ -1,0 +1,4 @@
+Model,Status,Detail
+XGBoost,available,
+LightGBM,available,
+CatBoost,available,

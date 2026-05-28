@@ -1,0 +1,4 @@
+TrajCluster,TrajLabel,N,Events,EventRate,Logrank_Chi2,P_cluster_vs_rest
+0,falling,110,11,0.1,92.6087,0.0
+1,rising,49,41,0.836735,47.0021,0.0
+2,stable-high,42,30,0.714286,19.0553,1.3e-05

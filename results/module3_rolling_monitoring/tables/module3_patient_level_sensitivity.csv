@@ -1,0 +1,4 @@
+Tier,EventRate,MeanRisk,CIndex,LogRankP_HighVsLow
+High,0.463,0.223,0.763,0.000
+Intermediate,0.225,0.066,0.763,0.000
+Low,0.079,0.033,0.763,0.000

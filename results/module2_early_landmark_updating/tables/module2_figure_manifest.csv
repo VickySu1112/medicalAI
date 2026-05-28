@@ -1,0 +1,20 @@
+file,path,width,height,function,content
+Figure_01_AUC_PR_Brier_Over_Time.png,results/module2_early_landmark_updating/figures/Figure_01_AUC_PR_Brier_Over_Time.png,3807,1437,custom_stage1_style,"Temporal-test ROC-AUC, PR-AUC, persistence baseline, and Brier score over landmarks"
+Figure_02_Selected_ROC_PR_All_Landmarks.png,results/module2_early_landmark_updating/figures/Figure_02_Selected_ROC_PR_All_Landmarks.png,3267,1347,plot_roc_pr,"Selected-model temporal-test ROC and PR curves for 0M, 1M, 3M, and 6M"
+Figure_03_Model_Metric_Heatmap.png,results/module2_early_landmark_updating/figures/Figure_03_Model_Metric_Heatmap.png,3557,1110,plot_model_comparison_heatmap,Legacy model-by-metric heatmap for fixed landmarks
+Figure_04_OR_Forest_0M.png,results/module2_early_landmark_updating/figures/Figure_04_OR_Forest_0M.png,2515,1977,plot_or_forest,0M clinical-core logistic OR forest
+Figure_04_OR_Forest_1M.png,results/module2_early_landmark_updating/figures/Figure_04_OR_Forest_1M.png,2515,1977,plot_or_forest,1M clinical-core logistic OR forest
+Figure_04_OR_Forest_3M.png,results/module2_early_landmark_updating/figures/Figure_04_OR_Forest_3M.png,2515,1977,plot_or_forest,3M clinical-core logistic OR forest
+Figure_04_OR_Forest_6M.png,results/module2_early_landmark_updating/figures/Figure_04_OR_Forest_6M.png,2514,1977,plot_or_forest,6M clinical-core logistic OR forest
+Figure_05_Calibration_0M.png,results/module2_early_landmark_updating/figures/Figure_05_Calibration_0M.png,1647,1408,plot_calibration,0M selected-model temporal-test reliability curve
+Figure_06_DCA_0M.png,results/module2_early_landmark_updating/figures/Figure_06_DCA_0M.png,1827,1347,plot_dca,0M selected-model temporal-test decision curve
+Figure_05_Calibration_1M.png,results/module2_early_landmark_updating/figures/Figure_05_Calibration_1M.png,1647,1408,plot_calibration,1M selected-model temporal-test reliability curve
+Figure_06_DCA_1M.png,results/module2_early_landmark_updating/figures/Figure_06_DCA_1M.png,1827,1347,plot_dca,1M selected-model temporal-test decision curve
+Figure_05_Calibration_3M.png,results/module2_early_landmark_updating/figures/Figure_05_Calibration_3M.png,1647,1408,plot_calibration,3M selected-model temporal-test reliability curve
+Figure_06_DCA_3M.png,results/module2_early_landmark_updating/figures/Figure_06_DCA_3M.png,1827,1347,plot_dca,3M selected-model temporal-test decision curve
+Figure_05_Calibration_6M.png,results/module2_early_landmark_updating/figures/Figure_05_Calibration_6M.png,1647,1408,plot_calibration,6M selected-model temporal-test reliability curve
+Figure_06_DCA_6M.png,results/module2_early_landmark_updating/figures/Figure_06_DCA_6M.png,1827,1347,plot_dca,6M selected-model temporal-test decision curve
+Figure_07_Calibration_Summary.png,results/module2_early_landmark_updating/figures/Figure_07_Calibration_Summary.png,4619,1457,plot_calibration_summary,"Brier, calibration intercept, and calibration slope summary"
+Figure_08_Single_Feature_Benchmark.png,results/module2_early_landmark_updating/figures/Figure_08_Single_Feature_Benchmark.png,8965,2069,plot_single_feature_benchmark,Single clinical variables versus multivariable LR and naive baseline
+Figure_09_Risk_Tiers_3M.png,results/module2_early_landmark_updating/figures/Figure_09_Risk_Tiers_3M.png,3117,1320,plot_risk_tiers,3M temporal-test risk tiers derived from development OOF probabilities
+Figure_09_Risk_Tiers_6M.png,results/module2_early_landmark_updating/figures/Figure_09_Risk_Tiers_6M.png,3117,1320,plot_risk_tiers,6M temporal-test risk tiers derived from development OOF probabilities

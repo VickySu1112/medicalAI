@@ -1,0 +1,12 @@
+TrajCluster,TrajLabel,Domain,Current_Time,N_windows,Mean_P_H1
+0,falling,Development,12M,2,0.412261
+0,falling,Development,3M,896,0.560759
+0,falling,Development,6M,90,0.530349
+1,rising,Development,12M,48,0.480851
+1,rising,Development,18M,30,0.468945
+1,rising,Development,3M,98,0.63744
+1,rising,Development,6M,72,0.596251
+2,stable-high,Development,12M,12,0.571915
+2,stable-high,Development,18M,10,0.58003
+2,stable-high,Development,3M,56,0.667178
+2,stable-high,Development,6M,26,0.63725

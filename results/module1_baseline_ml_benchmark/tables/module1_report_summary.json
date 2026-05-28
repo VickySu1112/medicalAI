@@ -1,0 +1,7 @@
+{
+  "core_lr_temporal_auc": 0.6875,
+  "aug_lr_temporal_auc": 0.7041,
+  "aug_et_temporal_auc": 0.7212,
+  "shap_status": "ok",
+  "html_self_contained": true
+}

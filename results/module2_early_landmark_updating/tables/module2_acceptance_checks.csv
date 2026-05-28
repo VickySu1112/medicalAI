@@ -1,0 +1,6 @@
+Check,Pass,Detail
+0M selected risk-score coverage,True,1003 treatment episodes across OOF/Test
+1M selected risk-score coverage,True,1003 treatment episodes across OOF/Test
+3M selected risk-score coverage,True,1003 treatment episodes across OOF/Test
+6M selected risk-score coverage,True,1003 treatment episodes across OOF/Test
+All figures generated,True,19 PNG figures

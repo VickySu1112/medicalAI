@@ -1,0 +1,7 @@
+Domain,Tier,N,Events,ObservedEventRate,PPV,NPV,MeanRisk,CutoffRule,HighLowRateRatio
+OOF,Low,335,19,0.057,0.057,0.943,0.033,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,8.711
+OOF,Intermediate,167,28,0.168,0.168,0.832,0.063,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,8.711
+OOF,High,168,83,0.494,0.494,0.506,0.177,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,8.711
+TemporalTest,Low,80,6,0.075,0.075,0.925,0.032,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,6.822
+TemporalTest,Intermediate,44,7,0.159,0.159,0.841,0.066,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,6.822
+TemporalTest,High,43,22,0.512,0.512,0.488,0.221,Low <= 0.049139; Intermediate <= 0.082426; High > 0.082426,6.822

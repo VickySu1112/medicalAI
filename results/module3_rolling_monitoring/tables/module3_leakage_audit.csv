@@ -1,0 +1,4 @@
+AuditItem,Status,Evidence
+Feature time-safety,PASS,3M->6M: 0; 6M->12M: 0; 12M->18M: 0; 18M->24M: 0
+Module2 score inheritance,PASS,Development rows use OOF scores; temporal rows use Test scores; 3M rows use 3M score only.
+Medication timing,PASS,"Only medication history columns up to prior observed visits are present in the long table: Med_History_Any, Med_History_Observed_Count, Med_History_Last_Month, Med_History_Months_Since_Last"

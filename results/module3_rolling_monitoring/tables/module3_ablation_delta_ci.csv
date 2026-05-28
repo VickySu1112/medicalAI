@@ -1,0 +1,7 @@
+Contrast,Metric,Delta,CI_Lower,CI_Upper,CI_Crosses_Zero
+C_minus_B_Momentum,ROC_AUC,0.025,-0.057,0.108,True
+C_minus_B_Momentum,PR_AUC,0.169,0.027,0.308,False
+C_minus_B_Momentum,Brier,-0.003,-0.006,0.000,True
+D_minus_C_EarlyRisk,ROC_AUC,-0.000,-0.010,0.007,True
+D_minus_C_EarlyRisk,PR_AUC,0.003,-0.019,0.030,True
+D_minus_C_EarlyRisk,Brier,0.000,-0.000,0.000,True
