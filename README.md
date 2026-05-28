@@ -52,12 +52,15 @@
 
 ### M2 — 早期固定地标长期风险更新
 
-- **主线：M2 v2 三轨升级**。架构 = stacked 长表 4012 landmark-rows + 5 个机制块（baseline burden / RAI exposure / current dynamic / momentum=Δ/Δt / time × dynamic interactions）+ L2-logistic + Platt + StratifiedGroupKFold + episode-cluster bootstrap × 1000（修正 Plan-agent C1：行级 bootstrap 会把有效 N 虚增 ×4）。Per-landmark Platt 在 pooled outer-OOF 上 fit（Plan-agent M4）。
-- **机制块 nested ablation（Temporal pooled ROC）**：A only 0.686 → +B (RAI exposure) **0.685（Δ ≈ 0，无独立信号）** → +C (current dynamic) **0.704（Δ +0.019 CI [+0.005, +0.033]）** → +D (momentum) **0.712（Δ +0.008 CI [+0.000, +0.016]）** → +E (time × dynamic) **0.739（Δ +0.027 CI [+0.002, +0.055]）**。**直接回答 reviewer 的"性能来自哪里"**：C/E 是主驱动，B 无贡献（与 M1·v2 dose-removal 一致），D 量小但显著（24M 端点远 → momentum 衰减，比 M3 rolling 的 PR-AUC +0.169 弱）。
-- **M2-A 5 方法横向 benchmark**（同 features 同 CV 同 calibration）：Random Forest 0.7435 > L2 0.7386 ≈ Elastic-net 0.7385 > HGB 0.706 > GEE 0.500 (failed)。**没有方法的 Δ vs L2 anchor 的 95% CI 脱离 0** — 简约 LR 在 RAI Graves 上仍是 sweet spot；LightGBM/XGB/CatBoost/TabNet/Cox 因依赖未安装暂未跑（disclosed）。
-- **M2-B 3 个炫酷架构**（MDJN / Dual-Tower with aux 6M / CLAN with cross-landmark attention）pre-register 在 [`results/module2_v2_vertical/arch.md`](results/module2_v2_vertical/arch.md)；PyTorch 实现 deferred 到下一 commit（torch+anaconda hang 调试中）。
-- **预注册决策规则当前结果**：M2-A best (RF) Δ vs M2-Base CI 跨 0 → **推荐 M2-Base 作论文 M2 主线**（详见 [综合报告](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md)）。
-- **临床定位**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；原 v1 4-LR 的 6M NPV 0.909 仍是 rule-out 决策依据。
+- **主线（iter 2 修订）**：架构 = **per-landmark 4-LR + 新机制特征 (ABCDE)**，Temporal pooled ROC **0.754** —— 显著超过 supermodel (0.739)，CI 排除 0（**2×2 head-to-head 反转 iter 1 推荐**）。原 M2 v1 4-LR 架构不"丑"，它在 1003 episodes 上**真的更适合**本任务；改进点不在架构而在特征集（加 current dynamic + momentum + time × dynamic interactions）。
+- **5 个机制块** (A burden / B exposure / C current dynamic / D momentum=Δ/Δt / E time × dynamic)：episode-cluster bootstrap × 1000 + per-landmark Platt on pooled outer-OOF。
+- **Shapley 5! 分解**（120 排列）：A **47.4%** / E 27.9% / D 14.9% / C 14.3% / **B −4.5%（负贡献！）** — 比 nested sequential 的 Δ ≈ 0 更强：RAI exposure 在多变量下实际拖累模型，强化 M1·v2 "dose 无独立信号" 的指纹。
+- **2×2 head-to-head（架构 × 特征集）**：(per-landmark 4-LR + ABCDE) 0.754 > (per-landmark 4-LR + ABC) 0.725 > (supermodel + ABCDE) 0.739 > (supermodel + ABC) 0.704。架构 Δ −0.016 CI [−0.025, −0.005] (4-LR 胜)；特征 Δ +0.029 CI [+0.010, +0.048] (ABCDE 胜) — 两者都 CI 排除 0。
+- **M2-A 5 方法横向**：Random Forest 0.7435 ≈ L2 0.7386 ≈ Elastic-net 0.7385 > HGB 0.706 ≫ GEE 0.500 (failed)。没方法显著超过 supermodel。
+- **M2-B 3 个炫酷架构**（iter 2 完成）：B3 CLAN 0.719（最佳）< B1 MDJN 0.705 ≈ B2 Dual-Tower 0.701；calibration overconfident (slope 1.1-1.9)；B3 attention 矩阵按风险三档分组保存。所有 B 系列均不及 supermodel。
+- **风险迁移转移概率矩阵**（替代原 Sankey 计划）：3×3 转移矩阵 × 3 对相邻 landmark × 2 split (dev/temporal) = 6 panel；tier 阈值锁定于 dev 0M 三分位 (low ≤ 0.277 < mid ≤ 0.385 < high)。
+- **临床定位不变**：M2 = "治疗后早期长期风险更新"，回答 "3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点 NPV 0.909 支持 rule-out。
+- **详见 [iter 2 综合报告](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md)**（含决策规则补丁 + 论文叙事 + Shapley + 2×2 全表）。
 
 ### M3 — 滚动地标复发监测
 

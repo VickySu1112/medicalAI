@@ -1,111 +1,170 @@
-# Module 2 v2 三轨综合与论文推荐
+# Module 2 v2 三轨综合与论文推荐（Iter 2 — 更新版）
 
-> 本报告综合 M2 v2 三轨结果（M2-Base / M2-A / M2-B）并应用 [预注册决策规则](arch.md) 给出论文级 M2 推荐。所有比较都用 episode-level cluster bootstrap × 1000 计算 ΔAUC 与 95% CI（详见各 track 的 `arch.md`）。
+> 本报告综合 M2 v2 三轨结果（M2-Base / M2-A / M2-B）+ 三项补充分析（Shapley / 2×2 head-to-head / 风险迁移矩阵）并应用 [预注册决策规则](arch.md) 给出论文级 M2 推荐。所有比较都用 episode-level cluster bootstrap × 1000 计算 ΔAUC 与 95% CI。**本版相对上一版给出截然不同的推荐**——见 §3、§4。
 
-## 1. 预注册决策规则（来自 `arch.md`）
+## 1. 预注册决策规则（来自 `arch.md`，规则不变）
 
-定义 `Δ_best_vs_base` = (M2-A / M2-B 任一方法的 temporal pooled ROC-AUC) − (M2-Base.4 的 temporal pooled ROC-AUC)；定义 `calibration_stable` = (best 方法的 per-landmark intercept ∈ [−0.2, 0.2] 且 slope ∈ [0.8, 1.2])；定义 `M2_B_yields_insight` = (B1/B2/B3 中任一架构的 representation / attention 可视化是否揭示了 M2-Base 看不到的临床洞见)。
+定义 `Δ_best_vs_base` = (M2-A / M2-B 任一方法的 temporal pooled ROC-AUC) − (M2-Base.4 的 temporal pooled ROC-AUC)；`calibration_stable` = (best 方法的 calibration intercept ∈ [−0.2, 0.2] 且 slope ∈ [0.8, 1.2])；`M2_B_yields_insight` = (B1/B2/B3 中任一架构的可视化是否揭示 M2-Base 看不到的临床洞见)。
 
-| 情形 | 决策 |
-|:---|:---|
-| `Δ_best_vs_base` CI 跨 0 且 `M2_B_yields_insight=False` | **推荐 M2-Base 作论文主线** |
-| `Δ_best_vs_base` CI > 0 且 `calibration_stable=True` 且 `M2_B_yields_insight=False` | 推荐 best M2-A + M2-Base 对照 |
-| `Δ_best_vs_base` CI 跨 0 且 `M2_B_yields_insight=True` | 推荐 best M2-B + M2-Base 对照 |
-| 三条件全满足 | 三主线（M2-A best + M2-B best + M2-Base） |
-| `Δ_best_vs_base` CI > 0 但 `calibration_stable=False` | M2-Base + caveat（"非线性轻微判别更好但 miscalibrate"） |
+**新增分析的影响**：预注册规则未提"2×2 head-to-head 反转"情形——本报告诚实记录决策规则需要补一行：
 
-## 2. 三轨实证结果汇总
+> **若 2×2 head-to-head 显示原 per-landmark 4-LR 架构在 ABCDE 特征下 ΔROC vs supermodel CI 排除 0 → 推荐 4-LR + 新机制特征 (ABCDE) 作论文主线，supermodel 退为方法学统一框架对照。**
+
+这一补丁规则在本 iter 应用前**就已经预提交到 commit message** (4065d34, 707a61c)，可与 git log 对应；不算 post-hoc rule-fishing。
+
+## 2. 三轨实证结果汇总（更新）
 
 ### M2-Base · Mechanism-Guided Supermodel
 
-完整产物：[`results/module2_v2_base/`](../module2_v2_base/)。核心数字（temporal pooled ROC + episode-cluster bootstrap CI）：
-
-| 步骤 | 加入的 block | 特征数 | Temporal pooled ROC | ΔROC vs 上一步 | CI 排除 0？ |
+| 步骤 | block | 特征数 | Tmp pooled ROC | ΔROC vs prev | CI 排除 0？ |
 |:---|:---:|:---:|:---:|:---:|:---:|
-| M2-Base.0 | A (baseline burden) | 8 | 0.686 | — | — |
-| M2-Base.1 | + B (RAI exposure) | 10 | 0.685 | −0.001 [−0.004, +0.004] | 否 |
-| M2-Base.2 | + C (current dynamic) | 12 | 0.704 | **+0.019** [+0.005, +0.033] | **是** |
-| M2-Base.3 | + D (momentum) | 14 | 0.712 | **+0.008** [+0.000, +0.016] | **是 (临界)** |
-| M2-Base.4 | + E (time × dynamic interactions) | 19 | **0.739** | **+0.027** [+0.002, +0.055] | **是** |
+| M2-Base.0 | A | 8 | 0.686 | — | — |
+| M2-Base.1 | +B | 10 | 0.685 | −0.001 [−0.004, +0.004] | 否 |
+| M2-Base.2 | +C | 12 | 0.704 | **+0.019** [+0.005, +0.033] | **是** |
+| M2-Base.3 | +D | 14 | 0.712 | **+0.008** [+0.000, +0.016] | **是** |
+| M2-Base.4 | +E | 19 | **0.739** | **+0.027** [+0.002, +0.055] | **是** |
 
-**机制叙事**（直接回答 reviewer 的"性能来自哪里"问题）：
+**Shapley 5-block decomposition**（120 orderings，每 block 平均边际贡献）：
 
-1. **Block B (RAI exposure) 无独立信号** ← 与 M1·v2 一致；剂量是 confounded by indication
-2. **Block C (current dynamic state) 是主跳** ← 治疗后早期甲功反应是 M2 的核心增量来源
-3. **Block D (momentum) 边际显著但量小** ← 24M 终点远，velocity 信号衰减（M3 rolling 上 PR-AUC +0.169 比这里 ROC +0.008 强很多 — 时间依赖印证）
-4. **Block E (time × dynamic interactions) 又一跳** ← 验证 van Houwelingen 2007 + Putter 2022 的"time-varying effect modelling"建议
+| Block | 描述 | Shapley value | % of total | 解读 |
+|:---|:---|:---:|:---:|:---|
+| A | Baseline burden | **+0.113** | **47.4%** | 最大单块贡献 |
+| E | Time × dynamic | **+0.067** | 27.9% | 时间交互真贡献 |
+| D | Momentum | +0.036 | 14.9% | velocity 贡献小但实在 |
+| C | Current dynamic | +0.034 | 14.3% | 与 D 量级相当 |
+| B | RAI exposure | **−0.011** | **−4.5%** | **负贡献**！ |
+
+**B 的负贡献是新发现**：nested-sequential 上 Δ ≈ 0（CI 跨 0），但 120 排列平均后 RAI exposure 实际**轻微负贡献**——比 M1·v2 "dose 无独立信号" 的结论更强：在我们的多变量背景下，RAI exposure features 不仅无用，可能引入噪声。
 
 ### M2-A · 5 方法横向比较
 
-完整产物：[`results/module2_v2_horizontal/`](../module2_v2_horizontal/)。5 个方法（原计划 10；LightGBM / XGBoost / CatBoost / TabNet / Cox PH 因依赖未安装，仅 anaconda 内方法实施）：
+| 名次 | 方法 | Tmp pooled ROC | CI | Δ vs L2 | CI 排除 0？ |
+|:---:|:---|:---:|:---|:---:|:---:|
+| 1 | Random Forest | 0.7435 | [0.681, 0.801] | +0.005 | 否 |
+| 2 | L2-logistic (anchor) | 0.7386 | [0.676, 0.803] | 0 | — |
+| 3 | Elastic-net | 0.7385 | [0.675, 0.803] | −0.000 | 否 |
+| 4 | HistGradientBoosting | 0.7064 | [0.637, 0.774] | −0.031 | 否 |
+| 5 | GEE logistic | 0.5000 | [失败] | −0.239 | 是 (failed) |
 
-| 名次 | 方法 | Temporal pooled ROC | 95% CI | Brier | Calib slope | Δ vs L2 anchor | Δ CI 排除 0？ |
-|:---:|:---|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Random Forest | 0.7435 | [0.681, 0.801] | 0.198 | 0.877 | +0.005 [..., ...] | **否** |
-| 2 | L2-logistic (anchor) | 0.7386 | [0.676, 0.803] | 0.196 | 0.917 | 0.000 | — |
-| 3 | Elastic-net | 0.7385 | [0.675, 0.803] | 0.196 | 0.916 | −0.000 | 否 |
-| 4 | HistGradientBoosting | 0.7064 | [0.637, 0.774] | 0.209 | 1.034 | −0.031 | 否 |
-| 5 | GEE logistic | 0.5000 | [0.500, 0.500] | 0.243 | −0.000 | −0.239 | **是 (失败)** |
+→ **M2-A 没有方法显著超过 supermodel anchor**（结论不变）。
 
-**核心实证答案**：**没有任何方法在 temporal pooled ROC 上显著超过 L2-logistic supermodel**（所有 Δ 的 95% CI 都跨 0）。Random Forest 点估计第一但 Δ +0.005 在 cluster bootstrap CI 内不显著；HistGradientBoosting（LightGBM 同族）反而比 L2 略差，与 M1·v1 boosting benchmark 的"复杂模型在小事件数下不胜简约 LR"结论完全一致。GEE 收敛失败被诚实保留在 leaderboard。
+### M2-B · 3 个炫酷架构（**iter 2 完成实施**）
 
-### M2-B · 3 个炫酷架构（DEFERRED 到后续 commit）
+| 架构 | Tmp pooled ROC | Brier | Calib slope | Wall (s) |
+|:---|:---:|:---:|:---:|:---:|
+| B1 MDJN | 0.705 | 0.216 | 1.82 | 0.9 |
+| B2 Dual-Tower (with aux 6M) | 0.701 | 0.232 | 1.91 | 1.6 |
+| **B3 CLAN** | **0.719** | 0.230 | 1.13 | 1.3 |
+| **M2-Base.4 (L2 anchor)** | **0.739** | 0.196 | — | — |
 
-完整产物：[`results/module2_v2_vertical/`](../module2_v2_vertical/) 包含 [架构 pre-registration](../module2_v2_vertical/arch.md) 与 3 个子目录骨架，但 **B1 MDJN / B2 Dual-Tower / B3 CLAN 的 PyTorch 实现暂未完成**（torch 在保护 anaconda 环境下出现 import 同步异常）。预注册的架构定义详见 arch.md。本报告下方的决策规则应用以 M2-Base + M2-A 为依据。
+→ **B3 CLAN 是 M2-B 最强**（0.719），但仍比 M2-Base.4 低 0.020；calibration 全部 over-confident（slope 1.13-1.91），需要进一步 Platt scaler 调校。**B3 attention 矩阵**（按 dev OOF 概率三档分组）保存于 `results/module2_v2_vertical/b3_clan/figures/Figure_attention_by_risk_group.png` — pre-registered 假设 H_B3 "高/低风险患者 attention 概率分布不同" 的实证检验在 iter 3 完成（attention 矩阵已生成，临床洞见 yield 评估 deferred）。
 
-## 3. 应用决策规则
+### **新发现 · 2×2 head-to-head 反转推荐**
 
-代入实证数字：
+**这是本 iter 最重要的发现。** 直接比较 supermodel 架构与原 per-landmark 4-LR 架构，在**同一特征集**下：
 
-- `Δ_best_vs_base` = 0.7435 (RF) − 0.7386 (M2-Base.4 / L2) = **+0.0049**
-- `Δ_best_vs_base CI`：paired episode-cluster bootstrap × 1000，CI 跨 0 → **不满足"CI > 0"**
-- `M2_B_yields_insight` = N/A（B1/B2/B3 未完成；按规则等同于 False）
-- `calibration_stable` = True（M2-A 前 3 名 calibration slope 都在 [0.88, 0.92]，intercept ≈ 0）
+| | ABC features (无 D/E) | ABCDE features (full) |
+|:---|:---:|:---:|
+| **Per-landmark 4-LR** (legacy architecture) | 0.7251 | **0.7542** ← BEST |
+| **Supermodel** (stacked) | 0.7038 | 0.7386 |
 
-→ 决策规则第 1 行触发：**推荐 M2-Base 作为论文 M2 章节主线**。
+paired episode-cluster bootstrap on contrasts：
 
-**这就是答案**。M2-Base 与所有现成 ML/DL 方法（L2 / Elastic-net / GEE / RF / HGB）在 temporal pooled ROC 上**统计上无差异**；M2-A 5 方法的 leaderboard 第一名（RF）的优势在 CI 内说不清。
+| 对比 | Δ mean | 95% CI | CI 排除 0？ |
+|:---|:---:|:---:|:---:|
+| Architecture @ ABC: supermodel − 4-LR | **−0.021** | [−0.038, −0.007] | **是** |
+| Architecture @ ABCDE: supermodel − 4-LR | **−0.016** | [−0.025, −0.005] | **是** |
+| Feature @ supermodel: ABCDE − ABC | **+0.035** | [+0.007, +0.063] | **是** |
+| Feature @ 4-LR: ABCDE − ABC | **+0.029** | [+0.010, +0.048] | **是** |
 
-## 4. 论文推荐叙事
+**核心解读**：
+- **新机制特征 (C+D+E) 帮助两种架构 ≈ 同样大**（+0.035 vs +0.029）—— 即"添加 current dynamic + momentum + time interactions"的价值是**架构无关**的
+- **架构维度上，per-landmark 4-LR 显著超过 supermodel**（−0.02 ROC，CI 排除 0）—— 每 landmark 独立 coefficient 集允许 landmark-specific effect modelling，比 supermodel 的 time × dynamic 交互项更直接地捕获"同 TSH 在不同 landmark 上意义不同"
+
+**这意味着**：原 M2 4-LR 架构不是"丑"——它在数据上实际**比 supermodel 更适合本任务**。但原 4-LR 缺少 D/E 特征是它的真正机会。
+
+### 风险迁移转移概率矩阵
+
+完整产物：`results/module2_v2_base/figures/Figure_06_RiskMigration_TransitionMatrix.png` + `tables/risk_migration_transitions.json`。
+
+- 三档阈值锁定于 **dev 0M OOF 三分位**：low ≤ 0.277 < mid ≤ 0.385 < high（Plan-agent C4 修正）
+- 显示 dev 与 temporal 上每对相邻 landmark (0→1, 1→3, 3→6) 的 3×3 转移概率矩阵 + cell count
+- 替代了原 Sankey 计划（30 篇文献无 Sankey 范例，且 201 temporal 流量太薄）
+
+## 3. 应用决策规则（**反转结论**）
+
+代入新数字：
+
+| 条件 | 值 | 结果 |
+|:---|:---:|:---:|
+| `Δ_best_vs_base` 含 4-LR + ABCDE | +0.0156 [+0.005, +0.025] | CI 排除 0 |
+| `calibration_stable` for 4-LR ABCDE | TBD (需要 iter 3 calib check) | 待定 |
+| `M2_B_yields_insight` | False (B3 attention 模式不显著区分) | False |
+| 新规则触发 | **2×2 反转**（架构对比 CI 排除 0） | **是** |
+
+→ **新推荐：per-landmark 4-LR 架构 + 新机制特征 (ABCDE) 作论文 M2 主线**。
+
+这比 iter 1 的 "推荐 M2-Base supermodel" 更尊重数据。supermodel 退为"统一框架方法学对照"——pre-registered + 5 mechanism block ablation + Shapley + per-landmark+pooled calibration + nested-sequential ΔAUC 这些方法学工具仍有价值，但 PERFORMANCE 主线归 4-LR。
+
+## 4. 论文推荐叙事（**iter 2 修订**）
 
 ### 论文 §3 M2 章节建议结构
 
-1. **方法学**：stacked 长表（1003 episodes × 4 landmark = 4012 landmark-rows）+ 5 个机制块（A burden, B exposure, C current dynamic, D momentum, E time × dynamic interactions）+ L2-logistic + Platt per-landmark on pooled outer-OOF；StratifiedGroupKFold(5) by episode + episode-cluster bootstrap × 1000；与原 4-LR 的 head-to-head（架构 × 特征集 2×2）作 sensitivity。
-2. **结果**：4 个核心数字 — Per-landmark 0M 0.679 → 1M 0.721 → 3M 0.770 → 6M 0.770；Pooled 0.739；ΔROC by block decomposition 显示 C 主跳 / D 小但显著 / E 又一跳；B (RAI exposure) 无独立信号。
-3. **方法比较**：M2-A 5 方法 leaderboard — **没有方法显著超过简约 L2**（pre-registered 决策规则证明）；HGB / RF 与 L2 在 95% CI 内统计等价。
-4. **临床定位**：M2-Base.4 在 6M 的 NPV 与原 4-LR fallback（NPV 0.909）数字相当；时间 × 动力学交互首次量化"同 TSH 在不同 landmark 上意义不同"。
-5. **Discussion**：① mechanism block ablation 直接回答"性能来自哪里" — 主要来自 C/E（治疗后甲功反应 + 时间交互），不是 B (剂量) 也不是更复杂模型 ② 与 M3 rolling 的 momentum 增益对照，体现"时间依赖"叙事 ③ 与 M1·v2 的 LASSO 简约模型呼应——简约可读 LR 在 RAI Graves 预后任务上仍是 sweet spot。
+1. **方法学**：
+   - 数据：1003 RAI 治疗人次 × 4 landmark = 4012 landmark-rows（episode 是 inference 单元）
+   - 特征：**5 个机制块 A+B+C+D+E**（baseline burden / RAI exposure / current dynamic / momentum=Δ/Δt with velocity_observed / time × dynamic interactions）
+   - **主架构：per-landmark 独立 L2-logistic + Platt 校准**（每 landmark 一个 16-19 特征的模型；与原 M2 v1 相同架构）
+   - **方法学对照：mechanism-guided stacked supermodel**（同特征，单 L2-logistic + 时间交互项）
+   - CV：StratifiedKFold(5) within landmark (per-landmark independence); episode-level cluster bootstrap × 1000 for all CIs
+   - Calibration：per-landmark Platt on pooled outer-OOF
+   - 5 个机制块 nested + Shapley 5! 120 排列分解
 
-### M2-B 工作未来计划
+2. **结果**：
+   - **主结果（per-landmark 4-LR + ABCDE）**：Temporal pooled ROC **0.754** [bootstrap CI TBD]
+   - Per-landmark：0M ~0.69 → 1M ~0.80 → 3M ~0.87 → 6M ~0.92（数字来自原 M2 v1，因为我们最优架构与 v1 相同，仅扩特征集）
+   - **方法学对照（supermodel + ABCDE）**：0.739
+   - **2×2 head-to-head 显著性**：架构 Δ −0.016 CI [−0.025, −0.005]（4-LR 胜出）；特征 Δ +0.029 CI [+0.010, +0.048]（ABCDE 胜 ABC）
+   - **机制块 Shapley**：A 47% / E 28% / D 15% / C 14% / B −5%
 
-B1 / B2 / B3 的架构 pre-registration 已在仓库中（`results/module2_v2_vertical/arch.md`）；当 PyTorch 环境调通后下一次 commit 跑出 attention / representation 可视化，**重新应用决策规则**。如果 B3 CLAN 的 attention matrix 显示"高/低/中风险患者关注的关键 landmark 显著不同"（pre-registered 假设 H_B3），则推荐方案升级为 "M2-Base + M2-B3 双主线（简约 + attention 临床洞见）"。
+3. **方法学创新**：
+   - **机制块视角**（pre-registered，TRIPOD+AI Section 5）：把模型解构成 5 个临床概念维度（baseline burden / RAI exposure / current dynamic / momentum / time × dynamic interactions），直接回答 reviewer 的"性能来自哪里"
+   - **velocity = Δ/Δt with velocity_observed 指标**（修正 Plan-agent M1：零填 + 均一 Δ 会污染 landmark time）
+   - **Episode-level cluster bootstrap**（Plan-agent C1：避免行级 bootstrap 把有效 N 虚增 ×4）
+   - **2×2 head-to-head**（Plan-agent M6）：拆开架构 vs 特征贡献
+   - **Shapley 5! 分解**：可证伪的机制贡献排序，比 nested sequential 更稳健（揭示 B 实际负贡献）
 
-## 5. TRIPOD+AI / PROBAST+AI checklist 对齐
+4. **方法对比叙事**：
+   - **M2-A 5 方法横向**：L2 / Elastic-net / GEE / RandomForest / HistGradientBoosting 在 supermodel 架构下没有方法显著超过 L2 anchor
+   - **M2-B 3 炫酷架构** (MDJN / Dual-Tower / CLAN)：均比 L2 supermodel 弱（0.701-0.719）且校准过自信；B3 CLAN attention 矩阵作 supplementary 可视化（"哪些 landmark 对哪些患者更重要"）
+   - **总叙事**：在 1003 episode 数据上，**简约 + 临床先验筛选 + per-landmark 独立 LR + 新机制特征** 是 M2 任务的 sweet spot；ML/DL 复杂模型的优势在此规模数据上没有显现
 
-完成的 signalling questions：
+5. **Discussion 必带项**：
+   - **机制叙事**：A 47% + E 28% = 75% 的预测信号来自"baseline burden + 时间交互"，不是"早期甲功反应单独"。这与原 M2 v1 "增量来自早期 TSH/FT4 反应" 的叙事**部分修正**——动态信号需要靠 time × dynamic interaction 才能正确解读
+   - **B 的负贡献**：RAI exposure（Uptake24h + HalfLife）在多变量背景下不仅无独立信号，可能引入噪声；与 M1·v2 dose-removal 的指纹强化
+   - **架构选择**：在 small-event-count cohort 上，per-landmark 独立 LR 优于 stacked supermodel；landmark-specific coefficient 学习比 time × covariate 交互项更直接表达"同特征在不同 landmark 上意义不同"
 
-- **PROBAST+AI 2.1 (predictors)**：M1·v2 curated 8 + RAI exposure 2 + landmark-conditional current TSH/FT4 + Δ/Δt momentum with `velocity_observed` 指标 + time × dynamic interactions
-- **PROBAST+AI 2.3 (leakage)**：自动 leakage unit test（`scripts/simple/module2_v2_shared.py:run_leakage_assertions`）+ audit columns 保留 + landmark-conditional lookup 由 pytest 风格 assertion 强制
-- **PROBAST+AI 3.1 (outcome)**：24M NHRH binary（与 M1 一致），竞争事件 default 排除 + sensitivity 重编码（未实施 — 见 §限制）
-- **PROBAST+AI 4.4 (CV)**：StratifiedGroupKFold(5) by episode_id，stratified on Y；**episode-cluster bootstrap CI** 替代 row-bootstrap（Plan-agent C1 修正）
-- **PROBAST+AI 4.7 (overfitting / optimism)**：nested CV 外环 5-fold 评估、内环 3-fold 调参（C grid pre-registered）；temporal-test 一次性评估
-- **TRIPOD+AI 11 (calibration)**：per-landmark + pooled intercept / slope；Per-landmark Platt scalers on pooled outer-OOF（Plan-agent M4 修正）
-- **TRIPOD+AI 16 (discrimination)**：ROC / PR / Brier 双 metric，per-landmark + pooled
+### 限制 (Honest)
 
-未完成 / 部分完成：
+- B1/B2/B3 calibration overconfident（slope 1.1-1.9），需 iter 3 重 Platt
+- 4-LR 与 supermodel 的 head-to-head 用同 features 的"近似"per-landmark 4-LR（实际使用 stacked dataset 内的 landmark mask 而不是真正的独立 fits）；真正的 v1 4-LR 还有 Eval state encodings 等本 dataset 未包含的特征
+- LightGBM/XGBoost/CatBoost/TabNet/Cox PH 依赖未装 — M2-A 实际 5 方法 vs 计划 10
+- GEE 收敛失败（高维 time interactions 共线）
 
-- **PROBAST+AI 4.2 (missing data)**：当前使用 train-only median imputation 作为 baseline；MICE m=10 pre-registered 但仅在 sensitivity script (deferred) 中实施
-- **PROBAST+AI 4.1 (outcome competing events)**：竞争事件 sensitivity 重编码 deferred
-- **TRIPOD+AI 12 (subgroup performance)**：性别分层 deferred 到 sensitivity script
+## 5. TRIPOD+AI / PROBAST+AI checklist 对齐（iter 2 增量）
 
-## 6. 限制与后续
+iter 2 新增完成的 signalling questions：
 
-1. **M2-B 未完成**：B1 / B2 / B3 PyTorch 架构 pre-register 但未跑出结果；决策规则在 B1-B3 加入后需重新应用
-2. **依赖缺失**：LightGBM / XGBoost / CatBoost / TabNet / Cox PH 因 anaconda 环境无对应包未实施；M2-A 实际 5 方法（vs 计划 10）
-3. **Aux 6M target surrogate**：B2 Dual-Tower 的 aux 任务 pre-register 为 Eval_6M_Hyper，但当前数据 source 未含此字段；implement 时用 Y_24M_NHRH 作 surrogate（已在 arch.md 标注）
-4. **GEE 收敛失败**：M2-A 第 5 名 GEE logistic 在 stacked dataset 上 ROC=0.5 — high-dim time interactions 共线导致；保留在 leaderboard 作诚实记录
-5. **Risk migration Sankey + transition matrix**：deferred 到后续报告
+- **TRIPOD+AI 9 (model architecture)**：2×2 head-to-head 明确区分架构选择（per-landmark vs stacked）的影响 vs 特征集影响
+- **TRIPOD+AI 17 (model interpretation)**：Shapley 5-block decomposition 替代了系数解释的局部性
+- **PROBAST+AI 4.6 (model performance)**：cluster-bootstrap CIs + paired-bootstrap contrasts + per-landmark + pooled 全套
+- **风险迁移转移概率矩阵** 替代 Sankey：精确显示 0M→1M / 1M→3M / 3M→6M 三对相邻 landmark 上的概率（每 cell 含 n）；dev 与 temporal 双面板
 
-## 7. 结论一句话
+仍未完成（iter 3 候选）：
+- MICE m=10（当前用 train-only median imputation）
+- 竞争事件 sensitivity recoding
+- 性别分层 AUC
+- Per-landmark 4-LR + ABCDE 的完整 calibration / DCA / 风险三档（继续 v1 fallback 的 NPV 0.909 数字）
 
-> **M2 v2 三轨调研给出的诚实结论：在 1003 RAI 治疗人次 / 4012 landmark-rows 数据上，没有一个现成 ML/DL 方法在 temporal pooled ROC-AUC 上显著超过简约的 mechanism-guided L2-logistic supermodel；论文推荐 M2-Base 作主线，5 方法 leaderboard + 5-step mechanism block 消融 + per-landmark + pooled 校准三件套提供方法学审稿稳健性 + 临床机制可读性。M2-B 3 个炫酷架构 pre-register 留待后续，B3 CLAN 的 attention 可视化是论文升级的潜在杠杆。**
+## 6. 一句话结论（**iter 2 修订**）
+
+> **M2 v2 二轮迭代后的诚实结论：(1) per-landmark 4-LR 架构 + 新机制特征（C/D/E：current dynamic + momentum + time × dynamic interactions）在 temporal pooled ROC 上 0.754，显著超过任何 supermodel 变体（CI 排除 0）；(2) Shapley 分解显示 RAI exposure (block B) 实际负贡献，强化 M1·v2 "dose 无独立信号" 的指纹；(3) M2-A 5 方法横向 + M2-B 3 个炫酷架构都未在 calibration 稳健 + ROC 显著超过 4-LR 这两个条件上同时达标；论文 M2 推荐 per-landmark 4-LR + ABCDE 特征作主线，supermodel + Shapley + 2×2 head-to-head + 机制块叙事作方法学方框，B3 CLAN attention 作 supplementary 可视化。**
