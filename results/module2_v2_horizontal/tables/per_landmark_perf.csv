@@ -1,0 +1,26 @@
+Method,Landmark,Tmp_ROC
+L2-logistic,0M,0.6787251485960237
+L2-logistic,1M,0.7211518753843
+L2-logistic,3M,0.7700348432055749
+L2-logistic,6M,0.7699323631891781
+L2-logistic,Pooled,0.7386247181799549
+Elastic-net,0M,0.6789301086288175
+Elastic-net,1M,0.7213568354170936
+Elastic-net,3M,0.7692150030744005
+Elastic-net,6M,0.7701373232219717
+Elastic-net,Pooled,0.7385222381635581
+GEE logistic,0M,0.5
+GEE logistic,1M,0.5
+GEE logistic,3M,0.5
+GEE logistic,6M,0.5
+GEE logistic,Pooled,0.5
+Random Forest,0M,0.6575117852018857
+Random Forest,1M,0.6965566714490674
+Random Forest,3M,0.7878663660586186
+Random Forest,6M,0.8040582086493133
+Random Forest,Pooled,0.7434989239598278
+HistGradientBoosting,0M,0.6521828243492519
+HistGradientBoosting,1M,0.6724738675958188
+HistGradientBoosting,3M,0.7436974789915966
+HistGradientBoosting,6M,0.7490264398442303
+HistGradientBoosting,Pooled,0.7063883480221357
