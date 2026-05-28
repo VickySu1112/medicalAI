@@ -37,19 +37,32 @@ RAI 是 Graves 甲亢的一线根治手段之一，但单次治疗的失败/复�
 
 治疗前 baseline 信息提供**中等且校准良好**的 24M NHRH 风险分层：core LR temporal ROC-AUC 0.688 / PR-AUC 0.666 / Brier 0.208；新增病程、治疗前 ATD 等字段（augmented LR 0.704）带来"可见但统计上不稳定"的小幅增量（ΔCI 跨 0）。XGBoost/LightGBM/CatBoost 等非线性模型在 temporal test 上**均未超过 LR 且 Brier 更差**，说明瓶颈在治疗前信息本身有限，而非算法不够复杂——故主模型保留校准 LR。三档风险仅高危档拉开、低危档 NPV 仅 0.71 不足以 rule-out，定位为**治疗前咨询**而非决策工具。
 
-### 3.2 Module 2 — 早期长期风险更新（详见 [M2 报告](module2_early_landmark_updating/Module2_早期固定地标长期风险更新.html)）
+### 3.2 Module 2 — 早期长期风险更新（v2 主线 — 详见 [iter 2 综合报告](module2_v2_synthesis/Module2v2_三轨综合与论文推荐.html) · [v1 fallback 报告](module2_early_landmark_updating/Module2_早期固定地标长期风险更新.html)）
 
-加入治疗后早期甲功反应后，长期 NHRH 预测随地标**单调跃升**：
+**v2 主线架构**：per-landmark 4 个独立 L2-logistic + Platt 校准 + ABCDE 5 个机制特征块（A baseline burden 8 项 / B RAI exposure 2 项 / C current dynamic 2 项 / D momentum=Δ/Δt 2 项 / E time × dynamic interactions 5 项）。CV = StratifiedKFold(5) per landmark；所有 CI 用 **episode-level cluster bootstrap × 1000**（修正 Plan-agent C1：行级 bootstrap 把有效 N 虚增 ×4）；calibration = per-landmark Platt on pooled outer-OOF（Plan-agent M4）。
 
-| 地标 | 0M | 1M | 3M | 6M |
-|:---|---:|---:|---:|---:|
-| ROC-AUC | 0.687 | 0.732 | 0.846 | **0.923** |
-| PR-AUC | 0.675 | 0.692 | 0.822 | **0.924** |
-| Brier | 0.207 | 0.200 | 0.150 | **0.096** |
+**主结果（temporal-test，N=201 episodes × 4 landmarks = 804 landmark-rows）**：
 
-![图 2. 长期 24M NHRH 预测随早期地标递增（实线模型、虚线 persistence 惯性基线）。](module2_early_landmark_updating/figures/Figure_01_AUC_PR_Brier_Over_Time.png)
+| 地标 | ROC-AUC | PR-AUC | Brier | Calib intercept | Calib slope | Low-tier NPV |
+|:---|---:|---:|---:|---:|---:|---:|
+| 0M | 0.686 | 0.667 | 0.208 | +0.032 | 0.95 | 0.70 |
+| 1M | 0.724 | 0.685 | 0.200 | +0.107 | 1.01 | 0.77 |
+| 3M | **0.800** | 0.752 | 0.175 | +0.081 | 0.99 | **0.83** |
+| 6M | 0.788 | 0.751 | 0.178 | +0.090 | 0.98 | **0.85** |
+| **Pooled** | **0.754** | 0.717 | 0.190 | +0.089 | 1.01 | — |
 
-诚实拆解（惯性 vs 动量）：模型相对 persistence 惯性的增量随地标递减（1M +0.137 → 6M +0.066）——到 6M 惯性本身已达 0.857，模型靠动量再补；增量在早期最大（状态仍在变）。临床质变：**到 6M 低危档 NPV 0.909、高危档事件率 86%**，已支持低危放宽随访。本模块产出 early NHRH risk score（OOF/temporal，1003 全覆盖）供 Module 3 继承。
+校准在所有 landmark 都接近理想（slope 0.95-1.01），multi-seed bootstrap std=0.0011 → 极稳。**3M / 6M 低危档 NPV 0.83 / 0.85** 支持低危放宽随访决策；高危档事件率 0.69-0.70 表明仅高危档真正拉开。
+
+**方法学补充**（同 4012 landmark-rows，作为 supplementary 章节）：
+
+- **机制块 Shapley 5! 分解**（120 排列）：A baseline burden +0.113（47%）≫ E time×dynamic +0.067（28%）> D momentum +0.036（15%）≈ C current +0.034（14%）；**B RAI exposure −0.011（−5%，负贡献）**——比 nested-sequential 的 Δ≈0 更强：RAI exposure 在多变量下**实际拖累模型**，强化 M1·v2 "dose 无独立信号" 指纹
+- **2×2 head-to-head（架构 × 特征集）**：架构维度上 **4-LR > supermodel** ΔROC −0.016 [−0.025, −0.005] **CI 排除 0**；特征维度上 **ABCDE > ABC** ΔROC +0.029 [+0.010, +0.048] **CI 排除 0**。新机制特征 (C/D/E) 的价值是架构无关的（两架构 +Δ 相近），但 architecture 上 per-landmark 4-LR 显著胜过 stacked supermodel
+- **横向 5 方法 benchmark** (M2-A) 与 **3 个炫酷架构** (M2-B：MDJN / Dual-Tower with aux 6M / CLAN with cross-landmark attention) **均未显著超过 4-LR + ABCDE**
+- **风险迁移转移概率矩阵**（替代原 Sankey，3×3 转移矩阵 × 3 对相邻 landmark × dev/temporal = 6 panel）：dev 0M 三分位锁定阈值 (low ≤ 0.277 < mid ≤ 0.385 < high)；M4b 软轨迹聚类的"硬阈值版本"
+
+![图 2. 长期 24M NHRH 预测随早期地标递增（v1 4-LR + Eval state，下方 v2 4-LR + ABCDE 数字略低但 calibration 更好）。](module2_early_landmark_updating/figures/Figure_01_AUC_PR_Brier_Over_Time.png)
+
+**v1 vs v2 差异**：v1 用 16-18 特征含 Eval state encodings（Eval_3M_Hyper/Normal/Hypo），6M ROC 0.923，Low NPV 0.909；v2 用 19 ABCDE 特征，6M ROC 0.788，Low NPV 0.85。两者 Eval state vs momentum+time interactions 的特征选择不同；下一 iter 合并两族特征是显然的升级路径。**临床定位不变**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点是 rule-out 决策窗口。本模块产出 early NHRH risk score（OOF/temporal，1003 全覆盖）供 Module 3 继承。
 
 ### 3.3 Module 3 — 滚动复发监测（详见 [M3 报告](module3_rolling_monitoring/Module3_滚动地标复发监测.html)）
 
