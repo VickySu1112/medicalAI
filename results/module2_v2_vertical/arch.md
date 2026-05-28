@@ -1,4 +1,18 @@
-# M2-B · Pre-registered 3 novel architectures (vertical innovations)
+# M2-B · Pre-registered 3 novel architectures (vertical innovations) — DEFERRED
+
+> **Implementation status (2026-05-29)**: B1 / B2 / B3 PyTorch architectures
+> are pre-registered here but **not yet implemented in this commit**. The
+> first implementation attempt (`scripts/simple/module2_v2_vertical_b.py`,
+> retained in git history) consistently produced no stdout despite a live
+> process — likely a torch+pandas import-order interaction with the
+> protected anaconda environment. Rather than ship half-working code, the
+> M2-B track is deferred to a subsequent commit; the synthesis
+> recommendation in `../module2_v2_synthesis/` therefore applies the
+> pre-registered decision rule using only M2-Base + M2-A results and
+> documents B1/B2/B3 as "future work". Decision rule outcomes will be
+> revisited once B1/B2/B3 land.
+
+
 
 **Shared infrastructure**: identical to M2-Base and M2-A — same stacking, same blocks, same CV, same cluster bootstrap.
 

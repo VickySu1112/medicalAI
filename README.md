@@ -34,7 +34,7 @@
 | 模块 | 任务 | 中文报告 | 结果目录 |
 |:---:|:---|:---|:---|
 | **M1** | 治疗前结局预期。**主线 = M1·v2**：去 RAI 给药活度家族（避免治疗指征混杂）+ LASSO 简约到 **9 / 10** 特征（core LASSO 自动选 9；augmented 由 LASSO 11 自然选 + clinical curation 剔除 ATD 三件套得到 10 = core 9 + Log disease duration）+ L2 重拟合 + Platt 校准，配 OR Forest / SHAP / Permutation Importance / PDP / 选择稳定性 / LOO ΔAUC **5 层可解释性 + 4 项敏感性分析（VIF / 性别分层 / class_weight / 多 seed）+ 4 个 leave-one-feature-out 消融实验（10 vs 9）**。**M1·v1**（完整含 dose 与 boosting）作为基准与混杂对照保留。 | **[M1v2_LASSO清洁去剂量基线模型（主线）](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md)** · [Module1_治疗前结局预期评估（v1 基准）](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.md) | [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) · [`results/module1_baseline_ml_benchmark/`](results/module1_baseline_ml_benchmark/) |
-| **M2** | 早期固定地标长期风险更新。0M / 1M / 3M / 6M 四个 landmark 各一个校准 logistic，输出每例 4 维风险轨迹，含 persistence 朴素基线对照 | [Module2_早期固定地标长期风险更新](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) | [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) |
+| **M2** | 早期固定地标长期风险更新。**主线 = M2 v2 三轨**：(M2-Base) mechanism-guided serial landmark supermodel — stacked 4012 landmark-rows + 5 个机制块（baseline burden / RAI exposure / current dynamic / momentum / time interactions）+ L2-logistic + Platt + StratifiedGroupKFold + **episode-cluster bootstrap**；(M2-A) 5 方法横向 benchmark — L2 / Elastic-net / GEE / RandomForest / HistGradientBoosting；(M2-B) 3 个炫酷架构 pre-register（MDJN / Dual-Tower / CLAN，PyTorch 实现 deferred）。**综合**：没有方法显著超过 L2 supermodel（决策规则推荐 M2-Base 作论文主线，详见综合报告）。原 4 个独立 LR（v1）保留作 fallback。 | **[三轨综合与论文推荐](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md)** · [v1 fallback：Module2_早期固定地标长期风险更新](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) | [`results/module2_v2_base/`](results/module2_v2_base/) · [`results/module2_v2_horizontal/`](results/module2_v2_horizontal/) · [`results/module2_v2_vertical/`](results/module2_v2_vertical/) · [`results/module2_v2_synthesis/`](results/module2_v2_synthesis/) · [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) |
 | **M3** | 滚动地标复发监测。多 horizon（H1 主、H6/H12 敏感性），含 inertia + momentum 消融、treatment/patient-level KM 与决策曲线 | [Module3_滚动地标复发监测](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) |
 | **综合** | **三模块整合论文：将 M1→M2→M3 串成连续的"治疗前预期 → 早期更新 → 滚动监测 → 治疗级分层"双时间尺度路径，含摘要、方法、关键发现汇总、临床意义、局限与下一步** | [整合论文_RAI三模块双时间尺度框架](results/整合论文_RAI三模块双时间尺度框架.md) | [`results/整合论文_RAI三模块双时间尺度框架.md`](results/整合论文_RAI三模块双时间尺度框架.md) |
 | **M4** | 患者分层聚类（探索性）。两种平行做法：M4 在基线特征上聚类，M4b 在 M2 输出的 4 维风险轨迹上聚类；二者结果合并报告 | [Module4_患者分层与风险轨迹聚类](results/Module4_患者分层与风险轨迹聚类.md) | [`results/module4_baseline_clustering_trajectory/`](results/module4_baseline_clustering_trajectory/) · [`results/module4b_trajectory_clustering/`](results/module4b_trajectory_clustering/) |
@@ -52,10 +52,12 @@
 
 ### M2 — 早期固定地标长期风险更新
 
-- 加入治疗后早期甲功反应后，长期 24M NHRH 预测随地标**单调跃升**：0M 0.688 → 1M ~0.80 → 3M ~0.87 → **6M 0.923**（PR-AUC 0.924、Brier 0.096）。
-- **6M 低危档 NPV 达 0.909**，首次支持 **rule-out**（可降低复诊频率 / 跳过短期随访）；3M 低危档 NPV 在 0.82–0.85 之间，作为更早的"安全签"备选。
-- 增量来源是**早期 TSH / FT4 反应**而非更多基线信息；与 persistence 朴素基线（"基线 NHRH 风险持续"）相比，1M 起 PR-AUC 已显著超过基线，6M 差距最大。
-- **临床定位**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点是 rule-out 决策窗口。
+- **主线：M2 v2 三轨升级**。架构 = stacked 长表 4012 landmark-rows + 5 个机制块（baseline burden / RAI exposure / current dynamic / momentum=Δ/Δt / time × dynamic interactions）+ L2-logistic + Platt + StratifiedGroupKFold + episode-cluster bootstrap × 1000（修正 Plan-agent C1：行级 bootstrap 会把有效 N 虚增 ×4）。Per-landmark Platt 在 pooled outer-OOF 上 fit（Plan-agent M4）。
+- **机制块 nested ablation（Temporal pooled ROC）**：A only 0.686 → +B (RAI exposure) **0.685（Δ ≈ 0，无独立信号）** → +C (current dynamic) **0.704（Δ +0.019 CI [+0.005, +0.033]）** → +D (momentum) **0.712（Δ +0.008 CI [+0.000, +0.016]）** → +E (time × dynamic) **0.739（Δ +0.027 CI [+0.002, +0.055]）**。**直接回答 reviewer 的"性能来自哪里"**：C/E 是主驱动，B 无贡献（与 M1·v2 dose-removal 一致），D 量小但显著（24M 端点远 → momentum 衰减，比 M3 rolling 的 PR-AUC +0.169 弱）。
+- **M2-A 5 方法横向 benchmark**（同 features 同 CV 同 calibration）：Random Forest 0.7435 > L2 0.7386 ≈ Elastic-net 0.7385 > HGB 0.706 > GEE 0.500 (failed)。**没有方法的 Δ vs L2 anchor 的 95% CI 脱离 0** — 简约 LR 在 RAI Graves 上仍是 sweet spot；LightGBM/XGB/CatBoost/TabNet/Cox 因依赖未安装暂未跑（disclosed）。
+- **M2-B 3 个炫酷架构**（MDJN / Dual-Tower with aux 6M / CLAN with cross-landmark attention）pre-register 在 [`results/module2_v2_vertical/arch.md`](results/module2_v2_vertical/arch.md)；PyTorch 实现 deferred 到下一 commit（torch+anaconda hang 调试中）。
+- **预注册决策规则当前结果**：M2-A best (RF) Δ vs M2-Base CI 跨 0 → **推荐 M2-Base 作论文 M2 主线**（详见 [综合报告](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md)）。
+- **临床定位**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；原 v1 4-LR 的 6M NPV 0.909 仍是 rule-out 决策依据。
 
 ### M3 — 滚动地标复发监测
 
