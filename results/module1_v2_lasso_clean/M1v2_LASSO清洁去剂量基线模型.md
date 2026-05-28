@@ -312,6 +312,46 @@ CI 用 **paired bootstrap × 1000**：同一份 bootstrap 索引同时打在 ful
 - 保留 9–10 特征模型不是因为"它们带预测信息"——是因为它们提供**多维风险解释**（让医生在跟患者沟通时有更多角度可讲："你年纪较轻 + 病程长 + 抗体阳性"比单说"你腺体大"更易被接受），同时给可解释性 / 校准 / 子组分析提供基础。但**从纯预测角度，M1 已经触底**。
 - 这也是 **M2/M3 momentum 范式必要性的最强证据**——治疗前信息天花板在 ROC ~0.69（temporal），无论用 1 个特征还是 10 个；继续在 M1 上做特征工程是无效投资，**真正的增量必须来自治疗后的甲功反应轨迹（M2）和动量（M3）**。
 
+## 6.8 镜像实验：去掉 Thyroid weight，剩 9 个能不能打？
+
+§6.7 已经证明 **k=1 (only ThyroidW)** 就能达到 full(10) 的 temporal AUC（0.683 vs 0.685）。但反过来呢——如果**禁用** Thyroid weight，剩 9 个特征联合起来能补到什么水平？这是"ThyroidW 是否真正不可替代"的硬测试。
+
+![图 14. M1·v2 镜像实验：with vs without Thyroid weight 的对偶证据。](figures/Figure_14_No_ThyroidW.png)
+
+**头对头对比表**：
+
+| 子集 | k | Dev OOF AUC | Temporal AUC (95% CI) |
+|:---|:---:|:---:|:---|
+| Full 10 features (reference) | 10 | 0.7225 | 0.6853 (0.604, 0.763) |
+| **Only Thyroid weight** | **1** | **0.7248** | **0.6825 (0.603, 0.761)** |
+| Without ThyroidW — all 9 | 9 | 0.6295 | 0.6060 (0.528, 0.689) |
+| Top-5 no-TW (LogDur+TPOAb+Sex+TRAb+FT4) | 5 | 0.6346 | 0.6050 (0.527, 0.689) |
+| Top-3 no-TW (LogDur+TPOAb+Sex) | 3 | 0.5955 | 0.5675 (0.491, 0.648) |
+| Top-2 no-TW (LogDur+TPOAb) | 2 | 0.5991 | 0.5708 (0.494, 0.655) |
+
+**Paired bootstrap ΔAUC（only-ThyroidW − without-ThyroidW 9 特征）**：
+- **Dev OOF Δ = +0.0953 [+0.052, +0.137]**（CI 完全脱离 0，**统计显著**）
+- **Temporal Δ = +0.0765 [+0.007, +0.150]**（CI 完全脱离 0，**统计显著**）
+
+**关键观察**：
+
+1. **剩 9 个特征加起来 temporal AUC 只能爬到 0.606**——比 only-ThyroidW 的 **0.683 低 0.077**，paired bootstrap 在 dev OOF 与 temporal **两端都显示 95% CI 完全脱离 0**。这是统计上对 "剩 9 个能替代 ThyroidW" 的**硬反驳**。
+2. **Top-5 no-TW (0.605) 与 all-9 no-TW (0.606) 几乎相同**——再加 4 个特征也没用，9 特征的 no-TW 模型已经触底；信号上限就在 0.60–0.61 一带。
+3. **Top-2/Top-3 no-TW (0.57)** 甚至接近 chance line（0.50）；剩下抗体/甲功/性别/病程的组合在 RAI 治疗前判别 NHRH 的能力**真的非常有限**。
+4. **Greedy backward 在 no-TW 池上 9→1**：dev OOF 最高点在 k=5（0.640），temporal 最高点在 k=4 (0.612)；从 9 → 1 全程 temporal AUC 在 0.57–0.61 一带波动，**没有任何 k 能打到 only-ThyroidW 的 0.683**。
+
+**结论的两面**（§6.7 + §6.8 合起来）：
+
+> **M1 = Thyroid weight + 噪声衬底**。  
+> 单独 ThyroidW (k=1) 的 AUC ≈ Full 10 (k=10) 的 AUC ≈ 0.68 — 加多少特征都不带预测增量。  
+> 剔除 ThyroidW 后，剩 9 个特征加起来 AUC = 0.61，比 ThyroidW alone 低 0.077，**统计显著**。  
+> **Thyroid weight 不仅是 M1 第一驱动，更是 M1 唯一不可替代的驱动**——剩下所有特征只在它存在时才有"装饰性"贡献，单独/联合都打不过它。
+
+**临床意义**：
+- 这是对"GREAT score / 多变量 RAI 预测模型" 的最 stark 的实证版本：**如果你能且只能测一个东西，那就是腺体重量**。
+- 反过来说，如果某个临床场景**无法测腺体**（比如没有 B 超/SPECT、只有外周血），那 M1 几乎没有可用的治疗前预测能力（剩下 9 特征的 temporal AUC 才 0.61，CI 下限 0.53 已经接近 chance）。在这种场景下，应**直接跳过 M1 治疗前分层**，等 1–3 个月看治疗后甲功反应 (M2)。
+- 这也是 **"M2/M3 momentum 范式" 必要性的第二个硬证据**：M1 治疗前信息天花板低**不是因为我们没找对特征**，而是因为**治疗前能可靠测量的最有信息量的东西就只有腺体重量**；想要拿到更高 AUC，必须等治疗后数据。
+
 ## 7. 结论 + 医学洞见
 
 ### 7.1 方法学结论
@@ -329,7 +369,7 @@ CI 用 **paired bootstrap × 1000**：同一份 bootstrap 索引同时打在 ful
 
 写给临床合作者的话——五条与临床决策相关的 takeaway：
 
-1. **"看到病人就先量腺体" —— 腺体重量是预后第一驱动，而且几乎是唯一驱动**。Thyroid weight 的 PDP 在两池上都从 0.18（10 g）单调升到 0.94（116 g），覆盖了 NHRH 风险从五分之一到九成的全跨度。一例 174.9 g 巨大腺体的 dev OOF 校准概率 P=0.98，其 SHAP 贡献中 Thyroid weight 一项就 +5.36 logit，其他 8 项加起来约 +0.1 logit。**§6.7 的最少特征数实验更把"重要"推到极限：只用 Thyroid weight 一个特征（k=1）的 Temporal AUC = 0.6825，跟 10 个特征的 0.6853 几乎完全一样（Δ=−0.003，远小于 95% CI 宽度 0.16）**。**临床落到一句话："腺体越大，NHRH 风险越大；M1 整张表的预测信号几乎全部来自这一项"**。这与 GREAT 评分等国际共识一致，但我们的数据把"重要程度"具体化到了"一项 ≈ 十项"。
+1. **"看到病人就先量腺体" —— 腺体重量是预后第一驱动，而且是唯一不可替代的驱动**。Thyroid weight 的 PDP 在两池上都从 0.18（10 g）单调升到 0.94（116 g），覆盖了 NHRH 风险从五分之一到九成的全跨度。一例 174.9 g 巨大腺体的 dev OOF 校准概率 P=0.98，其 SHAP 贡献中 Thyroid weight 一项就 +5.36 logit，其他 8 项加起来约 +0.1 logit。§6.7 与 §6.8 两个对偶实验把这个"重要"推到极限：(a) **只用 ThyroidW (k=1) 的 Temporal AUC = 0.683 ≈ 10 特征的 0.685**（统计上不可区分）；(b) **禁用 ThyroidW、剩 9 个加起来 Temporal AUC 仅 0.606，paired bootstrap Δ vs only-ThyroidW = +0.077 [+0.007, +0.150] CI 完全脱离 0 — 统计显著**。**临床落到一句话："腺体越大，NHRH 风险越大；M1 整张表的预测信号几乎全部来自这一项，剩下 9 个加起来都打不过它"**。这与 GREAT 评分等国际共识一致，但我们的数据把"重要程度"具体化到了"一项 > 九项"。
 
 2. **"病程是个语境维度，不是独立预后因子"**。Log disease duration 在 OR 上 显著（1.24, p=0.014），SHAP / PI 上 Top 3，但 LOO 与消融实验都显示**移除它对 OOF / temporal AUC 几乎无影响**（CI 完全跨 0）。这意味着 "病了 5 年的病人比刚发病 3 个月的病人高危" 这个临床直觉**是对的**——但这种信息已经被 Thyroid weight 等"病程结果"间接捕获（病程长 → 腺体重塑严重 → 腺体更大）。**写病历时把它记下来给医生看是合理的，但不能把它作为"独立预后变量"在论文中过度突出**。
 
@@ -358,5 +398,6 @@ CI 用 **paired bootstrap × 1000**：同一份 bootstrap 索引同时打在 ful
 - 敏感性脚本：`scripts/simple/module1_v2_sensitivity.py`（S1 VIF / S2 性别分层 / S3 class_weight / S4 多 seed）
 - 消融脚本：`scripts/simple/module1_v2_ablation.py`（10 vs 9 leave-one-feature-out）
 - 最少特征数脚本：`scripts/simple/module1_v2_minimal.py`（10 → 1 贪心向下消除 + only-ThyroidW / TW+LogDur / TW+TPOAb+LogDur 三个手工对照子集）
+- 镜像实验脚本：`scripts/simple/module1_v2_no_thyroidw.py`（剔除 ThyroidW 后剩 9 特征的能力上限 + paired bootstrap ΔAUC vs only-ThyroidW）
 - 全部在 PYTHONNOUSERSITE=1 base env 下运行，与原 M1 同切分 / 同人次级 bootstrap。
 - 口径：1003 治疗人次；development 802 / temporal test 201；图内英文、正文中文。
