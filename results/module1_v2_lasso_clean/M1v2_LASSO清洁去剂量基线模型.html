@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>M1·v2 (10 特征 + 最少 / 镜像实验)</title>
+<title>M1·v2 (10 特征 + 最少 / 镜像 + 指南对照)</title>
 <style>
   body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
        font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
@@ -579,6 +579,29 @@
 </ol>
 <h3>7.3 与论文 Discussion 的对接</h3>
 <p>本模块与原 Module 1 平行存在，互不替代：原 M1 用于完整治疗前 benchmark（含 boosting/SHAP），M1·v2 作为 <strong>混杂稳健性 + 简约性 + 可解释性深化 + 敏感性 / 消融论证</strong>——一并写入论文的方法 / 讨论。</p>
+<h3>7.4 与指南共识的对照：thyroid weight 在 RAI Graves 文献中的地位</h3>
+<p>我们的核心发现"<strong>ThyroidW 是 M1 唯一不可替代特征</strong>"并非孤立。系统检索 5 份国际权威指南（ATA 2016、EANM 2010/2023、SNMMI 2012、ETA 2018）+ 2 份中国指南（中华医学会核医学分会 2013/2021 版）+ 关键研究文献（Reinhardt 2002、Khattak 2021 meta-analysis、ATA 2023 综述、Wang 2025）后发现：<strong>thyroid weight 在指南中的角色是"分裂的"——作为剂量参数有强共识，作为独立预后因子是"软共识"</strong>。</p>
+<p><strong>国际指南</strong>：
+- <strong>ATA 2016</strong>（Ross/Burch, <em>Thyroid</em> 2016;26:1343–1421）把 thyroid weight 写进剂量公式 <code>activity (μCi) = gland weight (g) × 50–200 μCi/g / 24h uptake</code>；同时把 "<strong>large goiters ≥ 80 g</strong>" 列为<strong>优先手术而非 RAI</strong> 的指征。
+- <strong>EANM 2010</strong>（Stokkel, <em>Eur J Nucl Med Mol Imaging</em> 2010;37:2218–2228）使用 Marinelli 公式 <code>A [MBq] = F × ln2 × M[g] × D[Gy] / ∫RIU(t)dt</code>，并明确写："<strong>Gland size also influences treatment outcome ... when the thyroid gland exceeds 80 g, remission rates after 131I therapy are poor</strong>" — 这是国际指南里关于 thyroid weight 预后角色最强的表述。
+- <strong>SNMMI 2012</strong>（Silberstein, <em>J Nucl Med</em> 2012;53:1633–1651）："<strong>Large goiters and severe hyperthyroidism may also be associated with radioresistance and require a higher 131I administered activity</strong>"，建议 3–8 MBq (80–220 μCi)/g 范围。
+- <strong>EANM 2023</strong>（Campenni, <em>Eur J Nucl Med Mol Imaging</em> 2023;50:3324–3348）维持 dosimetric + empiric 并列推荐，仍以 mass × uptake 为核心。</p>
+<p><strong>中文指南</strong> — 中华医学会核医学分会《131I 治疗格雷夫斯甲亢指南》（2013、2021 版，《中华核医学与分子影像杂志》）：
+- <strong>问题 17</strong>（2021 版）：计划量 <strong>70–150 μCi/g</strong> = 2.59–5.55 MBq/g，<strong>甲状腺质量是必要参数</strong>。
+- <strong>问题 19</strong>："增加剂量因素 — <strong>甲状腺体积较大、质地较硬者</strong>；减少剂量因素 — 病程短、甲状腺体积较小、质地较软者。" 明确承认腺体大小是修正剂量的核心变量。
+- <strong>问题 26</strong>："<strong>甲状腺体积过大、过硬或伴有结节者，需多次治疗才能获得痊愈</strong>" — 中文指南里最接近"thyroid weight 是预后因子"的表述。</p>
+<p><strong>研究性文献</strong>（指南之外把 thyroid volume 作为独立 outcome predictor）：
+- <strong>Reinhardt et al. 2002</strong> (<em>Eur J Nucl Med</em> 29:1118)："<strong>effect of pre-treatment thyroid volume on clinical outcome</strong>" — 即便按 mass 算了剂量，pre-treatment thyroid volume <strong>仍独立影响 outcome</strong>；被 EANM 2010 与 SNMMI 2012 都引用。
+- <strong>Khattak et al. 2021</strong> meta-analysis (<em>Am J Surg</em>, PMID 33865565)：18 项研究 4 822 例。<strong>thyroid volume ≥ 35.77 mL</strong> 与失败显著相关；<strong>RAI 剂量本身与 outcome 无显著相关</strong>。
+- <strong>ATA 2023 Clinical Thyroidology</strong> 综述：总体 failure rate ≈ 20.2%；明确指出 "larger thyroid glands" 是 predictor，<strong>"specific dose of radioactive iodine administered did not significantly influence outcomes"</strong>。
+- <strong>Wang et al. 2025</strong> (<em>Front Endocrinol</em>，本地文献包 P04)：报告 "<strong>&lt; 62 g 失败率 9.6%，&gt; 62 g 失败率 44%</strong>"，4 独立预测变量含 thyroid mass；nomogram AUC 0.919 / 0.901。</p>
+<p><strong>本研究在这条证据链上的位置</strong>：</p>
+<ul>
+<li><strong>共识层</strong>：thyroid weight 是剂量公式必要输入，已被 5 份国际 + 2 份中国指南<strong>一致承认</strong>。这一点不是新发现。</li>
+<li><strong>半共识层</strong>：thyroid weight 作为独立预后因子，指南用"软语言"承认（"≥80 g 宜手术"、"需多次治疗"），但<strong>没有任何指南把它列在"单变量就足以预测复合终点"的层面</strong>。</li>
+<li><strong>本研究的增量</strong>：在 1003 人次 contemporary 队列上<strong>量化具体化</strong>——只用 ThyroidW (k=1) 的 temporal AUC = 0.683 ≈ 用 10 个特征 (0.685)；剔除 ThyroidW 后剩 9 个加起来只到 0.606（paired bootstrap Δ = +0.077, CI [+0.007, +0.150] 完全脱离 0，<strong>统计显著</strong>）。这是把指南里 "≥80 g 不宜 RAI" 的临床直觉<strong>具体化为可量化、可纳入预测模型的精确证据</strong>，并与 ATA 2023 综述里反直觉结论 "<strong>剂量不显著、thyroid volume 显著</strong>" 完美呼应——正是因为剂量按 mass 上调并不能完全代偿，残余的 ThyroidW 信号才在我们的模型中如此突出。</li>
+</ul>
+<p><strong>证据链总览</strong>：Reinhardt 2002 → EANM 2010 引用 → SNMMI 2012 引用 → Khattak 2021 meta → ATA 2023 综述 → Wang 2025 nomogram (62 g cut-off, 9.6% vs 44%) → <strong>本研究</strong> (k=1 vs k=9 paired Δ 统计显著)。<strong>过去 20+ 年文献都在指向同一方向，本研究第一次给这一共识量化定位到"单变量就触及 M1 信息上限"的极限层面</strong>。</p>
 <h2>参考文献（Q1/Q2，与全论文一致）</h2>
 <ol>
 <li>Van Calster B, et al. Calibration: the Achilles heel of predictive analytics. <em>BMC Med</em> 2019;17:230.</li>
@@ -586,6 +609,18 @@
 <li>Collins GS, et al. TRIPOD+AI. <em>BMJ</em> 2024;385:e078378.</li>
 <li>Moons KGM, et al. PROBAST+AI. <em>BMJ</em> 2025;388:e082505.</li>
 <li>Riley RD, et al. Calculating the sample size required for developing a clinical prediction model. <em>BMJ</em> 2020;368:m441.</li>
+</ol>
+<p><strong>指南与对照文献（新增于 §7.4）</strong>：</p>
+<ol start="6">
+<li>Ross DS, Burch HB, Cooper DS, et al. 2016 American Thyroid Association Guidelines for Diagnosis and Management of Hyperthyroidism and Other Causes of Thyrotoxicosis. <em>Thyroid</em> 2016;26(10):1343–1421.</li>
+<li>Stokkel MPM, Handkiewicz Junak D, Lassmann M, et al. EANM procedure guidelines for therapy of benign thyroid disease. <em>Eur J Nucl Med Mol Imaging</em> 2010;37(11):2218–2228.</li>
+<li>Campenni A, Tuncel M, Bischof Delaloye A, et al. EANM Practice Guideline/SNMMI Procedure Standard for radionuclide therapy of benign thyroid disease (RNTBTD). <em>Eur J Nucl Med Mol Imaging</em> 2023;50(11):3324–3348.</li>
+<li>Silberstein EB, Alavi A, Balon HR, et al. The SNMMI Practice Guideline for Therapy of Thyroid Disease with 131I 3.0. <em>J Nucl Med</em> 2012;53(10):1633–1651.</li>
+<li>Kahaly GJ, Bartalena L, Hegedüs L, et al. 2018 European Thyroid Association Guideline for the Management of Graves' Hyperthyroidism. <em>Eur Thyroid J</em> 2018;7(4):167–186.</li>
+<li>中华医学会核医学分会. 131I 治疗格雷夫斯甲亢指南（2021 版）. 中华核医学与分子影像杂志 2021;41(4):242–253.</li>
+<li>Reinhardt MJ, Brink I, Joe AY, et al. Radioiodine therapy in Graves' disease based on tissue-absorbed dose calculations: effect of pre-treatment thyroid volume on clinical outcome. <em>Eur J Nucl Med</em> 2002;29(9):1118–1124.</li>
+<li>Khattak RM, Ittermann T, Nauck M, et al. Predictive factors of radioiodine therapy failure in Graves' Disease: A meta-analysis. <em>Am J Surg</em> 2021;221(4):858–866. PMID 33865565.</li>
+<li>Wang J, et al. A prognostic nomogram model for non-complete remission following initial radioiodine therapy in Graves' hyperthyroidism. <em>Front Endocrinol</em> 2025 (本地文献包 P04).</li>
 </ol>
 <h2>可复现性</h2>
 <ul>
