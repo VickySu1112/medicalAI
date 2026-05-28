@@ -1,0 +1,10 @@
+{
+  "S1_VIF_max": 1.309527168376649,
+  "S1_VIF_max_feature": "ThyroidW",
+  "S2_overall_dev_AUC": 0.7225092311512021,
+  "S2_overall_temporal_AUC": 0.6852680179402901,
+  "S3_delta_temporal_AUC_balanced_vs_default": -0.00027304169321462624,
+  "S4_seed_mean_AUC": 0.6848428555516188,
+  "S4_seed_std_AUC": 0.0014161701217093765,
+  "S4_mean_CI_width": 0.15495057430637743
+}

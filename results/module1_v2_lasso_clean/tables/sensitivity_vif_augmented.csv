@@ -1,0 +1,11 @@
+Feature,PrettyLabel,VIF
+ThyroidW,Thyroid weight,1.309527168376649
+TRAb,TSH receptor antibody,1.2736614630906733
+TPOAb,Thyroid peroxidase antibody,1.2331495476268441
+log1p_DiseaseDuration_Months_Aug,Log disease duration (months),1.1899305100554405
+TGAb,Thyroglobulin antibody,1.1183239536253184
+FT4_0M,FT4 at baseline,1.0939961977301262
+Sex,Sex,1.0501221408040737
+HalfLife,Effective iodine half-life,1.0404727260914293
+TSH_0M,TSH at baseline,1.0129675077028282
+Uptake24h,24-hour thyroid RAI uptake,1.0055813914550011

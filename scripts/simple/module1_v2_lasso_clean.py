@@ -1,4 +1,4 @@
-"""Module 1 v2 LASSO-Clean: drop RAI dose features and LASSO-select 8-10 features.
+"""Module 1 v2 LASSO-Clean: drop RAI dose features and select 8-10 features.
 
 This refined Module 1 keeps the published M1 pipeline pattern (1003 treatment
 episodes, temporal row split, 5-fold OOF, Platt calibration) but adds two
@@ -7,10 +7,18 @@ analytical changes:
 1. Dose features ``Dose`` and ``IDPG_Dose_per_ThyroidW`` are dropped from both
    core and augmented feature pools (per inventory these are the only two
    M1 features directly derived from administered RAI dose).
-2. A LASSO (L1 logistic) selection pass on the development training set picks
-   a parsimonious subset (target 8-10 nonzero coefficients), and the final
-   model is a refit L2 logistic regression on the selected subset, calibrated
-   via Platt scaling on dev OOF predictions.
+2. Feature selection differs per pool:
+   - core pool: LASSO (L1-logistic) path selection at C=0.15 (9 nonzero
+     features). Pure data-driven choice.
+   - augmented pool: clinical-prior curation. We hard-code the final
+     selected set to ``core 9 + Log disease duration (months)`` = 10
+     features. The LASSO path is still computed for methodological
+     transparency (shown in §2 LASSO path figure) but the ATD triplet
+     that LASSO naively pulls in at C=0.08 is dropped per the prior
+     explainability audit (PI/LOO ΔAUC ≈ 0, CI crosses 0, fold-level
+     selection unstable -- no independent prognostic signal).
+   The final fit is L2-logistic on the selected subset with Platt
+   calibration from dev OOF predictions.
 
 Outputs are written to ``results/module1_v2_lasso_clean/{figures,tables}/``
 and the existing Module 1 directory is never touched.
@@ -69,6 +77,33 @@ C_GRID = [0.01, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.3]
 # Dose features to drop (the only two dose-derived M1 features per inventory)
 DOSE_FEATURES_TO_DROP = ["Dose", "IDPG_Dose_per_ThyroidW"]
 
+# Augmented pool: clinical-prior curated final feature set (core 9 + Log
+# disease duration). ATD triplet (PreRAI_ATD_Use_Clean_Aug,
+# PreRAI_ATD_Use_Missing_Aug, PreRAI_ATD_Stop_Missing_Aug) that LASSO
+# naively pulls in at C=0.08 is dropped per the prior explainability audit
+# (PI/LOO ΔAUC ≈ 0, CI crosses 0, fold-level selection unstable).
+M1_V2A_CURATED_FEATURES = [
+    "Sex",
+    "ThyroidW",
+    "Uptake24h",
+    "HalfLife",
+    "TRAb",
+    "TGAb",
+    "TPOAb",
+    "FT4_0M",
+    "TSH_0M",
+    "log1p_DiseaseDuration_Months_Aug",
+]
+
+# Selection method tags for run_summary.json transparency.
+SELECTION_METHOD_LASSO = "lasso_path"
+SELECTION_METHOD_CURATED = "clinical_curation"
+CURATION_NOTE_AUGMENTED = (
+    "clinical_curation_from_core_plus_disease_duration; ATD triplet "
+    "(use/use_missing/stop_missing) dropped per prior explainability "
+    "audit (PI/LOO ΔAUC ≈ 0, CI crosses 0, unstable folds)."
+)
+
 # Reference numbers from the locked Module 1 LR runs (for delta context only).
 REFERENCE_M1 = {
     "core": {"ROC_AUC": 0.6875, "PR_AUC": 0.6656, "Brier": 0.2084},
@@ -95,7 +130,7 @@ class PoolResult:
     pool_name: str  # "core" or "augmented"
     short_label: str  # "M1_v2c" or "M1_v2a"
     full_features: list[str]
-    chosen_C: float
+    chosen_C: float  # numeric for LASSO; float('nan') for curated
     selected_features: list[str]
     coef_l1: dict[str, float]
     coef_l2_refit: dict[str, float]
@@ -104,6 +139,10 @@ class PoolResult:
     y_train: np.ndarray
     y_test: np.ndarray
     lasso_path_rows: list[dict[str, Any]]
+    selection_method: str = SELECTION_METHOD_LASSO
+    selection_note: str = ""
+    lasso_natural_C: float = float("nan")
+    lasso_natural_selected: list[str] = None  # type: ignore[assignment]
 
 
 # ---------------------------------------------------------------------------
@@ -344,7 +383,16 @@ def _run_pool(
     short_label: str,
     features: list[str],
     inputs: dict[str, Any],
+    curated_features: list[str] | None = None,
 ) -> PoolResult:
+    """Run one feature pool through (optionally curated) selection -> refit.
+
+    When ``curated_features`` is provided, the LASSO path is still computed
+    (for §2 transparency figure) but the *final* selected set is exactly
+    those curated features. ``chosen_C`` becomes NaN and ``selection_method``
+    is set to ``clinical_curation``; the natural LASSO C (and its picks)
+    are recorded separately for the report.
+    """
     frozen = inputs["frozen"]
     dev_mask = inputs["dev_mask"]
     test_mask = inputs["test_mask"]
@@ -355,7 +403,39 @@ def _run_pool(
     x_train_full = frozen.loc[dev_mask, features].reset_index(drop=True)
     x_test_full = frozen.loc[test_mask, features].reset_index(drop=True)
 
-    chosen_C, lasso_rows, selected, coef_l1 = _lasso_select(x_train_full, y_train, features)
+    # Always compute the LASSO path (for transparency / Figure_01).
+    lasso_C, lasso_rows, lasso_selected, lasso_coef = _lasso_select(
+        x_train_full, y_train, features
+    )
+
+    if curated_features is None:
+        # Pure LASSO-driven selection (core pool).
+        selected = lasso_selected
+        coef_l1_map = {feat: lasso_coef.get(feat, 0.0) for feat in selected}
+        chosen_C = lasso_C
+        selection_method = SELECTION_METHOD_LASSO
+        selection_note = ""
+        lasso_natural_C = lasso_C
+        lasso_natural_selected = list(lasso_selected)
+    else:
+        # Clinical-prior curation (augmented pool).
+        missing = [f for f in curated_features if f not in features]
+        if missing:
+            raise RuntimeError(
+                f"Curated features {missing} not in pool {pool_name}'s candidate set."
+            )
+        selected = list(curated_features)
+        # For curated path, also refit L1 at lasso_C on the full curated set
+        # only to populate coefficient labels (not used for selection).
+        l1_curated = _make_l1_pipe(lasso_C)
+        l1_curated.fit(x_train_full[selected], y_train)
+        l1_curated_coef = l1_curated.named_steps["lr"].coef_[0]
+        coef_l1_map = {feat: float(l1_curated_coef[i]) for i, feat in enumerate(selected)}
+        chosen_C = float("nan")
+        selection_method = SELECTION_METHOD_CURATED
+        selection_note = CURATION_NOTE_AUGMENTED
+        lasso_natural_C = lasso_C
+        lasso_natural_selected = list(lasso_selected)
 
     x_train_sel = x_train_full[selected]
     x_test_sel = x_test_full[selected]
@@ -371,13 +451,17 @@ def _run_pool(
         full_features=list(features),
         chosen_C=chosen_C,
         selected_features=selected,
-        coef_l1={feat: coef_l1.get(feat, 0.0) for feat in selected},
+        coef_l1=coef_l1_map,
         coef_l2_refit=coef_l2_map,
         oof_prob=oof_cal,
         test_prob=test_cal,
         y_train=y_train,
         y_test=y_test,
         lasso_path_rows=lasso_rows,
+        selection_method=selection_method,
+        selection_note=selection_note,
+        lasso_natural_C=lasso_natural_C,
+        lasso_natural_selected=lasso_natural_selected,
     )
 
 
@@ -389,6 +473,7 @@ def _run_pool(
 def _write_lasso_path(results: list[PoolResult]) -> Path:
     rows = []
     for r in results:
+        ref_C = r.chosen_C if r.selection_method == SELECTION_METHOD_LASSO else r.lasso_natural_C
         for entry in r.lasso_path_rows:
             rows.append(
                 {
@@ -398,7 +483,11 @@ def _write_lasso_path(results: list[PoolResult]) -> Path:
                     "MinNonzero": entry["MinNonzero"],
                     "MaxNonzero": entry["MaxNonzero"],
                     "MeanOOF_AUC": entry["MeanOOF_AUC"],
-                    "Chosen": int(abs(entry["C"] - r.chosen_C) < 1e-12),
+                    "SelectionMethod": r.selection_method,
+                    "Chosen": int(
+                        not math.isnan(ref_C)
+                        and abs(entry["C"] - ref_C) < 1e-12
+                    ),
                 }
             )
     path = TABLE_DIR / "lasso_path.csv"
@@ -417,6 +506,7 @@ def _write_selected_features(results: list[PoolResult]) -> Path:
                     "Coefficient_L1": r.coef_l1.get(feat, 0.0),
                     "Coefficient_L2_refit": r.coef_l2_refit.get(feat, 0.0),
                     "ChosenC": r.chosen_C,
+                    "SelectionMethod": r.selection_method,
                     "PrettyLabel": pretty_feature_label(feat),
                 }
             )
@@ -606,9 +696,39 @@ def _plot_lasso_path(results: list[PoolResult], path: Path) -> None:
         df = pd.DataFrame(r.lasso_path_rows).sort_values("C")
         col = colors.get(r.short_label, kit.TEAL)
         ax.plot(df["C"], df["AvgNonzero"], marker="o", color=col, label=f"{r.short_label} ({r.pool_name})")
-        ax.axvline(r.chosen_C, color=col, linestyle="--", linewidth=1, alpha=0.85)
-        chosen_avg = float(df.loc[df["C"].sub(r.chosen_C).abs().idxmin(), "AvgNonzero"])
-        ax.scatter([r.chosen_C], [chosen_avg], s=110, facecolor="white", edgecolor=col, zorder=6)
+        if r.selection_method == SELECTION_METHOD_LASSO:
+            ref_C = r.chosen_C
+            mark_label = None
+            facecolor = "white"
+        else:
+            # Augmented: show where LASSO would have landed, but mark it
+            # differently and overlay the curated final count.
+            ref_C = r.lasso_natural_C
+            mark_label = f"{r.short_label} curated final ({len(r.selected_features)} features)"
+            facecolor = col
+        ax.axvline(ref_C, color=col, linestyle="--", linewidth=1, alpha=0.85)
+        chosen_avg = float(df.loc[df["C"].sub(ref_C).abs().idxmin(), "AvgNonzero"])
+        ax.scatter(
+            [ref_C], [chosen_avg], s=110, facecolor=facecolor, edgecolor=col, zorder=6
+        )
+        if r.selection_method != SELECTION_METHOD_LASSO:
+            # Add a horizontal tick at the curated final count for clarity.
+            ax.axhline(
+                len(r.selected_features),
+                color=col,
+                linestyle=":",
+                linewidth=1.2,
+                alpha=0.6,
+            )
+            ax.text(
+                df["C"].min() * 0.9,
+                len(r.selected_features) + 0.18,
+                mark_label,
+                color=col,
+                fontsize=8.5,
+                ha="left",
+                va="bottom",
+            )
     ax.set_xscale("log")
     ax.set_xlabel("Inverse L1 regularization strength C (log scale)")
     ax.set_ylabel("Average number of nonzero coefficients (5-fold)")
@@ -740,12 +860,12 @@ def main() -> None:
         raise RuntimeError("Unexpected episode count; aborting to preserve 1003-episode invariant.")
 
     pool_specs = [
-        ("core", "M1_v2c", inputs["core_kept"]),
-        ("augmented", "M1_v2a", inputs["aug_kept"]),
+        ("core", "M1_v2c", inputs["core_kept"], None),
+        ("augmented", "M1_v2a", inputs["aug_kept"], M1_V2A_CURATED_FEATURES),
     ]
     results: list[PoolResult] = []
-    for pool_name, short_label, features in pool_specs:
-        result = _run_pool(pool_name, short_label, features, inputs)
+    for pool_name, short_label, features, curated in pool_specs:
+        result = _run_pool(pool_name, short_label, features, inputs, curated_features=curated)
         results.append(result)
 
     lasso_path_csv = _write_lasso_path(results)
@@ -767,7 +887,18 @@ def main() -> None:
                 "PoolName": r.pool_name,
                 "ShortLabel": r.short_label,
                 "FullFeatureCount": len(r.full_features),
-                "ChosenC": r.chosen_C,
+                "SelectionMethod": r.selection_method,
+                "SelectionNote": r.selection_note,
+                "ChosenC": (None if math.isnan(r.chosen_C) else r.chosen_C),
+                "LassoNaturalC": (
+                    None if math.isnan(r.lasso_natural_C) else r.lasso_natural_C
+                ),
+                "LassoNaturalSelected": (
+                    r.lasso_natural_selected if r.lasso_natural_selected is not None else []
+                ),
+                "LassoNaturalSelectedCount": (
+                    len(r.lasso_natural_selected) if r.lasso_natural_selected else 0
+                ),
                 "SelectedFeatures": r.selected_features,
                 "SelectedCount": len(r.selected_features),
                 "DevOOF": point_map[r.short_label]["Development_OOF"],

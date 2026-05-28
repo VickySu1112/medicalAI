@@ -115,10 +115,24 @@ def _load_pool_config() -> dict[str, dict[str, Any]]:
     payload = json.loads(RUN_SUMMARY.read_text(encoding="utf-8"))
     out: dict[str, dict[str, Any]] = {}
     for pool in payload["feature_pools"]:
+        # When the pool uses clinical curation (ChosenC is None), fall back
+        # to the natural LASSO C for selection-stability diagnostics so the
+        # per-fold L1 refit still has a defined C parameter.
+        chosen_c_raw = pool.get("ChosenC")
+        natural_c_raw = pool.get("LassoNaturalC")
+        if chosen_c_raw is None:
+            if natural_c_raw is None:
+                raise RuntimeError(
+                    f"Pool {pool['PoolName']} has neither ChosenC nor LassoNaturalC."
+                )
+            stability_c = float(natural_c_raw)
+        else:
+            stability_c = float(chosen_c_raw)
         out[pool["PoolName"]] = {
             "short_label": pool["ShortLabel"],
             "selected_features": list(pool["SelectedFeatures"]),
-            "chosen_C": float(pool["ChosenC"]),
+            "chosen_C": stability_c,
+            "selection_method": pool.get("SelectionMethod", "lasso_path"),
         }
     return out
 

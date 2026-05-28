@@ -4,7 +4,22 @@
       "PoolName": "core",
       "ShortLabel": "M1_v2c",
       "FullFeatureCount": 14,
+      "SelectionMethod": "lasso_path",
+      "SelectionNote": "",
       "ChosenC": 0.15,
+      "LassoNaturalC": 0.15,
+      "LassoNaturalSelected": [
+        "Sex",
+        "ThyroidW",
+        "Uptake24h",
+        "HalfLife",
+        "TRAb",
+        "TGAb",
+        "TPOAb",
+        "FT4_0M",
+        "TSH_0M"
+      ],
+      "LassoNaturalSelectedCount": 9,
       "SelectedFeatures": [
         "Sex",
         "ThyroidW",
@@ -32,8 +47,11 @@
       "PoolName": "augmented",
       "ShortLabel": "M1_v2a",
       "FullFeatureCount": 26,
-      "ChosenC": 0.08,
-      "SelectedFeatures": [
+      "SelectionMethod": "clinical_curation",
+      "SelectionNote": "clinical_curation_from_core_plus_disease_duration; ATD triplet (use/use_missing/stop_missing) dropped per prior explainability audit (PI/LOO ΔAUC ≈ 0, CI crosses 0, unstable folds).",
+      "ChosenC": null,
+      "LassoNaturalC": 0.08,
+      "LassoNaturalSelected": [
         "Sex",
         "ThyroidW",
         "Uptake24h",
@@ -46,16 +64,29 @@
         "PreRAI_ATD_Use_Missing_Aug",
         "PreRAI_ATD_Stop_Missing_Aug"
       ],
-      "SelectedCount": 11,
+      "LassoNaturalSelectedCount": 11,
+      "SelectedFeatures": [
+        "Sex",
+        "ThyroidW",
+        "Uptake24h",
+        "HalfLife",
+        "TRAb",
+        "TGAb",
+        "TPOAb",
+        "FT4_0M",
+        "TSH_0M",
+        "log1p_DiseaseDuration_Months_Aug"
+      ],
+      "SelectedCount": 10,
       "DevOOF": {
-        "ROC_AUC": 0.7288879935535858,
-        "PR_AUC": 0.6282533787456055,
-        "Brier": 0.19592604830669355
+        "ROC_AUC": 0.7246373892022563,
+        "PR_AUC": 0.6240972233675606,
+        "Brier": 0.19697562256940399
       },
       "TemporalTest": {
-        "ROC_AUC": 0.6994261119081779,
-        "PR_AUC": 0.6760986210464608,
-        "Brier": 0.20708881038106441
+        "ROC_AUC": 0.6855913096946096,
+        "PR_AUC": 0.6668373356587554,
+        "Brier": 0.20845901170301487
       }
     }
   ],
