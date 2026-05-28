@@ -1,0 +1,49 @@
+{
+  "risk_migration_cutoffs": [
+    0.2774456003587439,
+    0.3847069208411622
+  ],
+  "shapley_values": {
+    "A": 0.1131345221015235,
+    "B": -0.010783566475370628,
+    "C": 0.034129368210698924,
+    "D": 0.03554967718794837,
+    "E": 0.06659471715515472
+  },
+  "2x2_cells": {
+    "a. Supermodel + ABC features": 0.7037622976019676,
+    "b. Supermodel + ABCDE features (M2-Base.4)": 0.7386247181799549,
+    "c. Per-landmark LR + ABC features (4-LR baseline)": 0.7251421910227505,
+    "d. Per-landmark LR + ABCDE features": 0.7541824656691944
+  },
+  "2x2_contrasts": [
+    {
+      "Contrast": "Architecture effect at ABC (supermodel − 4-LR)",
+      "Delta_mean": -0.021370363557734782,
+      "CI_Low": -0.03769220545812331,
+      "CI_High": -0.007215429461644765,
+      "CI_excludes_zero": true
+    },
+    {
+      "Contrast": "Architecture effect at ABCDE (supermodel − 4-LR)",
+      "Delta_mean": -0.015650815529232302,
+      "CI_Low": -0.025392933723196873,
+      "CI_High": -0.0053490873567575625,
+      "CI_excludes_zero": true
+    },
+    {
+      "Contrast": "Feature effect on supermodel (ABCDE − ABC)",
+      "Delta_mean": 0.034709491984417896,
+      "CI_Low": 0.006533355808317685,
+      "CI_High": 0.06290468165482531,
+      "CI_excludes_zero": true
+    },
+    {
+      "Contrast": "Feature effect on 4-LR (ABCDE − ABC)",
+      "Delta_mean": 0.028989943955915413,
+      "CI_Low": 0.009767110961370062,
+      "CI_High": 0.04792392001442955,
+      "CI_excludes_zero": true
+    }
+  ]
+}

@@ -18,6 +18,8 @@ import warnings
 from pathlib import Path
 
 os.environ.setdefault("MPLBACKEND", "Agg")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
 warnings.simplefilter("ignore")
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -46,6 +48,7 @@ from scripts.simple.module2_v2_shared import (
 
 OUT_DIR = ROOT / "results" / "module2_v2_vertical"
 
+torch.set_num_threads(1)
 torch.manual_seed(PY_SEED)
 np.random.seed(PY_SEED)
 
@@ -383,11 +386,11 @@ def main() -> None:
         (OUT_DIR / sub / "figures").mkdir(parents=True, exist_ok=True)
         (OUT_DIR / sub / "tables").mkdir(parents=True, exist_ok=True)
 
-    print("Loading stacked dataset…")
+    print("Loading stacked dataset…", flush=True)
     sd = load_stacked()
     seq_X, seq_y, is_dev, episodes, feature_cols, block_idx = build_episode_tensors(sd)
     n_feat = seq_X.shape[2]
-    print(f"  tensor shape: {seq_X.shape}, dev episodes: {is_dev.sum()}, n_feat={n_feat}")
+    print(f"  tensor shape: {seq_X.shape}, dev episodes: {is_dev.sum()}, n_feat={n_feat}", flush=True)
 
     # Aux 6M target: derive from M2-Base output (approximate Eval_6M = Hyper proxy)
     # We use Y_24M_NHRH as the aux target's surrogate — admittedly imperfect, but
@@ -403,7 +406,7 @@ def main() -> None:
     t0 = time.time()
     proba_ep_b1, _, _ = train_b1_b3(
         B1_MDJN, seq_X, seq_y, is_dev, episodes, block_idx, n_feat=n_feat,
-        epochs=80, return_attn=False,
+        epochs=40, return_attn=False,
     )
     wall_b1 = time.time() - t0
     proba_b1_rows = replicate_to_rows(sd, proba_ep_b1, episodes)
@@ -422,7 +425,7 @@ def main() -> None:
     print("\n[B2 Dual-Tower] training…")
     t0 = time.time()
     proba_ep_b2, aux_ep_b2 = train_b2(seq_X, seq_y, aux_y, is_dev, episodes, block_idx,
-                                       epochs=80, alpha=0.7)
+                                       epochs=40, alpha=0.7)
     wall_b2 = time.time() - t0
     proba_b2_rows = replicate_to_rows(sd, proba_ep_b2, episodes)
     cal_b2 = per_landmark_platt_on_pooled_oof(sd, proba_b2_rows)
@@ -441,7 +444,7 @@ def main() -> None:
     t0 = time.time()
     proba_ep_b3, dev_attn_b3, _ = train_b1_b3(
         B3_CLAN, seq_X, seq_y, is_dev, episodes, block_idx, n_feat=n_feat,
-        epochs=80, return_attn=True,
+        epochs=40, return_attn=True,
     )
     wall_b3 = time.time() - t0
     proba_b3_rows = replicate_to_rows(sd, proba_ep_b3, episodes)

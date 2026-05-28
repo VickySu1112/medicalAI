@@ -1,0 +1,37 @@
+{
+  "n_episodes": 1003,
+  "n_landmark_rows": 4012,
+  "architectures": [
+    {
+      "Arch": "B1 MDJN",
+      "TmpROC": 0.704550112728018,
+      "Brier": 0.2158530422651292,
+      "CalibSlope": 1.8163632131942624,
+      "Wall_seconds": 0.8655688762664795
+    },
+    {
+      "Arch": "B2 Dual-Tower",
+      "TmpROC": 0.7011682721869235,
+      "Brier": 0.23212951019732167,
+      "CalibSlope": 1.9095556335412167,
+      "Wall_seconds": 1.5623810291290283
+    },
+    {
+      "Arch": "B3 CLAN",
+      "TmpROC": 0.7187948350071736,
+      "Brier": 0.22988008382470326,
+      "CalibSlope": 1.1275649539161423,
+      "Wall_seconds": 1.2584781646728516
+    },
+    {
+      "Arch": "M2-Base.4 (L2)",
+      "TmpROC": 0.7386247181799549,
+      "Brier": 0.19580254827287966,
+      "CalibSlope": NaN,
+      "Wall_seconds": NaN
+    }
+  ],
+  "best_arch": "M2-Base.4 (L2)",
+  "best_tmp_roc": 0.7386247181799549,
+  "note": "Aux 6M target in B2 uses Y_24M_NHRH as surrogate (Eval_6M_Hyper not yet wired in); paper will document limitation."
+}

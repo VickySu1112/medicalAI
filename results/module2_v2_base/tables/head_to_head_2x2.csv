@@ -1,0 +1,5 @@
+Cell,Temporal_pooled_ROC
+a. Supermodel + ABC features,0.7037622976019676
+b. Supermodel + ABCDE features (M2-Base.4),0.7386247181799549
+c. Per-landmark LR + ABC features (4-LR baseline),0.7251421910227505
+d. Per-landmark LR + ABCDE features,0.7541824656691944
