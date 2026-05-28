@@ -33,7 +33,7 @@
 
 | 模块 | 任务 | 中文报告 | 结果目录 |
 |:---:|:---|:---|:---|
-| **M1** | 治疗前结局预期。两个平行版本：完整 baseline benchmark（含 dose、含 boosting/SHAP），与去剂量 LASSO 简约版（M1·v2，去 RAI 给药活度家族 + 选 8–11 特征） | [Module1_治疗前结局预期评估](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.md) · [M1v2_LASSO清洁去剂量基线模型](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md) | [`results/module1_baseline_ml_benchmark/`](results/module1_baseline_ml_benchmark/) · [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) |
+| **M1** | 治疗前结局预期。**主线 = M1·v2**：去 RAI 给药活度家族（避免治疗指征混杂）+ LASSO 简约到 9 / 11 特征 + L2 重拟合 + Platt 校准，配 OR Forest / SHAP / Permutation Importance / PDP / 选择稳定性 / LOO ΔAUC 多层可解释性。**M1·v1**（完整含 dose 与 boosting）作为基准与混杂对照保留。 | **[M1v2_LASSO清洁去剂量基线模型（主线）](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md)** · [Module1_治疗前结局预期评估（v1 基准）](results/module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.md) | [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) · [`results/module1_baseline_ml_benchmark/`](results/module1_baseline_ml_benchmark/) |
 | **M2** | 早期固定地标长期风险更新。0M / 1M / 3M / 6M 四个 landmark 各一个校准 logistic，输出每例 4 维风险轨迹，含 persistence 朴素基线对照 | [Module2_早期固定地标长期风险更新](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) | [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) |
 | **M3** | 滚动地标复发监测。多 horizon（H1 主、H6/H12 敏感性），含 inertia + momentum 消融、treatment/patient-level KM 与决策曲线 | [Module3_滚动地标复发监测](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) |
 | **综合** | **三模块整合论文：将 M1→M2→M3 串成连续的"治疗前预期 → 早期更新 → 滚动监测 → 治疗级分层"双时间尺度路径，含摘要、方法、关键发现汇总、临床意义、局限与下一步** | [整合论文_RAI三模块双时间尺度框架](results/整合论文_RAI三模块双时间尺度框架.md) | [`results/整合论文_RAI三模块双时间尺度框架.md`](results/整合论文_RAI三模块双时间尺度框架.md) |
@@ -45,8 +45,9 @@
 
 ### M1 — 治疗前结局预期
 
-- **完整版（M1·v1）**：治疗前信息提供**中等但校准良好**的 24M NHRH 风险分层（core LR temporal ROC-AUC 0.688 / PR-AUC 0.666 / Brier 0.208）。增强字段（病程、ATD 等）使 augmented LR 升至 0.704，但 95% CI 跨 0；XGBoost / LightGBM / CatBoost 等非线性模型在 temporal test 上**均未稳定超过 LR**，且 Brier 更差 —— 瓶颈在治疗前信息本身有限，而非算法不够复杂，故主模型保留可解释的校准 LR。
-- **去剂量 LASSO 简约版（M1·v2）**：去掉 RAI 给药活度家族（Dose、IDPG_Dose_per_ThyroidW，避免治疗指征混杂）+ LASSO 选 9 / 11 特征后，temporal-test ROC / PR / Brier 与 M1·v1（含 dose、16 / 28 特征）**几乎不变**（|ΔROC| ≤ 0.005, |ΔBrier| ≤ 0.001）。这是"**剂量家族在原 M1 中无独立预测增量**"的实证指纹 —— 其信号已被腺体重量、摄碘率等"决定剂量选择的严重度变量"吸收。
+- **主线：去剂量 LASSO 简约版（M1·v2）**——治疗指征混杂控制 + 简约可解释。去掉 RAI 给药活度家族（Dose、IDPG_Dose_per_ThyroidW），用 LASSO（5-fold OOF, C 网格）选 **9 个 (core) / 11 个 (augmented)** 治疗前特征，L2 重拟合 + Platt 校准。temporal-test core ROC-AUC 0.690、PR-AUC 0.667、Brier 0.208；augmented ROC 0.699、PR 0.676、Brier 0.207。**腺体重量稳坐第一驱动**（core OR=2.74, p≈0），其次是 TPOAb（负向）、TSH baseline、TRAb。可解释性叠了五层：OR Forest（系数→OR+CI 闭式精确）、SHAP（LinearExplainer 精确解，beeswarm + dependence + waterfall）、Permutation Importance（模型无关 ΔAUC）、PDP+ICE（非线性形状）、5 折选择稳定性 + LOO ΔAUC（特征鲁棒性）。
+- **混杂稳健性证据**：与 M1·v1（含 dose、16 / 28 特征）相比，temporal-test ROC / PR / Brier **几乎不变**（|ΔROC| ≤ 0.005, |ΔBrier| ≤ 0.001）—— "**剂量家族在原 M1 中无独立预测增量**"的实证指纹，其信号已被腺体重量、摄碘率等"决定剂量选择的严重度变量"吸收。
+- **基准（M1·v1）**：完整 baseline benchmark，含 dose / boosting / TreeSHAP。XGBoost / LightGBM / CatBoost 等非线性模型在 temporal test 上**均未稳定超过 LR**，且 Brier 更差 —— 瓶颈在治疗前信息本身有限，而非算法不够复杂。保留作 v2 的混杂对照与非线性 benchmark。
 - **临床定位**：仅高危档拉开（事件率约 0.6），低危档 NPV 仅 0.71 不足以 rule-out；M1 定位为**治疗前咨询与预期管理**，不替代后续动态更新。
 
 ### M2 — 早期固定地标长期风险更新

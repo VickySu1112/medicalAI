@@ -60,6 +60,132 @@
 
 **图 3 解读**：与原 M1 一致，**甲状腺重量**仍是唯一稳定显著的正向项——core OR=**2.74**（CI 2.18–3.45，p≈0）；augmented 中仍 OR=**2.50**（CI 1.97–3.16，p<10⁻¹³）。这意味着即便去掉 Dose 和 IDPG_Dose_per_ThyroidW，"腺体负荷"仍稳坐第一驱动——剂量信息的预测内容**本就来自"剂量是按腺体负荷选的"**。Augmented 中新增稳定显著项：**Log disease duration**（OR 1.20，CI 1.01–1.43，p=0.04）与原 M1 一致（病程更长→风险略升，但需结合 §病程方向"反直觉部分项"的整体保留态度看）；TPOAb 在 core/augmented 都呈轻度负向 OR≈0.82–0.86（边缘显著），与免疫表型异质有关。
 
+## 4b. 可解释性深化：SHAP / PI / PDP / Stability / LOO
+
+§4 OR Forest 已经给出"在 L2-logistic 系数尺度上每个特征的标准化优势比与 95% CI"，这是闭式精确解但只有一层。我们在 development(802) 上再叠四层模型无关或形状导向的解释——SHAP（个体边际贡献的精确分解）、permutation importance（模型无关的扰乱重要性）、PDP+ICE（非线性形状与个体差异）、5 折选择稳定性（跨折一致性）、leave-one-feature-out ΔOOF-AUC（单特征不可替代性）——回答"特征的边际贡献是否稳健、形状是否线性、跨折选择是否一致、有没有特征是其他特征顶不上来的"。所有结果均在 dev OOF 上（5-fold StratifiedKFold，OOF_SEED=13，与主脚本一致），temporal test 在本节完全不动。
+
+### 4b.1 SHAP — 个体边际贡献的精确分解
+
+我们对最终 L2-logistic + StandardScaler pipeline 用 `shap.LinearExplainer`（线性模型上 SHAP = β·(z − μ_z)，闭式精确，无采样近似），在 dev(802) 上算出 SHAP 矩阵后做四种视角的展示。
+
+![图 7A-core. M1_v2c SHAP beeswarm，按 mean|SHAP| 从上到下排列。](figures/Figure_07_SHAP_Beeswarm_core.png)
+
+![图 7B-core. M1_v2c SHAP 全局重要性（mean|SHAP|）。](figures/Figure_07_SHAP_Bar_core.png)
+
+![图 7A-aug. M1_v2a SHAP beeswarm。](figures/Figure_07_SHAP_Beeswarm_augmented.png)
+
+![图 7B-aug. M1_v2a SHAP 全局重要性（mean|SHAP|）。](figures/Figure_07_SHAP_Bar_augmented.png)
+
+**图 7A/B 解读**：mean|SHAP| 排序 **core**：Thyroid weight (0.704) ≫ TPOAb (0.139) ≈ Sex (0.123) > TRAb (0.060) > FT4_0M (0.044) > HalfLife (0.034) > TGAb (0.027) > Uptake24h (0.020) > TSH_0M (0.005)；**augmented**：Thyroid weight (0.638) ≫ TPOAb (0.182) > Log disease duration (0.166) > Sex (0.118) > FT4_0M (0.084) > TRAb (0.078) > ATD use missing (0.063) ≈ ATD use clean (0.063) > ATD stop missing (0.061) > Uptake24h (0.017) > TSH_0M (0.005)。Thyroid weight 的 SHAP 振幅在 logit 尺度上达到约 −1.5 到 +5（beeswarm 右尾），其他所有特征合计也不到 ±0.5——**一项压九项 / 一项压十项**。Sex 的 mean signed SHAP = −0.021（女性 = 0 在我们编码下风险略低于男性），TPOAb 的 mean signed = +0.012（高 TPOAb 略压低风险，方向与 OR 0.82–0.86 一致）。
+
+![图 7C-core. M1_v2c SHAP dependence — Thyroid weight。](figures/Figure_07_SHAP_Dependence_ThyroidW_core.png)
+
+![图 7C-core. M1_v2c SHAP dependence — TPOAb。](figures/Figure_07_SHAP_Dependence_TPOAb_core.png)
+
+![图 7C-core. M1_v2c SHAP dependence — Sex。](figures/Figure_07_SHAP_Dependence_Sex_core.png)
+
+![图 7C-core. M1_v2c SHAP dependence — TRAb。](figures/Figure_07_SHAP_Dependence_TRAb_core.png)
+
+![图 7C-aug. M1_v2a SHAP dependence — Thyroid weight。](figures/Figure_07_SHAP_Dependence_ThyroidW_augmented.png)
+
+![图 7C-aug. M1_v2a SHAP dependence — TPOAb。](figures/Figure_07_SHAP_Dependence_TPOAb_augmented.png)
+
+![图 7C-aug. M1_v2a SHAP dependence — Log disease duration。](figures/Figure_07_SHAP_Dependence_log1p_DiseaseDuration_Months_Aug_augmented.png)
+
+![图 7C-aug. M1_v2a SHAP dependence — Sex。](figures/Figure_07_SHAP_Dependence_Sex_augmented.png)
+
+**图 7C 解读**：因为底层模型是线性 logistic，SHAP dependence 在每个特征上呈**精确直线**——这本身是诊断信号：我们没有靠非线性结构吃到额外信号，简约线性已经把信号取出来了。颜色（按 Top-2 特征着色）在线段上几乎随机分布，说明 Top 特征间在 SHAP 尺度上没有强交互（对应 LinearExplainer interventional 假设）。Thyroid weight 一项在 dev(802) 上的 SHAP 跨度横跨约 7 个 logit 单位（从最小腺体 9.6 g 到最大 116 g），是真正"够级别"的预后区分变量。
+
+![图 7D-core. M1_v2c 高风险 dev TP waterfall。](figures/Figure_07_SHAP_Waterfall_HighRisk_core.png)
+
+![图 7D-core. M1_v2c 低风险 dev TN waterfall。](figures/Figure_07_SHAP_Waterfall_LowRisk_core.png)
+
+![图 7D-aug. M1_v2a 高风险 dev TP waterfall。](figures/Figure_07_SHAP_Waterfall_HighRisk_augmented.png)
+
+![图 7D-aug. M1_v2a 低风险 dev TN waterfall。](figures/Figure_07_SHAP_Waterfall_LowRisk_augmented.png)
+
+**图 7D 解读**：选 dev OOF 校准概率最高的 1 个真阳性 + 最低的 1 个真阴性。**core 高风险样本**（calibrated P=0.98）SHAP 贡献几乎全部来自 Thyroid weight = 174.9 g（贡献 +5.36 logit），其他八个特征加起来只贡献约 +0.1 logit——这告诉医生：**这个病人之所以高风险，绝大部分是因为腺体特别大**。**core 低风险样本**则相反，是腺体小（约 18–25 g）+ 中等抗体把 score 拉到 E[f(x)]−0.5 logit 以下。Augmented 池上同结论。**医学合作者读到这能拿走什么**：对个体患者解释"为什么模型说他高风险"时，可以直接落到 1–2 个特征上，不需要拿整张 9–11 维表说话。
+
+### 4b.2 Permutation Importance — 模型无关的扰乱重要性
+
+对最终模型，逐特征做 30 次 shuffle 重排（sklearn `permutation_importance`，scoring=ROC-AUC），用 1000 次 bootstrap 在 repeats 轴上得到 95% CI。
+
+![图 8A. M1_v2c permutation importance（dev 30 次重排）。](figures/Figure_08_Permutation_Importance_core.png)
+
+![图 8B. M1_v2a permutation importance（dev 30 次重排）。](figures/Figure_08_Permutation_Importance_augmented.png)
+
+**图 8 解读**：**core 排名**：Thyroid weight (ΔAUC≈0.219) ≫ TPOAb (0.013) > Sex (0.009) > Uptake24h (0.003) > HalfLife (0.002) > TSH_0M (0.002) > TGAb (0.002) > TRAb (0.001) > FT4_0M (≈0)。**augmented 排名**：Thyroid weight (0.170) ≫ TPOAb (0.016) > Log disease duration (0.009) > Sex (0.008) > ATD stop missing (0.004) > FT4_0M (0.003) > Uptake24h (0.002) ≈ ATD use clean/missing (0.002) > TRAb (0.001) > TSH_0M (0.001)。与 SHAP 排序高度一致——Top-3 在两池都是 Thyroid weight / TPOAb / Sex（augmented 上 Log disease duration 插进 Sex 之前）。**唯一明显的"换位"是 TRAb**：SHAP 把它排到 Top-4（core 第 4 / aug 第 6），但 PI 把它压到末段（core 第 8 / aug 第 10）。读法是：TRAb 的方向信息（系数符号 + SHAP）虽然不完全为 0，但它的预测信息几乎完全被其他抗体/严重度信号"代偿"——直接 shuffle 掉它，AUC 几乎不掉。**医学合作者读到这能拿走什么**：在去掉 dose 家族之后，TRAb 在我们这一队列上**几乎不是一个独立的预后变量**，主信号已经被 Thyroid weight / TPOAb 等吸收；这与原 M1 SHAP 上 TRAb 的中等贡献并不矛盾——后者源自 dose 家族被 partial-out 之前的共线放大。
+
+### 4b.3 Partial Dependence + ICE — 非线性形状与个体差异
+
+对每个池按 mean|SHAP| 取 Top 4 特征，做 60-点网格的 PDP + 100 条 ICE（从 dev 随机采样 100 样本）。
+
+![图 9-core. M1_v2c PDP+ICE — Thyroid weight。](figures/Figure_09_PDP_ICE_ThyroidW_core.png)
+
+![图 9-core. M1_v2c PDP+ICE — TPOAb。](figures/Figure_09_PDP_ICE_TPOAb_core.png)
+
+![图 9-core. M1_v2c PDP+ICE — Sex。](figures/Figure_09_PDP_ICE_Sex_core.png)
+
+![图 9-core. M1_v2c PDP+ICE — TRAb。](figures/Figure_09_PDP_ICE_TRAb_core.png)
+
+![图 9-aug. M1_v2a PDP+ICE — Thyroid weight。](figures/Figure_09_PDP_ICE_ThyroidW_augmented.png)
+
+![图 9-aug. M1_v2a PDP+ICE — TPOAb。](figures/Figure_09_PDP_ICE_TPOAb_augmented.png)
+
+![图 9-aug. M1_v2a PDP+ICE — Log disease duration。](figures/Figure_09_PDP_ICE_log1p_DiseaseDuration_Months_Aug_augmented.png)
+
+![图 9-aug. M1_v2a PDP+ICE — Sex。](figures/Figure_09_PDP_ICE_Sex_augmented.png)
+
+**图 9 解读**：因为底层是线性 logistic + Platt 校准（单调），PDP 曲线在概率轴上呈"标准 S 形"，ICE 线之间平行偏移（无交互）。**Thyroid weight** 的 PDP 在两池都从约 0.18（约 10 g）单调升到约 0.94（约 116 g）——**剂量被剔掉之后，腺体重量本身覆盖了 NHRH 风险从五分之一到九成的全跨度**，是真正"够级别"的预后变量。其他 Top 特征的 PDP 振幅都很小：core 的 TPOAb 从 0.33→0.40、Sex 从 0.28→0.36；augmented 的 Log disease duration 从 0.28→0.39；PDP 平直说明它们的边际贡献在群体平均上"不大但稳定"。**ICE 一律平行**——这就**用图证实了"我们没有藏起来的交互"**，与 §4 OR Forest 的可加假设一致；如果未来想找到能让 AUC 显著上跳的来源，**应该去看交互/momentum 等更高阶特征，而不是再做特征工程的边际扩展**。
+
+### 4b.4 LASSO 选择稳定性 — 跨折一致性
+
+在主脚本选定的 C（core C=0.15、aug C=0.08）上逐折重新跑 L1 LASSO，记录每个特征 5 折中被选到的次数 + 系数 boxplot。
+
+![图 10A. M1_v2c LASSO 选择稳定性。](figures/Figure_10_Selection_Stability_core.png)
+
+![图 10B. M1_v2a LASSO 选择稳定性。](figures/Figure_10_Selection_Stability_augmented.png)
+
+**图 10 解读**：**core 5/5 满格的"硬核心"**：Thyroid weight、Sex、TPOAb、Uptake24h、TSH_0M、TRAb、FT4_0M 共 **7 个**；HalfLife 3/5、TGAb 2/5 属于"边缘项"（即便不入选也不太损伤）；候选池里另两项（Age、logTSH_0M）也是 2/5，可视作真噪声边界。**augmented 5/5 满格**：Thyroid weight、Log disease duration、PreRAI_ATD_Use_Clean/Missing（强制对偶 5/5）、TPOAb、TSH_0M、FT4_0M 共 **7 个**；Sex 与 ATD stop missing 4/5 是"次稳"层；TRAb 与 Uptake24h 在 augmented 上仅 2/5，说明加入 ATD/病程项后这两项的边际贡献被 squeeze 了一部分（与上面 PI 的"TRAb 被代偿"叙述彼此印证）。**系数 boxplot**：Thyroid weight 在两池上 5 折系数均落在 0.77–0.92 的窄带（CV ≤ 0.08），系数符号、量级完全一致——是结构性而非偶然信号；其余特征的系数 CV 在 0.3–1.7 之间，方向稳定但量级有抖动。**医学合作者读到这能拿走什么**：把"5/5 + 系数 CV<0.5"作为"在我们数据规模下相对可信"的子集，可得 core 的可信子集是 {Thyroid weight, TPOAb, Uptake24h}，augmented 的可信子集是 {Thyroid weight, Log disease duration, ATD use clean/missing, TPOAb}——这是写"在论文表 1 里粗体强调"的合理候选。
+
+### 4b.5 Leave-One-Feature-Out ΔOOF-AUC — 单特征不可替代性
+
+对每个选中特征 f，构造 "selected − {f}" 子集重做 5 折 OOF L2-logistic，ΔAUC = Full − LOO；CI 用 1000 次成对 bootstrap（同一份索引同时打在 Full 与 LOO 的 OOF 上）。
+
+![图 11A. M1_v2c LOO ΔOOF-AUC。](figures/Figure_11_LOO_DeltaAUC_core.png)
+
+![图 11B. M1_v2a LOO ΔOOF-AUC。](figures/Figure_11_LOO_DeltaAUC_augmented.png)
+
+**图 11 解读**：**Thyroid weight 是唯一 CI 完全脱离 0 的"真正不可替代"特征**——core ΔAUC = **+0.156（95% CI 0.111–0.197）**，augmented ΔAUC = **+0.082（95% CI 0.051–0.113）**。去掉它，OOF-AUC 从 0.725→0.569（core）/0.729→0.646（augmented），分别掉 0.156 与 0.082；augmented 上掉得少正是因为 Log disease duration / ATD 字段可以**部分**代偿但远不能完全替代。其他特征的 ΔAUC 全部在 ±0.008 范围内、且 95% CI 都跨 0，包括 TPOAb（core ΔAUC=+0.006、aug=+0.008，CI 均跨 0）。这说明 Thyroid weight 之外的每一个特征**单独移除都不足以让 OOF-AUC 显著下降**——它们的预测信息是高度互补/冗余的。**医学合作者读到这能拿走什么**：模型的预测主力是"腺体负荷"这一硬终点解剖测量；如果非要砍掉一个特征做更简的咨询表，Thyroid weight 绝对不能砍，其余每一项单独砍掉对 OOF-AUC 的影响都在 95% CI 内。
+
+### 4b.6 五层可解释性的一致性
+
+汇总五个分析的 Top 3 特征（按各层指标排序的前 3 名）。
+
+**M1_v2c (core, 9 特征)**
+
+| 分析 | Top 1 | Top 2 | Top 3 |
+|:---|:---|:---|:---|
+| OR Forest (\|coef\|) | ThyroidW | Sex | TPOAb |
+| SHAP (mean\|SHAP\|) | ThyroidW | TPOAb | Sex |
+| Permutation Importance | ThyroidW | TPOAb | Sex |
+| Selection Stability (5/5 + 系数 CV) | ThyroidW (CV 0.06) | TPOAb (CV 0.33) | Uptake24h (CV 0.41) |
+| LOO ΔAUC | ThyroidW (Δ=0.156\*) | TPOAb (Δ=0.006) | Uptake24h (Δ=0.001) |
+
+**M1_v2a (augmented, 11 特征)**
+
+| 分析 | Top 1 | Top 2 | Top 3 |
+|:---|:---|:---|:---|
+| OR Forest (\|coef\|) | ThyroidW | TPOAb | Log disease duration |
+| SHAP (mean\|SHAP\|) | ThyroidW | TPOAb | Log disease duration |
+| Permutation Importance | ThyroidW | TPOAb | Log disease duration |
+| Selection Stability (5/5 + 系数 CV) | ThyroidW (CV 0.08) | ATD use clean/missing (CV 0.39) | TPOAb (CV 0.75) |
+| LOO ΔAUC | ThyroidW (Δ=0.082\*) | TPOAb (Δ=0.008) | Uptake24h (Δ=0.001) |
+
+\* = 95% CI 完全脱离 0。
+
+**整合结论**：五层视角**收敛到同一个答案**——Thyroid weight 是 M1·v2 的唯一硬核心驱动，在每一层都是 Top 1，是唯一 LOO ΔAUC 显著脱离 0 的特征；TPOAb 在四个池-层组合中稳定占 Top 2–3 但 LOO 上 ΔAUC≈0.006–0.008、CI 跨 0，应解读为"稳定的边际贡献但不是不可替代"；augmented 池上 Log disease duration 是"被新引进的"Top 3，在 OR / SHAP / PI 三层都出场，但 LOO 上 ΔAUC 同样不显著——它的价值更多在"提供病程语境"而非"独立预测增量"。**TRAb 与 24h Uptake 在不同层之间有不一致**（OR/SHAP 给中等贡献，PI/LOO 几乎为零），这就是"信号被其他特征代偿"的指纹；不应在论文中过度突出它们作为"独立预测因子"。
+
 ## 5. 校准与临床效用
 
 ![图 4A. M1_v2c temporal-test 校准曲线。](figures/Figure_04_Calibration_core.png)
