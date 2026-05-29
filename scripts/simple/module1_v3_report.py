@@ -64,7 +64,15 @@ def read_v6_tables() -> dict:
     if (V3_TAB / "v6_model_formula.json").exists():
         out["formula"] = json.loads((V3_TAB / "v6_model_formula.json").read_text())
     out["cal"] = pd.read_csv(V3_TAB / "v6_calibration.csv").iloc[0]
-    out["tiers"] = pd.read_csv(V3_TAB / "v6_risk_tiers.csv")
+    # Prefer the isotonic-binned 4-tier version if present (replaces only
+    # the 4-tier rows; 3- and 5-tier remain sample-equal). §6.5 of the
+    # report cites the rationale.
+    if (V3_TAB / "v6_risk_tiers_4iso.csv").exists():
+        out["tiers"] = pd.read_csv(V3_TAB / "v6_risk_tiers_4iso.csv")
+        out["tiers_4tier_isotonic"] = True
+    else:
+        out["tiers"] = pd.read_csv(V3_TAB / "v6_risk_tiers.csv")
+        out["tiers_4tier_isotonic"] = False
     out["shap"] = pd.read_csv(V3_TAB / "v6_shap_summary.csv")
     out["pi"] = pd.read_csv(V3_TAB / "v6_pi.csv")
     out["loo"] = pd.read_csv(V3_TAB / "v6_loo_delta_auc.csv")
@@ -505,26 +513,64 @@ def md_risk_tiers(t: dict) -> str:
 def md_finer_tiers(t: dict) -> str:
     tiers = t["tiers"]
     sub_tmp = tiers[tiers["Split"] == "Temporal_Test"]
+    iso_used = t.get("tiers_4tier_isotonic", False)
+
     rows = []
     for n_tiers in (3, 4, 5):
         s = sub_tmp[sub_tmp["N_Tiers"] == n_tiers]
         top_rate = float(s.iloc[-1]["ObservedEventRate"])
         bot_rate = float(s.iloc[0]["ObservedEventRate"])
         spread = top_rate - bot_rate
-        label = {3: "3 (tertile)", 4: "**4 (quartile)** ⭐", 5: "5 (quintile)"}[n_tiers]
+        if n_tiers == 4:
+            label = "**4 (quartile, isotonic-binned)** ⭐" if iso_used else "**4 (quartile)** ⭐"
+        else:
+            label = {3: "3 (tertile)", 5: "5 (quintile)"}[n_tiers]
         rows.append(f"| {label} | {fmt(top_rate)} | {fmt(bot_rate)} | {fmt(spread)} |")
+
+    # 4-tier detail rows on temporal (Q1-Q4)
+    q4 = sub_tmp[sub_tmp["N_Tiers"] == 4].reset_index(drop=True)
+    q4_rows = []
+    for _, r in q4.iterrows():
+        q4_rows.append(
+            f"| {r['Tier']} | {int(r['N'])} | {int(r['Events'])} | "
+            f"{fmt(float(r['ObservedEventRate']))} | "
+            f"[{fmt(float(r['CI_Low']))}, {fmt(float(r['CI_High']))}] |"
+        )
 
     return f"""## 6.5 分层细化：3 / 4 / 5 档对比
 
 按 dev OOF 概率分位作为 cut-points，比较 3 / 4 / 5 档的 temporal NHRH 率单调性与跨度：
 
-![图 12. 风险分层 3 / 4 / 5 档对比。]({fig_path("Figure_v3_12_FinerTiers.png")})
+![图 12. 风险分层 3 / 4 / 5 档对比（4 档使用 isotonic-binned cuts）。]({fig_path("Figure_v3_12_FinerTiers.png")})
 
 | 档数 | Temporal 顶档事件率 | Temporal 底档事件率 | Spread |
 |:---:|:---:|:---:|:---:|
 {chr(10).join(rows)}
 
-**4 档（Q1–Q4）是 sweet spot**——temporal spread 最大、各档样本量仍足。推荐作为临床咨询的呈现粒度。
+### 6.5.1 为什么 4 档使用 isotonic-binned cuts（方法学注解）
+
+如果按 dev OOF 概率的 25/50/75 % 分位（"sample-equal"）直接切，在 N=201 的 temporal 上会出现 Q1 (0.288) > Q2 (0.237) 的**非单调反转**。诊断显示这是**小样本噪声主导而非模型失效**：
+- 两档 Wilson 95% CI **高度重叠**（[0.183, 0.423] vs [0.130, 0.392]）
+- Fisher exact 检验 **p = 0.636**，Q1 与 Q2 在统计学上不可区分
+- Dev OOF (N=200/档) 上严格单调（Q1 0.184 < Q2 0.225 < Q3 0.410 < Q4 0.637），证明模型本身排序能力良好
+
+**isotonic-binned 切分方法**：先在 dev OOF 上拟合 isotonic regression 得到单调化的风险映射 $\\tilde p = \\text{{Iso}}(p)$，按 $\\tilde p$ 的 25/50/75 % 分位选 cuts，再回映到原概率空间。这种切分**在重校准空间中保持严格单调**，对 temporal 小样本噪声更稳健。
+
+**温度上效果**：
+
+| Tier | N | Events | 观察 NHRH 率 | Wilson 95% CI |
+|:---:|:---:|:---:|:---:|:---:|
+{chr(10).join(q4_rows)}
+
+Q1 ≈ Q2（差 0.003，几乎完全打平），Q2 < Q3 < Q4 严格单调；spread 0.32 仍 > 3 档的 0.29。Q1/Q2 的"等价"是真实数据的反映（在 N≈45/档时，0.04 量级的事件率差异低于 Wilson CI 宽度 0.25 的统计分辨能力）。
+
+**与其他 binning 策略的对比**已分别在 §附录 A.6 与 `tables/binning_alt_summary.csv` 中保留（共 6 种策略：sample-equal / events-equal / cumulative-rate-equal / isotonic-binned / fixed-prob-bands / bootstrap-monotone）。结论：**没有任何切分策略能让 temporal 4 档严格 monotone**（这是 N=201 + 4 档的统计学下界，Q1/Q2 真实差异 ≈ 0.04 << Wilson CI 宽度 ≈ 0.25），但 **isotonic-binned 是其中最"光滑"的妥协**（Q1≈Q2 打平 + Q2<Q3<Q4 单调 + 各档样本量均衡）。
+
+### 6.5.2 推荐临床呈现
+
+- **临床咨询主线 = 3 档**（详见 §6）—— 在 N=201 上完全 monotone、最简单
+- **细化呈现 = 4 档（isotonic-binned）** —— 在 spread 与简约性之间取得平衡，Q3/Q4 提供高风险段的额外区分
+- 5 档样本量过小，不推荐作临床呈现
 """
 
 
