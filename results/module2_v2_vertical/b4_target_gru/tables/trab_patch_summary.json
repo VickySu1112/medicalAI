@@ -1,0 +1,36 @@
+{
+  "patch_comparison": [
+    {
+      "feature_set": "ABCDE (base)",
+      "oof_pooled": 0.7731,
+      "tmp_pooled": 0.7377,
+      "tmp_0M": 0.6787,
+      "tmp_1M": 0.7209,
+      "tmp_3M": 0.7701,
+      "tmp_6M": 0.7698
+    },
+    {
+      "feature_set": "ABCDE + followup-TRAb",
+      "oof_pooled": 0.7775,
+      "tmp_pooled": 0.7419,
+      "tmp_0M": 0.6942,
+      "tmp_1M": 0.7215,
+      "tmp_3M": 0.777,
+      "tmp_6M": 0.769
+    },
+    {
+      "feature_set": "ABCDE + TRAb + Eval",
+      "oof_pooled": 0.7821,
+      "tmp_pooled": 0.7511,
+      "tmp_0M": 0.6914,
+      "tmp_1M": 0.7114,
+      "tmp_3M": 0.8155,
+      "tmp_6M": 0.7699
+    }
+  ],
+  "base_temporal_pooled": 0.7377,
+  "best_feature_set": "ABCDE + TRAb + Eval",
+  "best_temporal_pooled": 0.7511,
+  "per_LR_Eval_reference": 0.77,
+  "note": "follow-up TRAb is NEW information (only baseline TRAb was in the 21-feat set); time-safe current+velocity. ROC compared raw (calibration-invariant)."
+}

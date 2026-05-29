@@ -1,0 +1,4 @@
+feature_set,oof_pooled,tmp_pooled,tmp_0M,tmp_1M,tmp_3M,tmp_6M
+ABCDE (base),0.7731,0.7377,0.6787,0.7209,0.7701,0.7698
+ABCDE + followup-TRAb,0.7775,0.7419,0.6942,0.7215,0.777,0.769
+ABCDE + TRAb + Eval,0.7821,0.7511,0.6914,0.7114,0.8155,0.7699

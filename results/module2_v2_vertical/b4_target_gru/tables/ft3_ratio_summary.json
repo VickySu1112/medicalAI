@@ -1,0 +1,196 @@
+{
+  "per_landmark_importance_with_ft3": [
+    {
+      "landmark": "0M",
+      "rank": 1,
+      "feature": "Thyroid weight",
+      "coef": 0.971
+    },
+    {
+      "landmark": "0M",
+      "rank": 2,
+      "feature": "FT3 at current landmark",
+      "coef": -0.252
+    },
+    {
+      "landmark": "0M",
+      "rank": 3,
+      "feature": "Log disease duration (months)",
+      "coef": 0.199
+    },
+    {
+      "landmark": "0M",
+      "rank": 4,
+      "feature": "Thyroid peroxidase antibody",
+      "coef": -0.195
+    },
+    {
+      "landmark": "0M",
+      "rank": 5,
+      "feature": "Sex",
+      "coef": -0.156
+    },
+    {
+      "landmark": "0M",
+      "rank": 6,
+      "feature": "FT4 at baseline",
+      "coef": 0.139
+    },
+    {
+      "landmark": "1M",
+      "rank": 1,
+      "feature": "Thyroid weight",
+      "coef": 0.801
+    },
+    {
+      "landmark": "1M",
+      "rank": 2,
+      "feature": "FT4 at current landmark",
+      "coef": 0.801
+    },
+    {
+      "landmark": "1M",
+      "rank": 3,
+      "feature": "FT3 at current landmark",
+      "coef": -0.625
+    },
+    {
+      "landmark": "1M",
+      "rank": 4,
+      "feature": "FT3/FT4 ratio (T3 dominance)",
+      "coef": 0.275
+    },
+    {
+      "landmark": "1M",
+      "rank": 5,
+      "feature": "FT3 velocity (per month)",
+      "coef": 0.259
+    },
+    {
+      "landmark": "1M",
+      "rank": 6,
+      "feature": "Log disease duration (months)",
+      "coef": 0.212
+    },
+    {
+      "landmark": "3M",
+      "rank": 1,
+      "feature": "FT4 at current landmark",
+      "coef": 1.036
+    },
+    {
+      "landmark": "3M",
+      "rank": 2,
+      "feature": "Thyroid weight",
+      "coef": 0.645
+    },
+    {
+      "landmark": "3M",
+      "rank": 3,
+      "feature": "FT3/FT4 ratio (T3 dominance)",
+      "coef": 0.502
+    },
+    {
+      "landmark": "3M",
+      "rank": 4,
+      "feature": "TSH at current landmark",
+      "coef": -0.474
+    },
+    {
+      "landmark": "3M",
+      "rank": 5,
+      "feature": "Log disease duration (months)",
+      "coef": 0.17
+    },
+    {
+      "landmark": "3M",
+      "rank": 6,
+      "feature": "TSH at baseline",
+      "coef": 0.159
+    },
+    {
+      "landmark": "6M",
+      "rank": 1,
+      "feature": "FT3 velocity (per month)",
+      "coef": -1.184
+    },
+    {
+      "landmark": "6M",
+      "rank": 2,
+      "feature": "FT4 at current landmark",
+      "coef": 1.036
+    },
+    {
+      "landmark": "6M",
+      "rank": 3,
+      "feature": "FT3 at current landmark",
+      "coef": -0.827
+    },
+    {
+      "landmark": "6M",
+      "rank": 4,
+      "feature": "Thyroid weight",
+      "coef": 0.653
+    },
+    {
+      "landmark": "6M",
+      "rank": 5,
+      "feature": "FT3/FT4 ratio (T3 dominance)",
+      "coef": 0.521
+    },
+    {
+      "landmark": "6M",
+      "rank": 6,
+      "feature": "TSH velocity (per month)",
+      "coef": 0.52
+    }
+  ],
+  "patch": [
+    {
+      "feature_set": "ABCDE (base)",
+      "oof_pooled": 0.7731,
+      "tmp_pooled": 0.7377,
+      "tmp_0M": 0.6787,
+      "tmp_1M": 0.7209,
+      "tmp_3M": 0.7701,
+      "tmp_6M": 0.7698
+    },
+    {
+      "feature_set": "ABCDE + FT3 (level)",
+      "oof_pooled": 0.7719,
+      "tmp_pooled": 0.7382,
+      "tmp_0M": 0.6806,
+      "tmp_1M": 0.7241,
+      "tmp_3M": 0.7694,
+      "tmp_6M": 0.7696
+    },
+    {
+      "feature_set": "ABCDE + FT3/FT4 ratio",
+      "oof_pooled": 0.7722,
+      "tmp_pooled": 0.7384,
+      "tmp_0M": 0.6725,
+      "tmp_1M": 0.7245,
+      "tmp_3M": 0.775,
+      "tmp_6M": 0.7697
+    },
+    {
+      "feature_set": "ABCDE + FT3 + ratio",
+      "oof_pooled": 0.7731,
+      "tmp_pooled": 0.7421,
+      "tmp_0M": 0.6797,
+      "tmp_1M": 0.7181,
+      "tmp_3M": 0.7879,
+      "tmp_6M": 0.7695
+    },
+    {
+      "feature_set": "ABCDE + FT3 + ratio + Eval",
+      "oof_pooled": 0.7815,
+      "tmp_pooled": 0.7527,
+      "tmp_0M": 0.6883,
+      "tmp_1M": 0.7184,
+      "tmp_3M": 0.8194,
+      "tmp_6M": 0.7681
+    }
+  ],
+  "ft3_ft4_corr_pooled": 0.916
+}

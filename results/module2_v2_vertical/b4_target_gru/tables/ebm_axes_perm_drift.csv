@@ -1,0 +1,9 @@
+group,0M,1M,3M,6M
+Goiter (ThyroidW),0.123,0.1192,0.0311,0.0316
+Antibodies,0.0114,-0.0007,0.008,0.0063
+Baseline labs/chronicity,0.0166,0.0109,-0.0029,-0.001
+RAI exposure,0.0013,-0.0005,0.0006,0.003
+Hormone level (load),0.0126,0.0263,0.1842,0.0011
+T3/T4 balance,0.0002,-0.0027,0.0165,0.0
+Momentum (load),0.0,0.0121,0.0013,0.2096
+T3/T4 momentum balance,0.0,-0.0019,0.0002,0.0155

@@ -1,0 +1,66 @@
+[
+  {
+    "landmark": "0M",
+    "LR": 0.6931,
+    "EBM_default": 0.6719,
+    "EBM_best_cfg": "shallow",
+    "EBM_best_OOF": 0.7191,
+    "EBM_best_temporal": 0.6825,
+    "oof_by_cfg": {
+      "default": 0.7114,
+      "no_inter": 0.717,
+      "more_inter": 0.7089,
+      "reg_slow": 0.7065,
+      "shallow": 0.7191,
+      "coarse_bins": 0.714
+    }
+  },
+  {
+    "landmark": "1M",
+    "LR": 0.7292,
+    "EBM_default": 0.707,
+    "EBM_best_cfg": "shallow",
+    "EBM_best_OOF": 0.7516,
+    "EBM_best_temporal": 0.7184,
+    "oof_by_cfg": {
+      "default": 0.7385,
+      "no_inter": 0.742,
+      "more_inter": 0.7388,
+      "reg_slow": 0.7355,
+      "shallow": 0.7516,
+      "coarse_bins": 0.7412
+    }
+  },
+  {
+    "landmark": "3M",
+    "LR": 0.8123,
+    "EBM_default": 0.8042,
+    "EBM_best_cfg": "default",
+    "EBM_best_OOF": 0.8361,
+    "EBM_best_temporal": 0.8042,
+    "oof_by_cfg": {
+      "default": 0.8361,
+      "no_inter": 0.8349,
+      "more_inter": 0.8307,
+      "reg_slow": 0.8334,
+      "shallow": 0.8325,
+      "coarse_bins": 0.8335
+    }
+  },
+  {
+    "landmark": "6M",
+    "LR": 0.808,
+    "EBM_default": 0.815,
+    "EBM_best_cfg": "reg_slow",
+    "EBM_best_OOF": 0.8463,
+    "EBM_best_temporal": 0.8116,
+    "oof_by_cfg": {
+      "default": 0.8429,
+      "no_inter": 0.8387,
+      "more_inter": 0.8436,
+      "reg_slow": 0.8463,
+      "shallow": 0.8351,
+      "coarse_bins": 0.8408
+    }
+  }
+]

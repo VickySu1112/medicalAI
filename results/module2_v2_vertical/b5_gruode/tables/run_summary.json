@@ -1,0 +1,28 @@
+{
+  "arch": "B5 GRU-ODE(-lite) — Neural-ODE hidden evolution + GRU update",
+  "seeds": [
+    2025,
+    2026,
+    2027
+  ],
+  "temporal_pooled_ROC": 0.7450681492109039,
+  "temporal_pooled_CalibSlope": 0.8422180344897471,
+  "per_landmark_ROC": {
+    "0M": 0.6769829883172781,
+    "1M": 0.7240213158434106,
+    "3M": 0.7794630047140807,
+    "6M": 0.7926829268292683,
+    "Pooled": 0.7450681492109039
+  },
+  "delta_vs_L2super_pooled": 0.006901977580575581,
+  "delta_CI": [
+    -0.008810680574795227,
+    0.023357543575830548
+  ],
+  "reference": {
+    "B4_V1_base": 0.73,
+    "L2_supermodel": 0.739,
+    "per_LR_Eval": 0.77
+  },
+  "note": "Deterministic GRU-ODE core (no Bayesian uncertainty propagation). Isolated venv rai_ode + torchdiffeq; anaconda untouched."
+}

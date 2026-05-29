@@ -1,0 +1,25 @@
+landmark,rank,feature,coef
+0M,1,Thyroid weight,0.939
+0M,2,Log disease duration (months),0.217
+0M,3,Thyroid peroxidase antibody,-0.199
+0M,4,Sex,-0.155
+0M,5,TSH receptor antibody,0.086
+0M,6,24-hour RAI uptake,0.085
+1M,1,Thyroid weight,0.774
+1M,2,FT4 at current landmark,0.32
+1M,3,FT4 velocity (per month),0.233
+1M,4,Log disease duration (months),0.219
+1M,5,FT4 at baseline,0.21
+1M,6,Sex,-0.149
+3M,1,FT4 at current landmark,1.23
+3M,2,Thyroid weight,0.654
+3M,3,TSH at current landmark,-0.538
+3M,4,TSH velocity (per month),0.198
+3M,5,TSH receptor antibody,0.175
+3M,6,FT4 velocity (per month),-0.174
+6M,1,FT4 velocity (per month),-0.998
+6M,2,Thyroid weight,0.682
+6M,3,TSH velocity (per month),0.517
+6M,4,FT4 at current landmark,0.397
+6M,5,TSH at current landmark,-0.191
+6M,6,TSH receptor antibody,0.177

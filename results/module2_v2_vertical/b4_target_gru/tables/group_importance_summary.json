@@ -1,0 +1,133 @@
+{
+  "method": "per-landmark group drop-AUC (OOF), orthogonal hormone axes",
+  "full_oof_auc": {
+    "0M": 0.7276,
+    "1M": 0.7393,
+    "3M": 0.8268,
+    "6M": 0.8248
+  },
+  "drift": {
+    "Goiter (ThyroidW)": {
+      "0M": 0.0984,
+      "1M": 0.0569,
+      "3M": 0.0167,
+      "6M": 0.0221
+    },
+    "Antibodies": {
+      "0M": 0.0079,
+      "1M": -0.0014,
+      "3M": 0.0003,
+      "6M": -0.0006
+    },
+    "Chronicity/Sex": {
+      "0M": -0.0047,
+      "1M": -0.0,
+      "3M": -0.002,
+      "6M": -0.0028
+    },
+    "RAI exposure": {
+      "0M": 0.0023,
+      "1M": 0.0017,
+      "3M": -0.0008,
+      "6M": 0.0001
+    },
+    "Hormone level": {
+      "0M": -0.0014,
+      "1M": 0.0069,
+      "3M": 0.0602,
+      "6M": 0.0031
+    },
+    "T3/T4 balance": {
+      "0M": 0.003,
+      "1M": 0.0007,
+      "3M": -0.0018,
+      "6M": -0.0019
+    },
+    "Momentum (load)": {
+      "0M": 0.0,
+      "1M": 0.0008,
+      "3M": 0.0004,
+      "6M": 0.1064
+    },
+    "T3/T4 momentum balance": {
+      "0M": 0.0,
+      "1M": 0.002,
+      "3M": -0.0016,
+      "6M": 0.0025
+    }
+  },
+  "leaderboard_top4": {
+    "0M": [
+      [
+        "Goiter (ThyroidW)",
+        0.0984
+      ],
+      [
+        "Antibodies",
+        0.0079
+      ],
+      [
+        "T3/T4 balance",
+        0.003
+      ],
+      [
+        "RAI exposure",
+        0.0023
+      ]
+    ],
+    "1M": [
+      [
+        "Goiter (ThyroidW)",
+        0.0569
+      ],
+      [
+        "Hormone level",
+        0.0069
+      ],
+      [
+        "T3/T4 momentum balance",
+        0.002
+      ],
+      [
+        "RAI exposure",
+        0.0017
+      ]
+    ],
+    "3M": [
+      [
+        "Hormone level",
+        0.0602
+      ],
+      [
+        "Goiter (ThyroidW)",
+        0.0167
+      ],
+      [
+        "Momentum (load)",
+        0.0004
+      ],
+      [
+        "Antibodies",
+        0.0003
+      ]
+    ],
+    "6M": [
+      [
+        "Momentum (load)",
+        0.1064
+      ],
+      [
+        "Goiter (ThyroidW)",
+        0.0221
+      ],
+      [
+        "Hormone level",
+        0.0031
+      ],
+      [
+        "T3/T4 momentum balance",
+        0.0025
+      ]
+    ]
+  }
+}

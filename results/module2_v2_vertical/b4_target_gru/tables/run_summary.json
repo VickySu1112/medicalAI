@@ -1,0 +1,85 @@
+{
+  "phase": 2,
+  "arch": "B4 TARGET-GRU (unidirectional GRU-D, deep supervision, 5-seed ensemble)",
+  "n_episodes": 1003,
+  "n_landmark_rows": 4012,
+  "seeds": [
+    2025,
+    2026,
+    2027,
+    2028,
+    2029
+  ],
+  "variants": [
+    {
+      "Variant": "V1 vanilla GRU",
+      "Dev_Pooled_ROC": 0.7668731533709374,
+      "Tmp_ROC_0M": 0.6757532281205165,
+      "Tmp_ROC_1M": 0.7160278745644599,
+      "Tmp_ROC_3M": 0.7618364418938307,
+      "Tmp_ROC_6M": 0.7593769215003076,
+      "Tmp_ROC_Pooled": 0.7300099918015988,
+      "Tmp_Pooled_Brier": 0.20544837054734796,
+      "Tmp_Pooled_CalibSlope": 0.8142274960155322
+    },
+    {
+      "Variant": "V2 GRU-D",
+      "Dev_Pooled_ROC": 0.7561421400752082,
+      "Tmp_ROC_0M": 0.6919450707112113,
+      "Tmp_ROC_1M": 0.7161303545808567,
+      "Tmp_ROC_3M": 0.7627587620414018,
+      "Tmp_ROC_6M": 0.7643984423037508,
+      "Tmp_ROC_Pooled": 0.7337761324041812,
+      "Tmp_Pooled_Brier": 0.2088279274952161,
+      "Tmp_Pooled_CalibSlope": 0.6729366155687041
+    },
+    {
+      "Variant": "V3 AWD-GRU",
+      "Dev_Pooled_ROC": 0.7576123086220791,
+      "Tmp_ROC_0M": 0.6891781102684977,
+      "Tmp_ROC_1M": 0.715515474482476,
+      "Tmp_ROC_3M": 0.7617339618774338,
+      "Tmp_ROC_6M": 0.7654232424677189,
+      "Tmp_ROC_Pooled": 0.7338081574093052,
+      "Tmp_Pooled_Brier": 0.20845589315106544,
+      "Tmp_Pooled_CalibSlope": 0.6688470679198806
+    },
+    {
+      "Variant": "V2 GRU-D (no aug)",
+      "Dev_Pooled_ROC": 0.7556276020682245,
+      "Tmp_ROC_0M": 0.6910227505636402,
+      "Tmp_ROC_1M": 0.717052674728428,
+      "Tmp_ROC_3M": 0.7637835622053699,
+      "Tmp_ROC_6M": 0.7651158024185284,
+      "Tmp_ROC_Pooled": 0.7340323324451732,
+      "Tmp_Pooled_Brier": 0.2083840887318929,
+      "Tmp_Pooled_CalibSlope": 0.6813556386739724
+    }
+  ],
+  "oof_winner": "V1 vanilla GRU",
+  "winner_temporal_pooled_ROC": 0.7300099918015988,
+  "winner_per_landmark_ROC": {
+    "0M": 0.6757532281205165,
+    "1M": 0.7160278745644599,
+    "3M": 0.7618364418938307,
+    "6M": 0.7593769215003076,
+    "Pooled": 0.7300099918015988
+  },
+  "winner_temporal_pooled_CalibSlope": 0.8142274960155322,
+  "winner_delta_vs_L2super_pooled": -0.008373005079530258,
+  "winner_delta_CI": [
+    -0.02567415492296234,
+    0.008712210575400819
+  ],
+  "calibration_stable": false,
+  "ref_baselines": {
+    "per-LR + Eval (4-LR)": 0.77,
+    "L2 supermodel": 0.739,
+    "Random Forest": 0.7435,
+    "B2 Dual-Tower (GRU)": 0.701,
+    "B3 CLAN": 0.719
+  },
+  "phase1_reference": {
+    "V2_single_seed_no_aug_pooled_ROC": 0.727
+  }
+}

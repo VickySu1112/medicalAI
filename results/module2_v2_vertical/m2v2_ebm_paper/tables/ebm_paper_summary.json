@@ -1,0 +1,146 @@
+{
+  "0M": {
+    "AUC": 0.6713,
+    "AUC_CI": [
+      0.582,
+      0.7534
+    ],
+    "calib_intercept": -0.104,
+    "calib_slope": 0.647,
+    "Brier": 0.2203,
+    "top6": [
+      {
+        "term": "Thyroid weight",
+        "importance": 0.5432
+      },
+      {
+        "term": "TPOAb × FT3,FT4 gap",
+        "importance": 0.154
+      },
+      {
+        "term": "TPOAb",
+        "importance": 0.1282
+      },
+      {
+        "term": "Disease duration (log,mo)",
+        "importance": 0.1197
+      },
+      {
+        "term": "TRAb × Disease duration (log,mo)",
+        "importance": 0.1038
+      },
+      {
+        "term": "TPOAb × FT3,FT4 level",
+        "importance": 0.1013
+      }
+    ]
+  },
+  "1M": {
+    "AUC": 0.7091,
+    "AUC_CI": [
+      0.6351,
+      0.7824
+    ],
+    "calib_intercept": -0.075,
+    "calib_slope": 0.7,
+    "Brier": 0.2134,
+    "top6": [
+      {
+        "term": "Thyroid weight",
+        "importance": 0.4689
+      },
+      {
+        "term": "FT3,FT4 level",
+        "importance": 0.1922
+      },
+      {
+        "term": "TPOAb × FT3,FT4 velocity",
+        "importance": 0.1327
+      },
+      {
+        "term": "Disease duration (log,mo)",
+        "importance": 0.1115
+      },
+      {
+        "term": "FT3,FT4 velocity",
+        "importance": 0.0948
+      },
+      {
+        "term": "TRAb",
+        "importance": 0.0916
+      }
+    ]
+  },
+  "3M": {
+    "AUC": 0.8035,
+    "AUC_CI": [
+      0.7425,
+      0.8618
+    ],
+    "calib_intercept": -0.017,
+    "calib_slope": 0.764,
+    "Brier": 0.1763,
+    "top6": [
+      {
+        "term": "FT3,FT4 level",
+        "importance": 0.5249
+      },
+      {
+        "term": "Thyroid weight",
+        "importance": 0.3676
+      },
+      {
+        "term": "TSH (current)",
+        "importance": 0.2853
+      },
+      {
+        "term": "TSH velocity",
+        "importance": 0.1828
+      },
+      {
+        "term": "FT3,FT4 gap",
+        "importance": 0.1354
+      },
+      {
+        "term": "TRAb",
+        "importance": 0.1267
+      }
+    ]
+  },
+  "6M": {
+    "AUC": 0.8171,
+    "AUC_CI": [
+      0.7557,
+      0.8733
+    ],
+    "calib_intercept": 0.031,
+    "calib_slope": 0.83,
+    "Brier": 0.1708,
+    "top6": [
+      {
+        "term": "FT3,FT4 velocity",
+        "importance": 0.6229
+      },
+      {
+        "term": "TSH velocity",
+        "importance": 0.4215
+      },
+      {
+        "term": "Thyroid weight",
+        "importance": 0.3823
+      },
+      {
+        "term": "FT3,FT4 vel gap",
+        "importance": 0.1429
+      },
+      {
+        "term": "TRAb",
+        "importance": 0.1175
+      },
+      {
+        "term": "TPOAb × FT3,FT4 velocity",
+        "importance": 0.1135
+      }
+    ]
+  }
+}

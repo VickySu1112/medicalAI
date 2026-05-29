@@ -1,0 +1,25 @@
+landmark,rank,feature,coef
+0M,1,Thyroid weight,0.971
+0M,2,FT3 at current landmark,-0.252
+0M,3,Log disease duration (months),0.199
+0M,4,Thyroid peroxidase antibody,-0.195
+0M,5,Sex,-0.156
+0M,6,FT4 at baseline,0.139
+1M,1,Thyroid weight,0.801
+1M,2,FT4 at current landmark,0.801
+1M,3,FT3 at current landmark,-0.625
+1M,4,FT3/FT4 ratio (T3 dominance),0.275
+1M,5,FT3 velocity (per month),0.259
+1M,6,Log disease duration (months),0.212
+3M,1,FT4 at current landmark,1.036
+3M,2,Thyroid weight,0.645
+3M,3,FT3/FT4 ratio (T3 dominance),0.502
+3M,4,TSH at current landmark,-0.474
+3M,5,Log disease duration (months),0.17
+3M,6,TSH at baseline,0.159
+6M,1,FT3 velocity (per month),-1.184
+6M,2,FT4 at current landmark,1.036
+6M,3,FT3 at current landmark,-0.827
+6M,4,Thyroid weight,0.653
+6M,5,FT3/FT4 ratio (T3 dominance),0.521
+6M,6,TSH velocity (per month),0.52

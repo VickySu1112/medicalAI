@@ -1,0 +1,477 @@
+{
+  "naming": {
+    "Hormone_load": "FT3+FT4 level",
+    "Velocity_load": "FT3+FT4 velocity",
+    "T3T4_balance": "FT3-FT4 gap",
+    "Velocity_balance": "FT3-FT4 vel gap"
+  },
+  "full_oof_auc": {
+    "0M": 0.7277,
+    "1M": 0.7392,
+    "3M": 0.8253,
+    "6M": 0.8229
+  },
+  "group_drift": {
+    "ThyroidW (goiter)": {
+      "0": 0.0984,
+      "1": 0.054,
+      "3": 0.0149,
+      "6": 0.0198
+    },
+    "Antibodies": {
+      "0": 0.0079,
+      "1": -0.0013,
+      "3": -0.0001,
+      "6": -0.0015
+    },
+    "Baseline labs / duration": {
+      "0": -0.0047,
+      "1": -0.0001,
+      "3": -0.0034,
+      "6": -0.0046
+    },
+    "RAI exposure": {
+      "0": 0.0024,
+      "1": 0.0013,
+      "3": -0.0001,
+      "6": 0.0007
+    },
+    "FT3,FT4 combined level & TSH": {
+      "0": 0.0,
+      "1": 0.0033,
+      "3": 0.0606,
+      "6": 0.0027
+    },
+    "FT3,FT4 gap (T3 dominance)": {
+      "0": -0.0,
+      "1": 0.001,
+      "3": -0.0015,
+      "6": -0.0019
+    },
+    "FT3,FT4 combined velocity & TSH": {
+      "0": 0.0,
+      "1": 0.0003,
+      "3": 0.0005,
+      "6": 0.1082
+    },
+    "FT3,FT4 velocity gap": {
+      "0": 0.0,
+      "1": 0.0003,
+      "3": -0.0016,
+      "6": 0.0029
+    }
+  },
+  "ebm_axes": {
+    "auc": [
+      {
+        "landmark": "0M",
+        "LR_AUC": 0.6931,
+        "EBM_AUC": 0.6713
+      },
+      {
+        "landmark": "1M",
+        "LR_AUC": 0.7292,
+        "EBM_AUC": 0.7091
+      },
+      {
+        "landmark": "3M",
+        "LR_AUC": 0.8123,
+        "EBM_AUC": 0.8035
+      },
+      {
+        "landmark": "6M",
+        "LR_AUC": 0.808,
+        "EBM_AUC": 0.8171
+      }
+    ],
+    "perm_drift": {
+      "Goiter (ThyroidW)": {
+        "0": 0.123,
+        "1": 0.1192,
+        "3": 0.0311,
+        "6": 0.0316
+      },
+      "Antibodies": {
+        "0": 0.0114,
+        "1": -0.0007,
+        "3": 0.008,
+        "6": 0.0063
+      },
+      "Baseline labs/chronicity": {
+        "0": 0.0166,
+        "1": 0.0109,
+        "3": -0.0029,
+        "6": -0.001
+      },
+      "RAI exposure": {
+        "0": 0.0013,
+        "1": -0.0005,
+        "3": 0.0006,
+        "6": 0.003
+      },
+      "Hormone level (load)": {
+        "0": 0.0126,
+        "1": 0.0263,
+        "3": 0.1842,
+        "6": 0.0011
+      },
+      "T3/T4 balance": {
+        "0": 0.0002,
+        "1": -0.0027,
+        "3": 0.0165,
+        "6": 0.0
+      },
+      "Momentum (load)": {
+        "0": 0.0,
+        "1": 0.0121,
+        "3": 0.0013,
+        "6": 0.2096
+      },
+      "T3/T4 momentum balance": {
+        "0": 0.0,
+        "1": -0.0019,
+        "3": 0.0002,
+        "6": 0.0155
+      }
+    },
+    "native_top3": {
+      "0M": [
+        [
+          "ThyroidW",
+          0.543
+        ],
+        [
+          "TPOAb",
+          0.128
+        ],
+        [
+          "log1p_DiseaseDuration_Months_Aug",
+          0.12
+        ]
+      ],
+      "1M": [
+        [
+          "ThyroidW",
+          0.469
+        ],
+        [
+          "Hormone_load",
+          0.192
+        ],
+        [
+          "log1p_DiseaseDuration_Months_Aug",
+          0.112
+        ]
+      ],
+      "3M": [
+        [
+          "Hormone_load",
+          0.525
+        ],
+        [
+          "ThyroidW",
+          0.368
+        ],
+        [
+          "TSH_current",
+          0.285
+        ]
+      ],
+      "6M": [
+        [
+          "Velocity_load",
+          0.623
+        ],
+        [
+          "TSH_velocity",
+          0.421
+        ],
+        [
+          "ThyroidW",
+          0.382
+        ]
+      ]
+    }
+  },
+  "ebm_tuning": [
+    {
+      "landmark": "0M",
+      "LR": 0.6931,
+      "EBM_default": 0.6719,
+      "EBM_best_cfg": "shallow",
+      "EBM_best_OOF": 0.7191,
+      "EBM_best_temporal": 0.6825,
+      "oof_by_cfg": {
+        "default": 0.7114,
+        "no_inter": 0.717,
+        "more_inter": 0.7089,
+        "reg_slow": 0.7065,
+        "shallow": 0.7191,
+        "coarse_bins": 0.714
+      }
+    },
+    {
+      "landmark": "1M",
+      "LR": 0.7292,
+      "EBM_default": 0.707,
+      "EBM_best_cfg": "shallow",
+      "EBM_best_OOF": 0.7516,
+      "EBM_best_temporal": 0.7184,
+      "oof_by_cfg": {
+        "default": 0.7385,
+        "no_inter": 0.742,
+        "more_inter": 0.7388,
+        "reg_slow": 0.7355,
+        "shallow": 0.7516,
+        "coarse_bins": 0.7412
+      }
+    },
+    {
+      "landmark": "3M",
+      "LR": 0.8123,
+      "EBM_default": 0.8042,
+      "EBM_best_cfg": "default",
+      "EBM_best_OOF": 0.8361,
+      "EBM_best_temporal": 0.8042,
+      "oof_by_cfg": {
+        "default": 0.8361,
+        "no_inter": 0.8349,
+        "more_inter": 0.8307,
+        "reg_slow": 0.8334,
+        "shallow": 0.8325,
+        "coarse_bins": 0.8335
+      }
+    },
+    {
+      "landmark": "6M",
+      "LR": 0.808,
+      "EBM_default": 0.815,
+      "EBM_best_cfg": "reg_slow",
+      "EBM_best_OOF": 0.8463,
+      "EBM_best_temporal": 0.8116,
+      "oof_by_cfg": {
+        "default": 0.8429,
+        "no_inter": 0.8387,
+        "more_inter": 0.8436,
+        "reg_slow": 0.8463,
+        "shallow": 0.8351,
+        "coarse_bins": 0.8408
+      }
+    }
+  ],
+  "selective_prediction": {
+    "per_landmark_importance": [
+      {
+        "landmark": "0M",
+        "rank": 1,
+        "feature": "Thyroid weight",
+        "coef": 0.939
+      },
+      {
+        "landmark": "0M",
+        "rank": 2,
+        "feature": "Log disease duration (months)",
+        "coef": 0.217
+      },
+      {
+        "landmark": "0M",
+        "rank": 3,
+        "feature": "Thyroid peroxidase antibody",
+        "coef": -0.199
+      },
+      {
+        "landmark": "0M",
+        "rank": 4,
+        "feature": "Sex",
+        "coef": -0.155
+      },
+      {
+        "landmark": "0M",
+        "rank": 5,
+        "feature": "TSH receptor antibody",
+        "coef": 0.086
+      },
+      {
+        "landmark": "0M",
+        "rank": 6,
+        "feature": "24-hour RAI uptake",
+        "coef": 0.085
+      },
+      {
+        "landmark": "1M",
+        "rank": 1,
+        "feature": "Thyroid weight",
+        "coef": 0.774
+      },
+      {
+        "landmark": "1M",
+        "rank": 2,
+        "feature": "FT4 at current landmark",
+        "coef": 0.32
+      },
+      {
+        "landmark": "1M",
+        "rank": 3,
+        "feature": "FT4 velocity (per month)",
+        "coef": 0.233
+      },
+      {
+        "landmark": "1M",
+        "rank": 4,
+        "feature": "Log disease duration (months)",
+        "coef": 0.219
+      },
+      {
+        "landmark": "1M",
+        "rank": 5,
+        "feature": "FT4 at baseline",
+        "coef": 0.21
+      },
+      {
+        "landmark": "1M",
+        "rank": 6,
+        "feature": "Sex",
+        "coef": -0.149
+      },
+      {
+        "landmark": "3M",
+        "rank": 1,
+        "feature": "FT4 at current landmark",
+        "coef": 1.23
+      },
+      {
+        "landmark": "3M",
+        "rank": 2,
+        "feature": "Thyroid weight",
+        "coef": 0.654
+      },
+      {
+        "landmark": "3M",
+        "rank": 3,
+        "feature": "TSH at current landmark",
+        "coef": -0.538
+      },
+      {
+        "landmark": "3M",
+        "rank": 4,
+        "feature": "TSH velocity (per month)",
+        "coef": 0.198
+      },
+      {
+        "landmark": "3M",
+        "rank": 5,
+        "feature": "TSH receptor antibody",
+        "coef": 0.175
+      },
+      {
+        "landmark": "3M",
+        "rank": 6,
+        "feature": "FT4 velocity (per month)",
+        "coef": -0.174
+      },
+      {
+        "landmark": "6M",
+        "rank": 1,
+        "feature": "FT4 velocity (per month)",
+        "coef": -0.998
+      },
+      {
+        "landmark": "6M",
+        "rank": 2,
+        "feature": "Thyroid weight",
+        "coef": 0.682
+      },
+      {
+        "landmark": "6M",
+        "rank": 3,
+        "feature": "TSH velocity (per month)",
+        "coef": 0.517
+      },
+      {
+        "landmark": "6M",
+        "rank": 4,
+        "feature": "FT4 at current landmark",
+        "coef": 0.397
+      },
+      {
+        "landmark": "6M",
+        "rank": 5,
+        "feature": "TSH at current landmark",
+        "coef": -0.191
+      },
+      {
+        "landmark": "6M",
+        "rank": 6,
+        "feature": "TSH receptor antibody",
+        "coef": 0.177
+      }
+    ],
+    "selective_threshold": 0.37499999999999994,
+    "risk_coverage": [
+      {
+        "abstain_pct": 0,
+        "coverage_pct": 100,
+        "n_retained": 804,
+        "accuracy": 0.6853,
+        "NPV": 0.7461,
+        "PPV": 0.6068,
+        "ROC_retained": 0.7526
+      },
+      {
+        "abstain_pct": 10,
+        "coverage_pct": 90,
+        "n_retained": 724,
+        "accuracy": 0.7044,
+        "NPV": 0.75,
+        "PPV": 0.6442,
+        "ROC_retained": 0.7685
+      },
+      {
+        "abstain_pct": 20,
+        "coverage_pct": 80,
+        "n_retained": 643,
+        "accuracy": 0.7216,
+        "NPV": 0.7713,
+        "PPV": 0.6571,
+        "ROC_retained": 0.784
+      },
+      {
+        "abstain_pct": 30,
+        "coverage_pct": 70,
+        "n_retained": 563,
+        "accuracy": 0.73,
+        "NPV": 0.7756,
+        "PPV": 0.6733,
+        "ROC_retained": 0.8036
+      },
+      {
+        "abstain_pct": 40,
+        "coverage_pct": 60,
+        "n_retained": 482,
+        "accuracy": 0.749,
+        "NPV": 0.7984,
+        "PPV": 0.6943,
+        "ROC_retained": 0.8295
+      },
+      {
+        "abstain_pct": 50,
+        "coverage_pct": 50,
+        "n_retained": 402,
+        "accuracy": 0.7811,
+        "NPV": 0.8402,
+        "PPV": 0.726,
+        "ROC_retained": 0.8531
+      }
+    ],
+    "headline": {
+      "no_abstain": {
+        "acc": 0.6853,
+        "NPV": 0.7461
+      },
+      "abstain_30pct": {
+        "acc": 0.73,
+        "NPV": 0.7756
+      }
+    }
+  }
+}

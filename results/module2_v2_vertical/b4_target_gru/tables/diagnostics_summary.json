@@ -1,0 +1,86 @@
+{
+  "bias_variance": [
+    {
+      "model": "L2 supermodel",
+      "train_ROC": 0.7858069769003492,
+      "oof_ROC": 0.7731172777330111,
+      "temporal_ROC": 0.7377280180364828,
+      "train_minus_oof": 0.012689699167338087
+    },
+    {
+      "model": "RandomForest",
+      "train_ROC": 0.9999999999999999,
+      "oof_ROC": 0.771710272293849,
+      "temporal_ROC": 0.7317745695839311,
+      "train_minus_oof": 0.22828972770615086
+    },
+    {
+      "model": "B4 V1 GRU",
+      "train_ROC": 0.7864944931835394,
+      "oof_ROC": 0.8266294865403789,
+      "temporal_ROC": NaN,
+      "train_minus_oof": -0.040134993356839566
+    }
+  ],
+  "learning_curve": [
+    {
+      "frac": 0.25,
+      "n_episodes": 200,
+      "oof_ROC_mean": 0.7305284399381584,
+      "oof_ROC_std": 0.003586766346211996
+    },
+    {
+      "frac": 0.5,
+      "n_episodes": 401,
+      "oof_ROC_mean": 0.784779299847793,
+      "oof_ROC_std": 0.009484135923517668
+    },
+    {
+      "frac": 0.75,
+      "n_episodes": 602,
+      "oof_ROC_mean": 0.7609802210587552,
+      "oof_ROC_std": 0.005044169348693213
+    },
+    {
+      "frac": 1.0,
+      "n_episodes": 802,
+      "oof_ROC_mean": 0.762233078162772,
+      "oof_ROC_std": 0.0
+    }
+  ],
+  "gru_curve_final": {
+    "train": 0.7992076390642092,
+    "val": 0.818014705882353,
+    "best_val": 0.8266294865403789
+  },
+  "youden_threshold": 0.36999999999999994,
+  "confusion_pooled_dev": [
+    {
+      "split": "Dev(OOF)",
+      "Landmark": "Pooled",
+      "thr": 0.37,
+      "TP": 746,
+      "FP": 438,
+      "TN": 1602,
+      "FN": 422,
+      "Sens": 0.6386986301369864,
+      "Spec": 0.7852941176470588,
+      "PPV": 0.6300675675675675,
+      "NPV": 0.791501976284585
+    }
+  ],
+  "hardcase_landmark_dist": {
+    "hard_FN": {
+      "0M": 3,
+      "1M": 4,
+      "3M": 13,
+      "6M": 20
+    },
+    "hard_FP": {
+      "0M": 6,
+      "1M": 9,
+      "3M": 12,
+      "6M": 13
+    }
+  }
+}

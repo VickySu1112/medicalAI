@@ -1,0 +1,7 @@
+group,0M,1M,3M,6M
+Goiter (ThyroidW),0.1409,0.1223,0.0398,0.0241
+Antibodies,0.0052,0.0031,0.0061,0.0102
+Baseline labs/chronicity,0.0183,0.0042,-0.0041,-0.0009
+RAI exposure,-0.0081,-0.0002,-0.0012,0.0032
+Current level (C),0.0047,0.0354,0.1638,0.0003
+Momentum (velocity),0.0,0.0118,-0.0039,0.2422

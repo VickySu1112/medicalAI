@@ -1,0 +1,48 @@
+{
+  "patch_comparison": [
+    {
+      "feature_set": "ABCDE (base, no FT3)",
+      "oof_pooled": 0.7731,
+      "tmp_pooled": 0.7377,
+      "tmp_0M": 0.6787,
+      "tmp_1M": 0.7209,
+      "tmp_3M": 0.7701,
+      "tmp_6M": 0.7698
+    },
+    {
+      "feature_set": "ABCDE + FT3",
+      "oof_pooled": 0.7719,
+      "tmp_pooled": 0.7382,
+      "tmp_0M": 0.6806,
+      "tmp_1M": 0.7241,
+      "tmp_3M": 0.7694,
+      "tmp_6M": 0.7696
+    },
+    {
+      "feature_set": "ABCDE + FT3 + Eval",
+      "oof_pooled": 0.7815,
+      "tmp_pooled": 0.752,
+      "tmp_0M": 0.6892,
+      "tmp_1M": 0.7185,
+      "tmp_3M": 0.8153,
+      "tmp_6M": 0.7682
+    },
+    {
+      "feature_set": "ABCDE + FT3 + Eval + TRAb(fu)",
+      "oof_pooled": 0.7806,
+      "tmp_pooled": 0.7522,
+      "tmp_0M": 0.6892,
+      "tmp_1M": 0.7187,
+      "tmp_3M": 0.8153,
+      "tmp_6M": 0.7683
+    }
+  ],
+  "base_temporal_pooled": 0.7377,
+  "best_feature_set": "ABCDE + FT3 + Eval + TRAb(fu)",
+  "best_temporal_pooled": 0.7522,
+  "per_LR_Eval_reference": 0.77,
+  "audit": {
+    "FT3_omitted_now_added": true,
+    "followup_TRAb_coverage_1M_3M": "1.8%/14.3% → unusable"
+  }
+}
