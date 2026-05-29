@@ -114,7 +114,7 @@ FT3、FT4 同向共线、聚合为水平/落差两轴;TSH 与之反向(垂体反
 EBM:interactions=5、learning_rate=0.01、其余默认;调参网格(更浅/更强正则)显示最优配置趋向简单,逐时点 AUC 仍与 LR 相当(`ebm_tuning.json`)。
 
 ### 附录 B · 与 probe 报告的关系
-完整的探索/诊断(模型谱系全景、偏差-方差、学习曲线、增强/级联、GRU/GRU-ODE、错例分月画像、三模型重要性交叉验证)见 **`Module2v2_probe_可解释性与诊断.html`**;本报告是其中 EBM 视角的论文级凝练。
+完整的探索/诊断(模型谱系全景、偏差-方差、学习曲线、增强/级联、GRU/GRU-ODE、错例分月画像、三模型重要性交叉验证)见 **`Module2v2_probe_可解释性与诊断.html`**;本报告是其中 EBM 视角的论文级凝练。**EBM 全套图谱(47 图:逐地标 ROC / PR / 校准 / 原生重要性 / 形状函数 / DCA / 风险三档 / 混淆矩阵 + 跨地标汇总)见 [`Module2v2_EBM_图集.html`](Module2v2_EBM_图集.md)。**
 
 ### 附录 C · 运行环境
 uv 环境(torch 2.12 / scikit-learn / interpret-core 0.7.8);数据自计算机 rsync;L2 supermodel 本机重算 0.738≈已知 0.739,跨环境一致。所有计数 runtime 计算;分析单元 = 1003 人次。
