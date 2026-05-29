@@ -516,9 +516,9 @@ def md_risk_tiers(t: dict) -> str:
 
     return f"""## 6. 风险分层（4 档，isotonic-binned）
 
-模型预测概率经 isotonic regression 单调化后按 25/50/75 % 分位切，得到 dev OOF 上 4 个 cuts: **{cut_str}**（原概率尺度），再套 temporal。每档配独立的马卡龙色（凉色→暖色对应低→高风险）：Q1 薄荷绿、Q2 奶油黄、Q3 蜜桃粉、Q4 玫瑰红。
+模型预测概率经 isotonic regression 单调化后按 25/50/75 % 分位切，得到 dev OOF 上 4 个 cuts: **{cut_str}**（原概率尺度），再套 temporal。每档配独立的色相（暖→冷对应低→高风险）：Q1 暖沙黄 `#EAC086`、Q2 玫瑰粉 `#E5989B`、Q3 柔紫 `#9F86C0`、Q4 深岩青紫 `#4F587D`。
 
-![图 11. M1 v6 — 4 档风险分层（isotonic-binned + 马卡龙配色，dev OOF 与 temporal 并列）。]({fig_path("Figure_v3_11_FourTier_Macaron.png")})
+![图 11. M1 v6 — 4 档风险分层（isotonic-binned cuts，dev OOF 与 temporal 并列）。]({fig_path("Figure_v3_11_FourTier_Macaron.png")})
 
 **Dev OOF (N=802)**：
 

@@ -56,12 +56,12 @@ FROZEN = ROOT / "results" / "module1_baseline_ml_benchmark" / "tables" / "module
 
 V6 = ["Sex", "ThyroidW", "TPOAb", "FT4_0M", "TSH_0M", "log1p_DiseaseDuration_Months_Aug"]
 
-# Macaron palette — four distinct pastel colors, cool→warm by risk
+# Four distinct user-selected hues, warm→cool by risk
 MACARON = {
-    "Q1": "#A8E6CF",  # pistachio mint
-    "Q2": "#FFEAA7",  # butter cream
-    "Q3": "#FAB1A0",  # peach blush
-    "Q4": "#E17055",  # rose strawberry
+    "Q1": "#EAC086",  # warm sand
+    "Q2": "#E5989B",  # rose pink
+    "Q3": "#9F86C0",  # soft lavender
+    "Q4": "#4F587D",  # deep slate-violet
 }
 EDGE_COLOR = "#444444"
 
@@ -186,7 +186,7 @@ def plot_4tier_macaron(dev_df, tmp_df, cuts, out: Path) -> None:
             ax.spines[spine].set_visible(False)
 
     fig.suptitle(
-        "M1 v6 — 4-tier risk stratification (isotonic-binned cuts, macaron palette)",
+        "M1 v6 — 4-tier risk stratification (isotonic-binned cuts)",
         fontsize=12, weight="bold",
     )
     fig.tight_layout(rect=[0, 0, 1, 0.94])
