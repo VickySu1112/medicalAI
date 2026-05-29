@@ -1,0 +1,117 @@
+[
+  {
+    "n": 1,
+    "file": "C01_Heatmap_ROC.png",
+    "caption": "ROC-AUC: 方法 × 地标"
+  },
+  {
+    "n": 2,
+    "file": "C02_Heatmap_PR.png",
+    "caption": "PR-AUC: 方法 × 地标"
+  },
+  {
+    "n": 3,
+    "file": "C03_Heatmap_Brier.png",
+    "caption": "Brier(越低越好): 方法 × 地标"
+  },
+  {
+    "n": 4,
+    "file": "C04_Heatmap_CalibSlope.png",
+    "caption": "校准斜率(理想 1): 方法 × 地标"
+  },
+  {
+    "n": 5,
+    "file": "C05_Bar_ROC_0M.png",
+    "caption": "0M 各方法 ROC-AUC(含95%CI)"
+  },
+  {
+    "n": 6,
+    "file": "C06_Bar_ROC_1M.png",
+    "caption": "1M 各方法 ROC-AUC(含95%CI)"
+  },
+  {
+    "n": 7,
+    "file": "C07_Bar_ROC_3M.png",
+    "caption": "3M 各方法 ROC-AUC(含95%CI)"
+  },
+  {
+    "n": 8,
+    "file": "C08_Bar_ROC_6M.png",
+    "caption": "6M 各方法 ROC-AUC(含95%CI)"
+  },
+  {
+    "n": 9,
+    "file": "C09_ROCoverlay_0M.png",
+    "caption": "0M 各方法 ROC 叠加"
+  },
+  {
+    "n": 10,
+    "file": "C10_ROCoverlay_1M.png",
+    "caption": "1M 各方法 ROC 叠加"
+  },
+  {
+    "n": 11,
+    "file": "C11_ROCoverlay_3M.png",
+    "caption": "3M 各方法 ROC 叠加"
+  },
+  {
+    "n": 12,
+    "file": "C12_ROCoverlay_6M.png",
+    "caption": "6M 各方法 ROC 叠加"
+  },
+  {
+    "n": 13,
+    "file": "C13_Caliboverlay_0M.png",
+    "caption": "0M 代表方法校准对比"
+  },
+  {
+    "n": 14,
+    "file": "C14_Caliboverlay_1M.png",
+    "caption": "1M 代表方法校准对比"
+  },
+  {
+    "n": 15,
+    "file": "C15_Caliboverlay_3M.png",
+    "caption": "3M 代表方法校准对比"
+  },
+  {
+    "n": 16,
+    "file": "C16_Caliboverlay_6M.png",
+    "caption": "6M 代表方法校准对比"
+  },
+  {
+    "n": 17,
+    "file": "C17_Ranking_meanAUC.png",
+    "caption": "各方法 4 地标平均 ROC-AUC 排名"
+  },
+  {
+    "n": 18,
+    "file": "C18_Delta_vs_EBM.png",
+    "caption": "各方法相对 EBM 的平均 ΔROC-AUC"
+  },
+  {
+    "n": 19,
+    "file": "C19_DCA_0M.png",
+    "caption": "0M 代表方法决策曲线(DCA)对比"
+  },
+  {
+    "n": 20,
+    "file": "C20_DCA_1M.png",
+    "caption": "1M 代表方法决策曲线(DCA)对比"
+  },
+  {
+    "n": 21,
+    "file": "C21_DCA_3M.png",
+    "caption": "3M 代表方法决策曲线(DCA)对比"
+  },
+  {
+    "n": 22,
+    "file": "C22_DCA_6M.png",
+    "caption": "6M 代表方法决策曲线(DCA)对比"
+  },
+  {
+    "n": 23,
+    "file": "C23_Cost_vs_Perf.png",
+    "caption": "性能 vs 拟合耗时(成本-收益)"
+  }
+]
