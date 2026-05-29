@@ -1,0 +1,31 @@
+{
+  "V6_features": [
+    "Sex",
+    "ThyroidW",
+    "TPOAb",
+    "FT4_0M",
+    "TSH_0M",
+    "log1p_DiseaseDuration_Months_Aug"
+  ],
+  "performance_temporal_ROC_AUC": 0.6810007079607628,
+  "performance_temporal_Brier": 0.21126772421012124,
+  "calibration_intercept_temporal": 0.10012385323957733,
+  "calibration_slope_temporal": 1.0977251846799272,
+  "VIF_max": 1.1805583965390776,
+  "VIF_max_feature": "log1p_DiseaseDuration_Months_Aug",
+  "subgroup_dev_AUC_overall": 0.7240060717550264,
+  "subgroup_temporal_AUC_overall": 0.6810007079607628,
+  "class_weight_delta_temporal_AUC": -0.0012649146702390368,
+  "multi_seed_mean_AUC": 0.6805697680513603,
+  "multi_seed_std_AUC": 0.0013183995994482873,
+  "loo_top_feature": "ThyroidW",
+  "loo_top_delta": 0.11991764206995668,
+  "bootstrap_top_feature_freq": {
+    "ThyroidW": 1.0,
+    "TPOAb": 0.98,
+    "log1p_DiseaseDuration_Months_Aug": 0.98,
+    "Sex": 0.97,
+    "TSH_0M": 0.97,
+    "FT4_0M": 0.888
+  }
+}

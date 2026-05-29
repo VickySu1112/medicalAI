@@ -1,0 +1,7 @@
+Feature,PrettyLabel,VIF
+log1p_DiseaseDuration_Months_Aug,Log disease duration (months),1.1805583965390776
+ThyroidW,Thyroid weight,1.1772021886209607
+TPOAb,TPOAb,1.1166473292714854
+FT4_0M,FT4 at baseline,1.0612880763533883
+Sex,Sex,1.031946786954758
+TSH_0M,TSH at baseline,1.012384457734416
