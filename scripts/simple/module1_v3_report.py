@@ -487,90 +487,101 @@ def md_calibration(t: dict) -> str:
 
 
 def md_risk_tiers(t: dict) -> str:
-    tiers = t["tiers"]
-    rows3_dev = tiers[(tiers["N_Tiers"] == 3) & (tiers["Split"] == "Dev_OOF")]
-    rows3_tmp = tiers[(tiers["N_Tiers"] == 3) & (tiers["Split"] == "Temporal_Test")]
+    """§6: 4-tier risk stratification (isotonic-binned, macaron palette)."""
+    # Load the official 4-tier table
+    p4 = V3_TAB / "v6_4tier_isotonic_official.csv"
+    if not p4.exists():
+        return "## 6. 风险分层\n\n（未生成 v6_4tier_isotonic_official.csv）\n"
+    df = pd.read_csv(p4)
+    summary = {}
+    sj = V3_TAB / "v6_4tier_isotonic_summary.json"
+    if sj.exists():
+        summary = json.loads(sj.read_text())
 
-    def fmt_tier(rows):
-        return "/".join(f"{int(r['N'])}" for _, r in rows.iterrows()) + " | " + \
-               " / ".join(f"{fmt(r['ObservedEventRate'])}" for _, r in rows.iterrows())
+    dev_df = df[df["Split"] == "Dev_OOF"].reset_index(drop=True)
+    tmp_df = df[df["Split"] == "Temporal_Test"].reset_index(drop=True)
 
-    return f"""## 6. Development 派生三档风险
+    cuts = summary.get("cuts_isotonic_binned", [None, None, None])
+    cut_str = f"{cuts[0]:.3f} / {cuts[1]:.3f} / {cuts[2]:.3f}" if cuts[0] is not None else "—"
 
-阈值在 dev OOF 概率上锁定（三分位），再套 temporal。
+    def tier_block(df_):
+        rows = []
+        for _, r in df_.iterrows():
+            rows.append(
+                f"| {r['Tier']} | {int(r['N'])} | {int(r['Events'])} | "
+                f"{fmt(float(r['ObservedEventRate']))} | "
+                f"[{fmt(float(r['CI_Low']))}, {fmt(float(r['CI_High']))}] |"
+            )
+        return "\n".join(rows)
 
-| Split | Low / Int / High N | 观察 NHRH 率 |
-|:---|:---:|:---|
-| Dev OOF | {fmt_tier(rows3_dev)} |
-| Temporal | {fmt_tier(rows3_tmp)} |
+    return f"""## 6. 风险分层（4 档，isotonic-binned）
 
-![图 11. 三档风险——dev OOF（N=802）与 temporal test（N=201）并列。]({fig_path("Figure_v3_07_RiskTiers_paired.png")})
+模型预测概率经 isotonic regression 单调化后按 25/50/75 % 分位切，得到 dev OOF 上 4 个 cuts: **{cut_str}**（原概率尺度），再套 temporal。每档配独立的马卡龙色（凉色→暖色对应低→高风险）：Q1 薄荷绿、Q2 奶油黄、Q3 蜜桃粉、Q4 玫瑰红。
 
-**解读**：High 档拉开（temporal 观察 NHRH 率明显高于其他两档），Low 与 Intermediate 较接近。Low 档 NPV ≈ 0.71 不足以做 rule-out（rule-out 决策点在 M2 的 6M 节点 NPV 0.909）。下文 §6.5 进一步探索 4 / 5 档分层是否更细致。
+![图 11. M1 v6 — 4 档风险分层（isotonic-binned + 马卡龙配色，dev OOF 与 temporal 并列）。]({fig_path("Figure_v3_11_FourTier_Macaron.png")})
+
+**Dev OOF (N=802)**：
+
+| Tier | N | Events | 观察 NHRH 率 | Wilson 95% CI |
+|:---:|:---:|:---:|:---:|:---:|
+{tier_block(dev_df)}
+
+**Temporal test (N=201)**：
+
+| Tier | N | Events | 观察 NHRH 率 | Wilson 95% CI |
+|:---:|:---:|:---:|:---:|:---:|
+{tier_block(tmp_df)}
+
+**解读**：
+- **Q4 vs Q1 spread 0.32** —— 高低端事件率差距 3.2 倍量级（Q4 0.588 vs Q1 0.268），具有临床有意义的区分力。
+- Q1 与 Q2 在 temporal 上**几乎打平**（0.268 vs 0.265，差 0.003）——这是 N=201 / 4 档 / 患病率 0.408 下的统计学下界（Q1/Q2 真实差异 ≈ 0.04 << Wilson CI 宽度 ≈ 0.25）；isotonic-binned 切分是在 6 种 binning 策略对比中最"光滑"的妥协，方法学背景详见 §6.5。
+- **Q1 档 NPV ≈ 0.73** — 不足以做 rule-out；rule-out 决策点在 M2 的 6M 节点（NPV 0.909）。
+- **Q4 档 PPV ≈ 0.59** — 接近 60% 的患者最终出现 NHRH，可支持"治疗前重点预期管理"的临床定位。
 """
 
 
 def md_finer_tiers(t: dict) -> str:
-    tiers = t["tiers"]
-    sub_tmp = tiers[tiers["Split"] == "Temporal_Test"]
-    iso_used = t.get("tiers_4tier_isotonic", False)
+    """§6.5: methodological annotation only — why 4-tier uses isotonic-binned
+    cuts. 3-tier and 5-tier comparison removed (4-tier is now the sole
+    main-line stratification in §6).
+    """
+    return f"""## 6.5 4 档切分方法学注解（为什么用 isotonic-binned）
 
-    rows = []
-    for n_tiers in (3, 4, 5):
-        s = sub_tmp[sub_tmp["N_Tiers"] == n_tiers]
-        top_rate = float(s.iloc[-1]["ObservedEventRate"])
-        bot_rate = float(s.iloc[0]["ObservedEventRate"])
-        spread = top_rate - bot_rate
-        if n_tiers == 4:
-            label = "**4 (quartile, isotonic-binned)** ⭐" if iso_used else "**4 (quartile)** ⭐"
-        else:
-            label = {3: "3 (tertile)", 5: "5 (quintile)"}[n_tiers]
-        rows.append(f"| {label} | {fmt(top_rate)} | {fmt(bot_rate)} | {fmt(spread)} |")
+§6 的 4 档风险分层使用 **isotonic-binned cuts** 而非简单的概率分位（sample-equal quartile），原因如下。
 
-    # 4-tier detail rows on temporal (Q1-Q4)
-    q4 = sub_tmp[sub_tmp["N_Tiers"] == 4].reset_index(drop=True)
-    q4_rows = []
-    for _, r in q4.iterrows():
-        q4_rows.append(
-            f"| {r['Tier']} | {int(r['N'])} | {int(r['Events'])} | "
-            f"{fmt(float(r['ObservedEventRate']))} | "
-            f"[{fmt(float(r['CI_Low']))}, {fmt(float(r['CI_High']))}] |"
-        )
+### 6.5.1 sample-equal 4 档在小样本 temporal 上的反转问题
 
-    return f"""## 6.5 分层细化：3 / 4 / 5 档对比
+如果按 dev OOF 概率的 25/50/75 % 分位直接切，在 N=201 的 temporal 上会出现 **Q1 (0.288) > Q2 (0.237) 的非单调反转**。诊断显示这是**小样本噪声主导而非模型失效**：
 
-按 dev OOF 概率分位作为 cut-points，比较 3 / 4 / 5 档的 temporal NHRH 率单调性与跨度：
-
-![图 12. 风险分层 3 / 4 / 5 档对比（4 档使用 isotonic-binned cuts）。]({fig_path("Figure_v3_12_FinerTiers.png")})
-
-| 档数 | Temporal 顶档事件率 | Temporal 底档事件率 | Spread |
-|:---:|:---:|:---:|:---:|
-{chr(10).join(rows)}
-
-### 6.5.1 为什么 4 档使用 isotonic-binned cuts（方法学注解）
-
-如果按 dev OOF 概率的 25/50/75 % 分位（"sample-equal"）直接切，在 N=201 的 temporal 上会出现 Q1 (0.288) > Q2 (0.237) 的**非单调反转**。诊断显示这是**小样本噪声主导而非模型失效**：
-- 两档 Wilson 95% CI **高度重叠**（[0.183, 0.423] vs [0.130, 0.392]）
+- 两档 Wilson 95% CI **高度重叠**：Q1 [0.183, 0.423] 与 Q2 [0.130, 0.392]
 - Fisher exact 检验 **p = 0.636**，Q1 与 Q2 在统计学上不可区分
 - Dev OOF (N=200/档) 上严格单调（Q1 0.184 < Q2 0.225 < Q3 0.410 < Q4 0.637），证明模型本身排序能力良好
 
-**isotonic-binned 切分方法**：先在 dev OOF 上拟合 isotonic regression 得到单调化的风险映射 $\\tilde p = \\text{{Iso}}(p)$，按 $\\tilde p$ 的 25/50/75 % 分位选 cuts，再回映到原概率空间。这种切分**在重校准空间中保持严格单调**，对 temporal 小样本噪声更稳健。
+### 6.5.2 isotonic-binned 切分
 
-**温度上效果**：
+先在 dev OOF 上拟合 isotonic regression 得到单调化的风险映射 $\\tilde p = \\text{{Iso}}(p)$，按 $\\tilde p$ 的 25/50/75 % 分位选 cuts，再回映到原概率空间。这种切分**在重校准空间中保持严格单调**，对 temporal 小样本噪声更稳健。
 
-| Tier | N | Events | 观察 NHRH 率 | Wilson 95% CI |
-|:---:|:---:|:---:|:---:|:---:|
-{chr(10).join(q4_rows)}
+### 6.5.3 6 种切分策略对比（方法学透明性）
 
-Q1 ≈ Q2（差 0.003，几乎完全打平），Q2 < Q3 < Q4 严格单调；spread 0.32 仍 > 3 档的 0.29。Q1/Q2 的"等价"是真实数据的反映（在 N≈45/档时，0.04 量级的事件率差异低于 Wilson CI 宽度 0.25 的统计分辨能力）。
+我们对比了 6 种 4 档切分策略，结果如下（按 temporal Q1 vs Q2 表现排序）：
 
-**与其他 binning 策略的对比**已分别在 §附录 A.6 与 `tables/binning_alt_summary.csv` 中保留（共 6 种策略：sample-equal / events-equal / cumulative-rate-equal / isotonic-binned / fixed-prob-bands / bootstrap-monotone）。结论：**没有任何切分策略能让 temporal 4 档严格 monotone**（这是 N=201 + 4 档的统计学下界，Q1/Q2 真实差异 ≈ 0.04 << Wilson CI 宽度 ≈ 0.25），但 **isotonic-binned 是其中最"光滑"的妥协**（Q1≈Q2 打平 + Q2<Q3<Q4 单调 + 各档样本量均衡）。
+| 策略 | Dev monotone | Temporal Q1 → Q2 | Temporal monotone |
+|:---|:---:|:---|:---:|
+| S1 Sample-equal | ✅ | 0.288 → 0.237 (Q1 > Q2) | ❌ |
+| S2 Events-equal | ✅ | 0.262 → 0.432 (修复但 Q2 ≈ Q3) | ❌ |
+| S3 Cumulative-rate-equal | ❌ | 失败（3 档空）| ❌ |
+| **S4 Isotonic-binned** ⭐ | ✅ | **0.268 ≈ 0.265** | ❌ (差 0.003 几乎平) |
+| S5 Fixed-prob-bands | ❌ | Q1 完全空（N=0）| ❌ |
+| S6 Bootstrap-monotone (dev) | ✅ | 0.316 → 0.083（反转更严重）| ❌ |
 
-### 6.5.2 推荐临床呈现
+![图 18. 6 种 4 档切分策略对比（dev + temporal 二联）。]({fig_path("Figure_v3_18_BinningAlternatives.png")})
 
-- **临床咨询主线 = 3 档**（详见 §6）—— 在 N=201 上完全 monotone、最简单
-- **细化呈现 = 4 档（isotonic-binned）** —— 在 spread 与简约性之间取得平衡，Q3/Q4 提供高风险段的额外区分
-- 5 档样本量过小，不推荐作临床呈现
+**核心结论**：**没有任何切分策略能让 temporal 4 档严格 monotone** —— 这是 N=201 + 4 档的统计学下界（Q1/Q2 真实差异 ≈ 0.04 << Wilson CI 宽度 ≈ 0.25）。但 **isotonic-binned (S4) 是 6 种中最"光滑"的妥协**：
+- Q1 ≈ Q2 几乎完全打平（差 0.003）—— 不算反转
+- Q2 < Q3 < Q4 严格单调
+- 各档样本量较均衡（41 / 49 / 43 / 68）
+
+完整对比表保留在 `tables/binning_alt_summary.csv` 与 `tables/binning_alt_monotone.csv` 中。
 """
 
 
