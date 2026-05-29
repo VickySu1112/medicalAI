@@ -77,6 +77,10 @@ results/*
 !results/module2_v2_synthesis/
 !results/module2_v2_synthesis/**
 
+# M1 v3 paper-level report (10-feature single-line, no v1/v2 comparison)
+!results/module1_v3/
+!results/module1_v3/**
+
 # 数据集级别的派生表/预测长表/归属表 — 永远不入库（即使在白名单目录内）
 results/**/baseline_augmented_1003_treatment_episodes.csv
 results/**/baseline_merge_visual_1003_treatment_episodes.html
