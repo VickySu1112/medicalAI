@@ -61,6 +61,8 @@ def read_v6_tables() -> dict:
     out: dict = {}
     out["perf"] = pd.read_csv(V3_TAB / "v6_performance.csv").set_index(["Split", "Metric"])
     out["or"] = pd.read_csv(V3_TAB / "v6_or_table.csv")
+    if (V3_TAB / "v6_model_formula.json").exists():
+        out["formula"] = json.loads((V3_TAB / "v6_model_formula.json").read_text())
     out["cal"] = pd.read_csv(V3_TAB / "v6_calibration.csv").iloc[0]
     out["tiers"] = pd.read_csv(V3_TAB / "v6_risk_tiers.csv")
     out["shap"] = pd.read_csv(V3_TAB / "v6_shap_summary.csv")
@@ -171,6 +173,152 @@ def md_lasso_path() -> str:
 ![图 1. LASSO 选择路径：5 折平均非零系数随 C 变化。]({fig_path("Figure_v3_01_LASSO_Path.png")})
 
 **图 1 解读**：随 C 增大，非零系数单调上升；在 C ≥ 0.08 处 OOF AUC 已基本饱和。瓶颈在治疗前信息本身的内容上限，而非特征数不够——这一点通过 PDP 全直线、LOO ΔAUC、最少特征数实验等多个独立角度反复验证。主线 6 特征版基于跨视角信号强度从这条路径上挑出，附录 A 的 10 特征版则保留完整候选（含 4 个边际信号较弱的特征）作对照。
+"""
+
+
+def md_formula(t: dict) -> str:
+    """§2.5: explicit mathematical formula for the M1 v6 model."""
+    if "formula" not in t:
+        return ""
+    f = t["formula"]
+    scaler_rows = []
+    for r in f["standard_scaler"]:
+        scaler_rows.append(f"| {r['pretty']} | {r['mu_train']:.4f} | {r['sigma_train']:.4f} |")
+    beta_rows = []
+    for r in f["l2_lr_standardized"]["coefficients"]:
+        beta_rows.append(
+            f"| {r['pretty']} | {r['beta']:+.4f} | {r['OR_exp_beta']:.4f} |"
+        )
+    platt_rows = []
+    for r in f["platt_sigmoid_calibration"]["folds"]:
+        platt_rows.append(f"| {r['fold']} | {r['A']:+.6f} | {r['B']:+.6f} |")
+    platt_rows.append(
+        f"| **Mean** | **{f['platt_sigmoid_calibration']['mean_A']:+.4f}** | "
+        f"**{f['platt_sigmoid_calibration']['mean_B']:+.4f}** |"
+    )
+    raw_rows = []
+    for r in f["raw_feature_unrolled"]["coefficients"]:
+        raw_rows.append(f"| {r['pretty']} | {r['beta_raw']:+.6f} |")
+
+    # Build the inline raw-formula expression (raw scale, easier to read for clinicians).
+    beta_raw_intc = f["raw_feature_unrolled"]["intercept_beta0_tilde"]
+    raw_terms = []
+    for r in f["raw_feature_unrolled"]["coefficients"]:
+        if r["beta_raw"] >= 0:
+            raw_terms.append(f"+ {r['beta_raw']:.4f} \\cdot {r['feature']}")
+        else:
+            raw_terms.append(f"- {abs(r['beta_raw']):.4f} \\cdot {r['feature']}")
+    raw_formula_inline = "\\eta_{raw}(x) = " + f"{beta_raw_intc:+.4f}" + " " + " ".join(raw_terms)
+
+    # Standardized formula expression
+    beta0_std = f["l2_lr_standardized"]["intercept_beta0"]
+    std_terms = []
+    for r in f["l2_lr_standardized"]["coefficients"]:
+        if r["beta"] >= 0:
+            std_terms.append(f"+ {r['beta']:.4f} \\cdot z_{{{r['feature']}}}")
+        else:
+            std_terms.append(f"- {abs(r['beta']):.4f} \\cdot z_{{{r['feature']}}}")
+    std_formula_inline = "\\eta(x) = " + f"{beta0_std:+.4f}" + " " + " ".join(std_terms)
+
+    # Build std logit inline without double-sign artifact
+    coefs = f["l2_lr_standardized"]["coefficients"]
+    def _sign_term(beta: float, sym: str) -> str:
+        return f"+ {beta:.4f} \\cdot {sym}" if beta >= 0 else f"- {abs(beta):.4f} \\cdot {sym}"
+    std_logit_terms = " ".join([
+        _sign_term(coefs[1]["beta"], "z_{ThyroidW}"),
+        _sign_term(coefs[5]["beta"], "z_{LogDur}"),
+        _sign_term(coefs[2]["beta"], "z_{TPOAb}"),
+        _sign_term(coefs[0]["beta"], "z_{Sex}"),
+        _sign_term(coefs[4]["beta"], "z_{TSH}"),
+        _sign_term(coefs[3]["beta"], "z_{FT4}"),
+    ])
+    std_logit_inline = f"\\eta(x) = {beta0_std:.4f} " + std_logit_terms
+
+    return f"""## 2.5 模型公式（M1 v6 的精确数学形式）
+
+模型家族：**L2-regularized logistic regression + Platt sigmoid post-hoc 校准（cv=3）**。架构链 = 6 维原始输入 x → ①StandardScaler → ②L2-LR → ③ Platt sigmoid 校准 → 概率 P(NHRH=1 | x)。
+
+实现 = `sklearn.calibration.CalibratedClassifierCV(base_estimator=Pipeline([StandardScaler, LogisticRegression(penalty='l2', C=1.0, solver='lbfgs')]), method='sigmoid', cv=3)`。
+
+**超参数**：penalty = L2; solver = lbfgs; C = {f["hyperparameters"]["C"]}; max_iter = {f["hyperparameters"]["max_iter"]}; random_state = {f["hyperparameters"]["random_state"]}; calibration method = sigmoid; calibration cv = {f["hyperparameters"]["calibration_cv"]}。
+
+### ① 标准化（用 development 训练集 μ, σ）
+
+对每个特征 $j$：
+
+$$z_j = \\frac{{x_j - \\mu_j^{{train}}}}{{\\sigma_j^{{train}}}}$$
+
+**v6 实际 μ, σ（development N=802 计算，锁定后用于 temporal 推理）**：
+
+| 特征 | $\\mu_j^{{train}}$ | $\\sigma_j^{{train}}$ |
+|:---|:---:|:---:|
+{chr(10).join(scaler_rows)}
+
+### ② L2-LR 训练目标（loss）
+
+$$\\hat{{\\beta_0}}, \\hat{{\\boldsymbol{{\\beta}}}} = \\arg\\min_{{\\beta_0, \\boldsymbol{{\\beta}}}}\\;\\Bigg[ -\\sum_{{i=1}}^{{N_{{dev}}}}\\!\\Big(y_i \\log p_i + (1-y_i)\\log(1-p_i)\\Big) + \\frac{{1}}{{2C}}\\|\\boldsymbol{{\\beta}}\\|_2^2 \\Bigg]$$
+
+其中 $p_i = \\sigma(\\beta_0 + \\boldsymbol{{\\beta}}^T z_i)$, $\\sigma(\\eta) = 1/(1+e^{{-\\eta}})$, $C = {f["hyperparameters"]["C"]}$（sklearn 默认弱正则）。
+
+### ③ L2-LR 拟合得到的参数（v6 实际数字）
+
+**截距** $\\hat{{\\beta_0}} = {f["l2_lr_standardized"]["intercept_beta0"]:.4f}$
+
+**标准化系数**：
+
+| 特征 | $\\hat{{\\beta_j}}$（标准化空间）| $\\exp(\\hat{{\\beta_j}}) = OR$ |
+|:---|:---:|:---:|
+{chr(10).join(beta_rows)}
+
+**原始 logit**（标准化空间）：
+
+$${std_logit_inline}$$
+
+未校准概率 $p_{{raw}}(x) = \\sigma(\\eta(x))$。
+
+### ④ Platt 校准（cv=3 sigmoid post-hoc）
+
+每折 base-LR 算 logit $\\eta^{{(k)}}(x)$，外层拟合 sigmoid:
+
+$$p_{{cal}}^{{(k)}}(x) = \\sigma\\!\\Big(A^{{(k)}} \\cdot \\eta^{{(k)}}(x) + B^{{(k)}}\\Big)$$
+
+**最终预测取 3 折平均**：
+
+$$\\boxed{{\\;P(\\text{{NHRH}}=1 \\mid x) = \\frac{{1}}{{3}}\\sum_{{k=1}}^{{3}} \\sigma\\!\\Big(A^{{(k)}} \\eta^{{(k)}}(x) + B^{{(k)}}\\Big)\\;}}$$
+
+**v6 实际 Platt 参数**（3 折）：
+
+| Fold $k$ | $A^{{(k)}}$ | $B^{{(k)}}$ |
+|:---:|:---:|:---:|
+{chr(10).join(platt_rows)}
+
+> 注意 sklearn `_SigmoidCalibration` 的参数化让 $A^{{(k)}} < 0$ 是符号约定，整体校准方向与 R/Platt 原文一致；3 折平均后整体校准 slope ≈ 1.10、intercept ≈ 0.10，与主报告 §5 校准统计相符。
+
+### ⑤ Raw-feature 展开（临床医生直接代入数字）
+
+把标准化展开 $\\beta \\cdot z = \\beta \\cdot (x - \\mu)/\\sigma$，合并截距得：
+
+$$\\eta_{{raw}}(x) = \\tilde{{\\beta_0}} + \\sum_j \\tilde{{\\beta_j}} \\cdot x_j$$
+
+**v6 实际数字**：
+
+- $\\tilde{{\\beta_0}}$（raw 截距）= **{beta_raw_intc:.4f}**
+
+| 特征 | $\\tilde{{\\beta_j}} = \\hat{{\\beta_j}} / \\sigma_j^{{train}}$ |
+|:---|:---:|
+{chr(10).join(raw_rows)}
+
+**完整 raw 公式**：
+
+$${raw_formula_inline}$$
+
+$$p_{{raw}}(x) = \\frac{{1}}{{1 + e^{{-\\eta_{{raw}}(x)}}}}$$
+
+最终预测概率 $P(\\text{{NHRH}}=1 \\mid x)$ 由 Platt 3 折平均校准（见 ④）。
+
+### 一句话总结
+
+> **M1 v6 = "6 特征 z-score 标准化 → L2 logistic regression (C=1.0) → 3-fold Platt sigmoid post-hoc 校准"**，输出是 0–24 个月 NHRH 复合终点的校准概率。所有系数（$\\hat{{\\beta_0}}, \\hat{{\\boldsymbol{{\\beta}}}}, A^{{(k)}}, B^{{(k)}}$）固定锁定于 development(802) 上一次性训练得到；temporal test 不参与任何系数估计。
 """
 
 
@@ -600,6 +748,7 @@ def assemble_md(t: dict) -> str:
         md_summary(t),
         md_design(),
         md_lasso_path(),
+        md_formula(t),
         md_main_results(t),
         md_or_forest(t),
         md_explain(t),

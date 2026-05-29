@@ -1,0 +1,56 @@
+{
+  "v6_temporal_AUC": 0.6810007079607628,
+  "v5_temporal_AUC": 0.6821940444227984,
+  "v5_minus_v6_temporal_Δ": 0.001193336462035453,
+  "v5_minus_v6_temporal_Δ_CI": [
+    -0.006083232641721586,
+    0.008757637997432483
+  ],
+  "v5_minus_v6_Δ_CI_crosses_zero": true,
+  "v5_temporal_PR": 0.6632384994741061,
+  "v5_temporal_Brier": 0.21178909273234353,
+  "v5_calib_intercept": -0.07711411034597328,
+  "v5_calib_slope": 0.7603883905905964,
+  "v5_OR_table": [
+    {
+      "feature": "Sex",
+      "PrettyLabel": "Sex",
+      "OR": 0.8517682808809681,
+      "CI_low": 0.7228601215565879,
+      "CI_high": 1.0036647238924006,
+      "p": 0.05532584519129968
+    },
+    {
+      "feature": "ThyroidW",
+      "PrettyLabel": "Thyroid weight",
+      "OR": 2.6056575174062666,
+      "CI_low": 2.0783523170521256,
+      "CI_high": 3.2667469525310073,
+      "p": 0.0
+    },
+    {
+      "feature": "TPOAb",
+      "PrettyLabel": "TPOAb",
+      "OR": 0.8223912514925049,
+      "CI_low": 0.6950869024136989,
+      "CI_high": 0.973011242454508,
+      "p": 0.02267566387895603
+    },
+    {
+      "feature": "FT4_0M",
+      "PrettyLabel": "FT4 (baseline)",
+      "OR": 1.1032965231036018,
+      "CI_low": 0.9405437810427877,
+      "CI_high": 1.2942121806843567,
+      "p": 0.22734472206626344
+    },
+    {
+      "feature": "log1p_DiseaseDuration_Months_Aug",
+      "PrettyLabel": "Log disease duration",
+      "OR": 1.2386164977336003,
+      "CI_low": 1.0441902360874618,
+      "CI_high": 1.4692445642915848,
+      "p": 0.014035570683008869
+    }
+  ]
+}
