@@ -1,0 +1,94 @@
+{
+  "caveats": [
+    "GREAT was developed for ATD-cessation recurrence (Vos 2016 JCEM), NOT RAI; included here as clinical baseline.",
+    "GREAT-cont coefficients refit on this RAI cohort's dev set (original Vos coefs would be miscalibrated)."
+  ],
+  "GREAT_thresholds": {
+    "TRAb": 6.0,
+    "FT4": 40.0,
+    "ThyroidW_g": 40.0
+  },
+  "head_to_head": [
+    {
+      "method": "GREAT-3 (Vos thresholds)",
+      "ROC_AUC": 0.6215,
+      "CI_low": 0.5396,
+      "CI_high": 0.6983,
+      "calib_intercept": -0.362,
+      "calib_slope": -0.001
+    },
+    {
+      "method": "GREAT-cont (refit)",
+      "ROC_AUC": 0.677,
+      "CI_low": 0.5968,
+      "CI_high": 0.7529,
+      "calib_intercept": -0.126,
+      "calib_slope": 0.741
+    },
+    {
+      "method": "M1 v6 LR (6 features)",
+      "ROC_AUC": 0.681,
+      "CI_low": 0.6056,
+      "CI_high": 0.7591,
+      "calib_intercept": -0.103,
+      "calib_slope": 0.715
+    },
+    {
+      "method": "M2 EBM @ 6M (best)",
+      "ROC_AUC": 0.8467,
+      "CI_low": 0.79,
+      "CI_high": 0.8988,
+      "calib_intercept": -0.048,
+      "calib_slope": 0.708
+    }
+  ],
+  "paired_delta_vs_EBM": [
+    {
+      "method_vs": "GREAT-3 (Vos thresholds)",
+      "delta_AUC_vs_EBM_6M": 0.2257,
+      "CI_low": 0.1398,
+      "CI_high": 0.3154,
+      "EBM_wins": true
+    },
+    {
+      "method_vs": "GREAT-cont (refit)",
+      "delta_AUC_vs_EBM_6M": 0.1699,
+      "CI_low": 0.0836,
+      "CI_high": 0.2566,
+      "EBM_wins": true
+    },
+    {
+      "method_vs": "M1 v6 LR (6 features)",
+      "delta_AUC_vs_EBM_6M": 0.1653,
+      "CI_low": 0.0801,
+      "CI_high": 0.2464,
+      "EBM_wins": true
+    }
+  ],
+  "great3_event_rate": [
+    {
+      "GREAT_score": 0,
+      "N": 29,
+      "events": 12,
+      "event_rate": 0.414
+    },
+    {
+      "GREAT_score": 1,
+      "N": 100,
+      "events": 28,
+      "event_rate": 0.28
+    },
+    {
+      "GREAT_score": 2,
+      "N": 43,
+      "events": 22,
+      "event_rate": 0.512
+    },
+    {
+      "GREAT_score": 3,
+      "N": 29,
+      "events": 20,
+      "event_rate": 0.69
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+landmark,rank,feature,importance
+1M,1,Thyroid weight,0.4759
+1M,2,"FT3,FT4 level",0.2062
+1M,3,"TPOAb × FT3,FT4 velocity",0.1309
+1M,4,"Duration (log,mo)",0.114
+1M,5,"FT3,FT4 velocity",0.0983
+1M,6,"Duration (log,mo) × FT3,FT4 level",0.0949
+3M,1,"FT3,FT4 level",0.5274
+3M,2,Thyroid weight,0.3657
+3M,3,TSH (current),0.282
+3M,4,TSH velocity,0.1851
+3M,5,"FT3,FT4 gap",0.1269
+3M,6,TRAb,0.1238
+6M,1,"FT3,FT4 level",0.7753
+6M,2,TSH (current),0.5455
+6M,3,Thyroid weight,0.3542
+6M,4,TSH velocity,0.2686
+6M,5,"FT3,FT4 velocity",0.2164
+6M,6,"TSH (current) × FT3,FT4 velocity",0.1875
+12M,1,"FT3,FT4 level",0.5235
+12M,2,TSH (current),0.5052
+12M,3,Thyroid weight,0.4435
+12M,4,"FT3,FT4 level × FT3,FT4 vel gap",0.347
+12M,5,"TSH (current) × FT3,FT4 velocity",0.3078
+12M,6,"FT3,FT4 level × FT3,FT4 velocity",0.2584

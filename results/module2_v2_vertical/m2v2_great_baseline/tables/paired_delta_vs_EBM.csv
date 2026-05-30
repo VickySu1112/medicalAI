@@ -1,0 +1,4 @@
+method_vs,delta_AUC_vs_EBM_6M,CI_low,CI_high,EBM_wins
+GREAT-3 (Vos thresholds),0.2257,0.1398,0.3154,True
+GREAT-cont (refit),0.1699,0.0836,0.2566,True
+M1 v6 LR (6 features),0.1653,0.0801,0.2464,True
