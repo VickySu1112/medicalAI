@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>RAI Graves 早期复发 · EBM 玻璃盒(图文版)</title>
+<title>RAI Graves 早期复发 · EBM 玻璃盒分析(图文版)</title>
 <style>
   body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
        font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
@@ -197,6 +197,47 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>图 F47 · pooled 校准(全地标合并)</strong></p>
 <p>六点基本贴对角线,低风险段轻微低估、中高段几乎落在理想线——合并后比单一早期地标更接近理想,跨地标概率可直接用于风险沟通。</p>
 <p><img id="safe_embedded_img_46" src="" alt="F47" /></p>
+<h3>3.6 自动发现的两两交互项 — 医学解读与可信度分级</h3>
+<p>EBM 在拟合时自动选择两两交互项(<code>f &amp; g</code> 形式,扣除两特征主效应后的剩余 2D 贡献)。为避免"硬讲故事",<strong>我们只把有强医学证据的交互纳入正式解读</strong>——以下 3 项各自满足"剂量学/文献/跨地标稳定"中至少一条;EBM 还自动选出的其余弱交互(如 0M 时点 <code>TPOAb × FT3,FT4 综合水平</code>(0.101)、<code>TPOAb × FT3,FT4 落差</code>(0.154))<strong>因主效应弱或无文献支撑、易过度解读</strong>,不在此处呈现,数值透明保留在 <code>ebm_paper_summary.json</code> 供审计:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">交互项</th>
+<th style="text-align: center;">landmark</th>
+<th style="text-align: center;">重要性</th>
+<th style="text-align: left;">临床/机制解读</th>
+<th style="text-align: center;">可信度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>ThyroidW × HalfLife</strong></td>
+<td style="text-align: center;">(跨配置)</td>
+<td style="text-align: center;">0.06–0.08</td>
+<td style="text-align: left;">RAI 剂量学公式(Marinelli):有效剂量 ∝ 甲状腺重量 / (摄取率 × 有效半衰期)。两者乘积本来就是剂量学分子分母 → EBM 在抓"有效辐射剂量"这一隐变量。大腺体 + 短半衰期 → 剂量不足 → 易复发;大腺体 + 长半衰期 → 剂量充分 → 易愈合。</td>
+<td style="text-align: center;">★★★(剂量公式级合理)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>TRAb × 病程(log)</strong></td>
+<td style="text-align: center;">0M</td>
+<td style="text-align: center;">0.104</td>
+<td style="text-align: left;">文献 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12765878/">PMC12765878</a>:<strong>"病程越短 → TRAb 越高 → 复发风险越高"</strong>。机制:短病程 + 高 TRAb = 新诊断、免疫未经 ATD 充分调节就直接 RAI → 残余免疫活性高 → 易复发;长病程 + 低 TRAb = 经长期 ATD 调节、免疫已部分熄灭 → 更易愈合。EBM 学到的是 2D 曲面,可捕捉"短病程-高 TRAb"特定象限的风险陡升。</td>
+<td style="text-align: center;">★★★(文献直接支撑)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>TPOAb × FT3,FT4 综合变化速度</strong></td>
+<td style="text-align: center;">1M / 6M</td>
+<td style="text-align: center;">0.133 / 0.114</td>
+<td style="text-align: left;"><strong>两个 landmark 都出现 → 模式稳定</strong>。TPOAb 阳性 = 桥本式自身免疫背景(腺体淋巴浸润);RAI 杀伤腺体时,TPOAb 阳性会协同 RAI 让甲功下降更陡、更易过冲到甲减或不稳定波动。文献:TPOAb 阳性预测 RAI 后甲减 / 影响甲功变化速率(<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9254270/">PMC9254270</a>)。</td>
+<td style="text-align: center;">★★(机制清晰 + 跨地标稳定)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>整体判断</strong>:
+- <strong>3 项纳入解读的交互各有不同证据底气</strong>:<code>ThyroidW × HalfLife</code> 为剂量学公式级合理、<code>TRAb × 病程</code> 有直接文献支撑、<code>TPOAb × FT3,FT4 综合变化速度</code> 跨 landmark(1M 与 6M 同时出现)稳定;
+- <strong>未纳入的弱交互(透明保留)</strong>:EBM 在 0M 时点还学到了 <code>TPOAb × FT3,FT4 综合水平</code>(0.101)与 <code>TPOAb × FT3,FT4 落差</code>(0.154)两项,因 FT3,FT4 落差作为主效应几乎无独立预测信号(group drop-AUC ≈ 0)、且两项均无直接文献,<strong>主效应弱时纯交互信号易过度解读</strong> → 不在论文正式列表呈现,数值在 <code>ebm_paper_summary.json</code> 中保留供审计;
+- <strong>跨配置稳定性</strong>:<code>ThyroidW × HalfLife</code> 在 atlas 配置中出现、在 paper-summary 不在 top-6 → 同样架构不同种子/配置下 EBM 的交互排序会变;<strong>最稳的指标是同一交互在多个 landmark 重复出现</strong>(如 <code>TPOAb × 速度</code>)。</p>
+<p><strong>写论文/部署的免责</strong>:EBM 自动发现的两两交互是统计模式,<strong>不等于因果机制</strong>。上述生物学解读为 plausible(合理化),<strong>非验证</strong>;若要作为临床推荐(如"短病程 + 高 TRAb 者建议 ...")必须通过独立队列前瞻验证。</p>
 <h2>4. 讨论</h2>
 <p>EBM 在保持与简约模型相当判别力的同时,给出透明、逐时点、非线性的解读,量化了"解剖负荷→激素水平→激素动量"的时间迁移——与临床直觉一致:RAI 早期看腺体大小,随治疗推进看当期甲功,后期看恢复轨迹的快慢。偏差-方差(随机森林可将训练 AUC 拟合至 1.000 而泛化等于 LR)与学习曲线(半量数据即饱和)证明任务处于<strong>特征信息天花板</strong>:增容量、数据增强、级联小模型均无效;EBM 的价值在<strong>解释</strong>。生理上 FT3、FT4 为甲状腺输出、TSH 为垂体反馈(方向相反),「综合变化速度」与「TSH 变化速度」反向互补共同主导 6M。<strong>最具临床价值的非线性发现是 6M 的激素动量阈值效应(F32)</strong>:激素"未下行甚至回升"骤增风险,线性模型会低估。</p>
 <h2>5. 局限</h2>
