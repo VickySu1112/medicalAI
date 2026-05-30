@@ -1,6 +1,10 @@
-# RAI · Graves 病三模块预测框架（M1 → M2 → M3 + 综合 + M4 聚类）
+# RAI · Graves 病多模块预测框架（M1 + M2 主线论文；M3 滚动监测独立成文；M4 聚类附件）
 
-> 本分支承载围绕 **1003 RAI 治疗人次**（development 802 / temporal test 201）的三模块动态预测框架与对应论文级中文报告。所有产物：图、汇总表、报告均自包含可独立阅读；不含原始数据集。
+> 本分支承载围绕 **1003 RAI 治疗人次**（development 802 / temporal test 201）的预测框架与对应论文级中文报告。
+>
+> **范式分工(2026-05 更新)**：本仓库主线论文聚焦 **M1(治疗前结局预期) + M2(治疗后早期长期判定)** —— 二者共用"固定终点 24M NHRH"范式;**M3 滚动监测**预测的是"任意 landmark → 下一窗口事件"(另一类临床问题),已规划**独立成文**,本仓库 `results/module3_rolling_monitoring/` 保留其全部产物作为该独立论文的素材入口。M4 患者分层聚类作附录探索。
+>
+> 所有产物:图、汇总表、报告均自包含可独立阅读;不含原始数据集。
 
 ---
 
@@ -24,19 +28,20 @@
 ## 模块速览
 
 ```
-治疗前预期           早期反应更新           滚动复发监测           患者分层（探索）
-─────────────       ──────────────       ──────────────       ─────────────────
-    M1     ───>        M2 (0M/1M/3M/6M) ───>   M3 (rolling)         M4
-                                                                    M4b
-                              三模块整合 → 综合
+本论文(主线: M1 + M2)                        独立成文                  附录探索
+治疗前预期           早期长期判定           滚动复发监测           患者分层
+─────────────       ──────────────       ──────────────       ─────────────
+    M1     ───>        M2 (1M/3M/6M)    ⋯⋯    M3 (rolling)         M4 / M4b
+                                              (独立论文)
+                M1+M2 整合 → 综合稿
 ```
 
 | 模块 | 任务 | 中文报告 | 结果目录 |
 |:---:|:---|:---|:---|
 | **M1** | 治疗前结局预期。LASSO 简约到 **6 个临床可解释特征**（**Sex、Thyroid weight、TPOAb、FT4 baseline、TSH baseline、Log disease duration**）+ L2-logistic + Platt 校准；配 **5 视角可解释性**（OR Forest / SHAP / Permutation Importance / Selection Stability / LOO ΔAUC）+ **4 类鲁棒性测试**（敏感性 / 性别分层 / class_weight / multi-seed）+ **治疗结局验证**（4 档分层 / decile 校准 / 治疗剂量审计）。完整 10 特征版作附录参考。 | **[M1·v3 主交付（推荐入口）](results/module1_v3/M1v3_治疗前结局预期模型.md)** · [完整 v10 分析路径](results/module1_v2_lasso_clean/M1v2_LASSO清洁去剂量基线模型.md) | [`results/module1_v3/`](results/module1_v3/) · [`results/module1_v2_lasso_clean/`](results/module1_v2_lasso_clean/) |
 | **M2** | 早期固定地标长期风险更新（0/1/3/6M）：回答"3/6 个月时还要不要担心 24 个月以后",6M NPV 0.909 支持 rule-out。**主线 = EBM 玻璃盒**（逐地标可解释 GAM）——揭示**重要性时间迁移**（甲状腺重 → FT3,FT4 综合水平@3M → 综合变化速度@6M）;偏差-方差 + 学习曲线确证**特征天花板**（RF train 1.0 / OOF=LR、半量即饱和）,故主打**可解释 + 选择性预测**（弃权 50% → 准确率 0.78 / NPV 0.84）。方法学方框:serial-landmark supermodel（Pooled ROC 0.770）/ 5-法 benchmark（L2·Elastic-net·GEE·RF·HGB）/ 3 架构（MDJN·Dual-Tower·CLAN）/ B4 GRU·GRU-ODE / Shapley + 2×2 head-to-head;per-landmark 4-LR + Eval state（v1）作 fallback。 | **[EBM 玻璃盒论文·图文版（47 图 + 逐图评论，★ 推荐入口）](results/module2_v2_vertical/Module2v2_EBM_paper.md)**<br>· 入门 [原理图解教程](results/module2_v2_vertical/Module2v2_EBM_讲解.md) · 可玩 [交互版·plotly](results/module2_v2_vertical/Module2v2_EBM_interactive.html)<br>· [三轨综合 + 推荐](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md) · [probe 诊断](results/module2_v2_vertical/Module2v2_probe_可解释性与诊断.md) · [12 方法对比](results/module2_v2_vertical/Module2v2_compare.md)<br>· [M2·v1 fallback](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) | [`results/module2_v2_base/`](results/module2_v2_base/) · [`results/module2_v2_horizontal/`](results/module2_v2_horizontal/) · [`results/module2_v2_vertical/`](results/module2_v2_vertical/) · [`results/module2_v2_synthesis/`](results/module2_v2_synthesis/) · [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) |
-| **M3** | 滚动地标复发监测。多 horizon（H1 主、H6/H12 敏感性），含 inertia + momentum 消融、treatment/patient-level KM 与决策曲线 | [M3·v1](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) |
-| **综合** | **三模块整合论文：将 M1→M2→M3 串成连续的"治疗前预期 → 早期更新 → 滚动监测 → 治疗级分层"双时间尺度路径，含摘要、方法、关键发现汇总、临床意义、局限与下一步** | [整合论文·v1](results/整合论文_RAI三模块双时间尺度框架.md) | [`results/整合论文_RAI三模块双时间尺度框架.md`](results/整合论文_RAI三模块双时间尺度框架.md) |
+| **M3**(独立成文) | 滚动地标复发监测——预测"任意 landmark → 下一窗口事件"(H1 主、H6/H12 敏感性),与 M1+M2 的"固定 24M 终点"范式不同,已规划**独立论文**。本表保留其产物入口作素材。 | [M3·v1 报告](results/module3_rolling_monitoring/Module3_滚动地标复发监测.md) | [`results/module3_rolling_monitoring/`](results/module3_rolling_monitoring/) |
+| **综合**(M1+M2 主线) | 主线论文整合稿:**M1(治疗前)→ M2(治疗后早期长期判定)** 的连续路径,含摘要、方法、关键发现、临床意义、局限。M3 在范式分工小节提及但不展开。 | [整合稿(M1+M2)](results/整合论文_RAI三模块双时间尺度框架.md) | [`results/整合论文_RAI三模块双时间尺度框架.md`](results/整合论文_RAI三模块双时间尺度框架.md) |
 | **M4** | 患者分层聚类（探索性）。两种平行做法：M4 在基线特征上聚类，M4b 在 M2 输出的 4 维风险轨迹上聚类；二者结果合并报告 | [M4·v1 (含 M4b)](results/Module4_患者分层与风险轨迹聚类.md) | [`results/module4_baseline_clustering_trajectory/`](results/module4_baseline_clustering_trajectory/) · [`results/module4b_trajectory_clustering/`](results/module4b_trajectory_clustering/) |
 
 ---

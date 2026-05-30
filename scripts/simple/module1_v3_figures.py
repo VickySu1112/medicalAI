@@ -43,11 +43,12 @@ V3_FIG = V3_DIR / "figures"
 LASSO_PATH_CSV = ROOT / "results" / "module1_v2_lasso_clean" / "tables" / "lasso_path.csv"
 FROZEN = ROOT / "results" / "module1_baseline_ml_benchmark" / "tables" / "module1_frozen_feature_matrix.csv"
 
-FEATURES_10 = [
-    "Sex", "ThyroidW", "Uptake24h", "HalfLife", "TRAb",
-    "TGAb", "TPOAb", "FT4_0M", "TSH_0M",
+# v3/v6 主线: 6 特征
+V6_FEATURES = [
+    "Sex", "ThyroidW", "TPOAb", "FT4_0M", "TSH_0M",
     "log1p_DiseaseDuration_Months_Aug",
 ]
+FEATURES_10 = V6_FEATURES  # backwards-compatible alias used below
 
 
 def load_data() -> tuple[pd.DataFrame, np.ndarray, np.ndarray]:
@@ -74,10 +75,10 @@ def fit_oof_platt(X_dev, y_dev):
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=OOF_SEED)
     oof = np.zeros(len(y_dev), dtype=float)
     for tr, va in skf.split(X_dev, y_dev):
-        cal = CalibratedClassifierCV(base_estimator=make_l2(), method="sigmoid", cv=3)
+        cal = CalibratedClassifierCV(estimator=make_l2(), method="sigmoid", cv=3)
         cal.fit(X_dev.iloc[tr], y_dev[tr])
         oof[va] = cal.predict_proba(X_dev.iloc[va])[:, 1]
-    final = CalibratedClassifierCV(base_estimator=make_l2(), method="sigmoid", cv=3)
+    final = CalibratedClassifierCV(estimator=make_l2(), method="sigmoid", cv=3)
     final.fit(X_dev, y_dev)
     return oof, final
 
@@ -95,9 +96,10 @@ def fig_lasso_path(out: Path) -> None:
     ax1.set_xlabel("LASSO C (inverse regularization)")
     ax1.set_ylabel("Number of non-zero features", color=color_left)
     ax1.tick_params(axis="y", labelcolor=color_left)
-    ax1.axhline(10, color="#a23b3b", linestyle="--", linewidth=1.2,
-                label="Selected k = 10")
-    ax1.set_title("Figure 1. LASSO selection path — M1 10-feature pool")
+    ax1.axhline(6, color="#a23b3b", linestyle="--", linewidth=1.2,
+                label="Selected k = 6 (v6 main line)")
+    ax1.set_title("Figure 1. LASSO selection path on 10-feature candidate pool\n"
+                  "(v6 main line keeps k=6 after pruning low-signal features)")
 
     # Right axis: OOF AUC along the same C grid
     ax2 = ax1.twinx()
@@ -135,12 +137,12 @@ def fig_roc_pr(out_roc: Path, out_pr: Path) -> None:
     fpr, tpr, _ = roc_curve(y_tst, p_tst)
     auc = roc_auc_score(y_tst, p_tst)
     fig, ax = plt.subplots(figsize=(6, 5.5))
-    ax.plot(fpr, tpr, color="#1d4e89", lw=2.2, label=f"M1 (10 features): AUC = {auc:.3f}")
+    ax.plot(fpr, tpr, color="#1d4e89", lw=2.2, label=f"M1 (6 features): AUC = {auc:.3f}")
     ax.plot([0, 1], [0, 1], color="#888", linestyle=":", linewidth=1, label="Chance (AUC 0.5)")
     ax.set_xlabel("False positive rate (1 − specificity)")
     ax.set_ylabel("True positive rate (sensitivity)")
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-    ax.set_title("Figure 2. M1 temporal-test ROC curve (10 features)")
+    ax.set_title("Figure 2. M1 temporal-test ROC curve (6 features)")
     ax.legend(loc="lower right", fontsize=9)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)
@@ -152,13 +154,13 @@ def fig_roc_pr(out_roc: Path, out_pr: Path) -> None:
     ap = average_precision_score(y_tst, p_tst)
     prevalence = y_tst.mean()
     fig, ax = plt.subplots(figsize=(6, 5.5))
-    ax.plot(rec, pre, color="#a23b3b", lw=2.2, label=f"M1 (10 features): AP = {ap:.3f}")
+    ax.plot(rec, pre, color="#a23b3b", lw=2.2, label=f"M1 (6 features): AP = {ap:.3f}")
     ax.axhline(prevalence, color="#888", linestyle=":", linewidth=1,
                label=f"Prevalence {prevalence:.3f}")
     ax.set_xlabel("Recall (sensitivity)")
     ax.set_ylabel("Precision (PPV)")
     ax.set_xlim(0, 1); ax.set_ylim(0, 1)
-    ax.set_title("Figure 3. M1 temporal-test precision-recall curve (10 features)")
+    ax.set_title("Figure 3. M1 temporal-test precision-recall curve (6 features)")
     ax.legend(loc="upper right", fontsize=9)
     for spine in ("top", "right"):
         ax.spines[spine].set_visible(False)

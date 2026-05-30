@@ -1,0 +1,6 @@
+# 生成的自包含 HTML 报告 = 对应 .md 的派生物(base64 内嵌图)。
+# -diff           : diff/PR 不显示其海量 base64 逐行变化(无意义噪音)
+# linguist-generated: GitHub 标记为生成文件,PR 默认折叠、不计语言统计
+# merge=ours      : 合并冲突时以当前分支为准(需各自一次性 `git config merge.ours.driver true`)
+#                   约定:解决对应 .md 冲突后重新渲染该 .html 即可保持同步
+*.html -diff linguist-generated merge=ours

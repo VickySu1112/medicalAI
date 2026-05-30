@@ -2,7 +2,7 @@
 
 *A dual-horizon landmark prediction framework for pre-treatment outcome expectation, early risk updating, and rolling relapse monitoring after radioiodine therapy in Graves' hyperthyroidism*
 
-> 整合稿（三模块）。详细结果与逐图解读见各模块独立报告：[Module 1](module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.html)、[Module 2](module2_early_landmark_updating/Module2_早期固定地标长期风险更新.html)、[Module 3](module3_rolling_monitoring/Module3_滚动地标复发监测.html)。
+> 整合稿(主线 = **M1 + M2** 治疗前结局预期 + 治疗后早期长期判定;**M3 滚动复发监测已规划独立成文**,本稿仅在 §3.3 短交代)。详细结果与逐图解读见各模块独立报告:[Module 1](module1_baseline_ml_benchmark/Module1_治疗前结局预期评估.html)、[Module 2 EBM 玻璃盒(图文版)](module2_v2_vertical/Module2v2_EBM_paper.html);M3 中间产物入口见 [M3·v1 报告](module3_rolling_monitoring/Module3_滚动地标复发监测.html)。
 
 ## 摘要
 
@@ -64,19 +64,16 @@ RAI 是 Graves 甲亢的一线根治手段之一，但单次治疗的失败/复�
 
 **v1 vs v2 差异**：v1 用 16-18 特征含 Eval state encodings（Eval_3M_Hyper/Normal/Hypo），6M ROC 0.923，Low NPV 0.909；v2 用 19 ABCDE 特征，6M ROC 0.788，Low NPV 0.85。两者 Eval state vs momentum+time interactions 的特征选择不同；下一 iter 合并两族特征是显然的升级路径。**临床定位不变**：M2 是"治疗后早期长期风险更新"，回答"3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点是 rule-out 决策窗口。本模块产出 early NHRH risk score（OOF/temporal，1003 全覆盖）供 Module 3 继承。
 
-### 3.3 Module 3 — 滚动复发监测（详见 [M3 报告](module3_rolling_monitoring/Module3_滚动地标复发监测.html)）
+### 3.3 Module 3 — 滚动复发监测（独立成文,本论文不展开）
 
-滚动单点 H1 为**中等判别力**（temporal ROC-AUC 0.826、PR-AUC 0.359、Brier 0.052、NPV 0.969），适合低危 rule-out 而非高精度报警。消融揭示核心机制：
+M3 的预测范式与 M1+M2 截然不同——**M1+M2 用固定终点(24M NHRH);M3 用滚动窗口端点(任意 landmark 预测下一窗口事件 H1/H6/H12)**。为避免范式混淆与篇幅过载,**M3 主体已规划独立成文**;本仓库 `results/module3_rolling_monitoring/` 完整保留其产物(单点 H1 / 治疗级 KM / inertia–momentum 消融等)作为该独立论文的素材入口。本节仅记录两点结论供 M1+M2 主线引用:
 
-![图 3. H1 消融——惯性（当前甲功）vs 动量（+累积轨迹）。](module3_rolling_monitoring/figures/Figure_02_H1_Ablation_Inertia_Momentum.png)
+- **M3 单点 H1 滚动 ROC-AUC 0.826,NPV 0.969**(适合低危 rule-out);
+- **"惯性→+动量" 消融**让 H1 的 PR-AUC 显著 +0.169(CI 0.027–0.308),首次在 Graves RAI 上量化"甲功动量"独立于当前状态的增量——这条结论将作为 M3 独立论文的核心叙事;本论文 M2 §3.2 借用同一动量框架(将动量项 D 显式建模)以保证两条工作线在方法学上连贯。
 
-从"仅当前甲功（惯性）"到"+累积轨迹（动量）"，H1 的 **PR-AUC 显著 +0.169（CI 0.027–0.308，不跨 0）**（ROC +0.025 不显著）；再叠加 early risk score ≈0。即**复发监测的增量主要来自轨迹动量**——证实 rolling 非 M2 的重复，也支撑"在状态翻转前提前识别"。治疗级聚合是临床落脚点：
+详见 [M3·v1 报告](module3_rolling_monitoring/Module3_滚动地标复发监测.html)(中间产物;最终独立论文 forthcoming)。
 
-![图 4. 治疗级三档风险的 Kaplan–Meier 曲线（高 vs 低 log-rank P<0.001，C-index 0.79）。](module3_rolling_monitoring/figures/Figure_04_Treatment_Level_KM.png)
-
-development 锁定阈值套用 temporal：低危 7.5%、高危 51.2%（高/低 ≈ 6.8 倍），C-index 0.79；病人级敏感性（每位患者计一次）仍单调（低危 7.9%→高危 46.3%，C-index 0.763），确认非伪重复。
-
-### 3.4 跨模块总览
+### 3.4 跨模块总览(M1+M2)
 
 ![图 5. 双时间尺度总览：A 长期 NHRH 预测随早期反应递增；B 滚动 H1 动量>惯性；C 治疗级风险分层。](fig_dual_horizon_summary.png)
 
