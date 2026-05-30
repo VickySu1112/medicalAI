@@ -63,7 +63,7 @@
 - **风险迁移转移概率矩阵**（替代原 Sankey 计划）：3×3 转移矩阵 × 3 对相邻 landmark × 2 split (dev/temporal) = 6 panel；tier 阈值锁定于 dev 0M 三分位 (low ≤ 0.277 < mid ≤ 0.385 < high)。
 - **临床定位不变**：M2 = "治疗后早期长期风险更新"，回答 "3 个月 / 6 个月时还要不要担心 24 个月以后"；6M 节点 NPV 0.909 支持 rule-out。
 - **详见 [iter 2 综合报告](results/module2_v2_synthesis/Module2v2_三轨综合与论文推荐.md)**（含决策规则补丁 + 论文叙事 + Shapley + 2×2 全表）。
-- **可解释性与特征天花板深化（v2 续作）**：B4 时间感知 GRU / GRU-ODE、偏差-方差 + 学习曲线诊断（确证**特征天花板**:RF train 1.0 / OOF = LR、半量数据即饱和)、三模型一致的**重要性时间迁移**(甲状腺重 → FT3,FT4 综合水平@3M → FT3,FT4 综合变化速度@6M)、**选择性预测**(弃权 50% → 保留人群准确率 0.78 / NPV 0.84)。论文级凝练见 **[M2·v2 EBM 玻璃盒论文(图文版,47 图内嵌 + 逐图评论)](results/module2_v2_vertical/Module2v2_EBM_paper.md)**；完整探索/诊断见 [probe 综合报告](results/module2_v2_vertical/Module2v2_probe_可解释性与诊断.md)；**[EBM vs 各类 ML 方法对比(12 方法)](results/module2_v2_vertical/Module2v2_compare.md)**。
+- **可解释性与特征天花板深化（v2 续作）**：B4 时间感知 GRU / GRU-ODE、偏差-方差 + 学习曲线诊断（确证**特征天花板**:RF train 1.0 / OOF = LR、半量数据即饱和)、三模型一致的**重要性时间迁移**(甲状腺重 → FT3,FT4 综合水平@3M → FT3,FT4 综合变化速度@6M)、**选择性预测**(弃权 50% → 保留人群准确率 0.78 / NPV 0.84)。入门见 **[EBM 原理图解教程(怎么工作 + 项目应用,新手友好)](results/module2_v2_vertical/Module2v2_EBM_讲解.md)**;论文级凝练见 **[M2·v2 EBM 玻璃盒论文(图文版,47 图内嵌 + 逐图评论)](results/module2_v2_vertical/Module2v2_EBM_paper.md)** · **[交互版(plotly,可 hover/缩放/含 waterfall)](results/module2_v2_vertical/Module2v2_EBM_interactive.html)**；完整探索/诊断见 [probe 综合报告](results/module2_v2_vertical/Module2v2_probe_可解释性与诊断.md)；**[EBM vs 各类 ML 方法对比(12 方法)](results/module2_v2_vertical/Module2v2_compare.md)**。
 
 ### M3 — 滚动地标复发监测
 
