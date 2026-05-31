@@ -96,7 +96,7 @@ def main() -> None:
     devL = is_dev & (lm == LANDMARK)
     feat_all = build_feats_at_L(rows, devL)
     live = [c for c in FEATS if feat_all.loc[devL, c].std() > 1e-9]
-    ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(
+    ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(
         feat_all.loc[devL, live], y[devL])
     p_dev = ebm.predict_proba(feat_all.loc[devL, live])[:, 1]
     # back to full-length vector for indexing

@@ -201,7 +201,7 @@ def main() -> None:
         live = [c for c in FEATS if feat.loc[devL, c].std() > 1e-9]
         Xtr, ytr = feat.loc[devL, live], y[devL]
         Xte, yte = feat.loc[tstL, live], y[tstL]
-        e = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(Xtr, ytr)
+        e = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(Xtr, ytr)
         p = e.predict_proba(Xte)[:, 1]
         auc = roc_auc_score(yte, p); pr = average_precision_score(yte, p); br = brier_score_loss(yte, p)
         M[L] = {"ebm": e, "Xte": Xte, "yte": yte, "p": p, "live": live, "auc": auc}

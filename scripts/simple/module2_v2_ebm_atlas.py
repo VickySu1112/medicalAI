@@ -89,7 +89,7 @@ def main() -> None:
         live = [c for c in FEATS if feat.loc[devL, c].std() > 1e-9]
         Xtr, ytr = feat.loc[devL, live], y[devL]
         Xte, yte = feat.loc[tstL, live], y[tstL]
-        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(Xtr, ytr)
+        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(Xtr, ytr)
         lr = _lr().fit(Xtr.values, ytr)
         pe = ebm.predict_proba(Xte)[:, 1]; pe_dev = ebm.predict_proba(Xtr)[:, 1]
         pl = lr.predict_proba(Xte.values)[:, 1]
@@ -221,7 +221,7 @@ def main() -> None:
         Xtr = feat.loc[is_dev & (lm == L), live]; ytr = M[L]["ydev"]
         Xte = M[L]["Xte"]; yte = M[L]["yte"]; seedaucs = []
         for s in (1, 2, 3, 4, 5):
-            e = ExplainableBoostingClassifier(random_state=s, interactions=5).fit(Xtr, ytr)
+            e = ExplainableBoostingClassifier(random_state=s, interactions=5, max_interaction_bins=16).fit(Xtr, ytr)
             seedaucs.append(roc_auc_score(yte, e.predict_proba(Xte)[:, 1]))
         data.append(seedaucs)
     a.boxplot(data, labels=[f"{L}M" for L in LANDMARKS]); a.set_title("EBM 多seed AUC 稳定性", fontsize=10)

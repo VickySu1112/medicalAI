@@ -78,7 +78,7 @@ def methods():
         "HistGBM": HistGradientBoostingClassifier(random_state=PY_SEED),
         "XGBoost": XGBClassifier(n_estimators=300, max_depth=3, learning_rate=0.05, subsample=0.8, eval_metric="logloss", random_state=PY_SEED, n_jobs=1),
         "LightGBM": LGBMClassifier(n_estimators=300, max_depth=3, learning_rate=0.05, subsample=0.8, random_state=PY_SEED, n_jobs=1, verbose=-1),
-        "EBM": ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5),
+        "EBM": ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16),
     }
 REPRESENT = ["EBM", "L2-Logistic", "RandomForest", "HistGBM", "XGBoost"]
 

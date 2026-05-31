@@ -108,7 +108,7 @@ def main() -> None:
                        ("lr", LogisticRegression(penalty="l2", C=1.0, solver="lbfgs",
                                                  max_iter=5000, random_state=PY_SEED))]).fit(Xtr.values, ytr)
         lr_auc = _roc(yte, lr.predict_proba(Xte.values)[:, 1])
-        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(Xtr, ytr)
+        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(Xtr, ytr)
         base = ebm.predict_proba(Xte)[:, 1]; ebm_auc = _roc(yte, base)
         auc_cmp.append({"landmark": f"{L}M", "LR_AUC": round(lr_auc, 4), "EBM_AUC": round(ebm_auc, 4)})
 

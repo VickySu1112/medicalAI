@@ -93,7 +93,7 @@ def main() -> None:
         live = [c for c in FEATS if feat.loc[devL, c].std() > 1e-9]
         Xtr, ytr = feat.loc[devL, live], y[devL]
         Xte, yte = feat.loc[tstL, live], y[tstL]
-        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(Xtr, ytr)
+        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(Xtr, ytr)
         models[L] = ebm
         p = ebm.predict_proba(Xte)[:, 1]; preds[L] = (yte, p)
         auc = roc_auc_score(yte, p); lo, hi = _boot_auc_ci(yte, p)
