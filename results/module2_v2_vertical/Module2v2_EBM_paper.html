@@ -23,9 +23,9 @@
 <p>RAI post-treatment Graves' relapse — an interpretable boosting (EBM) glassbox at fixed landmarks (0/1/3/6 months)。<strong>本版将全部 47 张 EBM 图谱内嵌正文并逐图配评论</strong>(图注经读图代理逐张阅读后撰写、正文叙事由作者撰写)。</p>
 </blockquote>
 <h2>摘要</h2>
-<p><strong>背景</strong> RAI 治疗后 Graves 病早期复发预测需既准确又<strong>可临床解读</strong>;黑盒模型难落地。我们以<strong>可解释 Boosting 机(EBM,带自动两两交互的玻璃盒 GAM)</strong>在四个固定随访时点(0M/1M/3M/6M)建模 24 个月复发(NHRH),系统刻画逐时点的特征重要性、<strong>非线性形状函数</strong>、校准、决策获益与选择性预测。</p>
+<p><strong>背景</strong> RAI 治疗后 Graves 病早期复发预测需既准确又<strong>可临床解读</strong>;黑盒模型难落地。我们以<strong>可解释 Boosting 机(EBM,带自动两两交互的玻璃盒 GAM)</strong>在三个治疗后随访时点(1M/3M/6M)建模 24 个月复发(NHRH),系统刻画逐时点的特征重要性、<strong>非线性形状函数</strong>、校准、决策获益与选择性预测。0M(治疗前)由 M1 模块承担,本文不再做 0M 的性能分析。</p>
 <p><strong>方法</strong> 分析单元为治疗疗程(N=1003;时间序贯:开发 802 / 时间外测试 201)。FT3、FT4 高度共线(r≈0.81–0.91),先标准化再正交聚合为「FT3,FT4 综合水平」与「FT3,FT4 落差」两轴(TSH 因反向反馈单列)。开发集 OOF 仅选择、时间外仅报告;同台对照简约逻辑回归(LR)。</p>
-<p><strong>结果</strong> EBM 时间外 ROC-AUC 0M 0.671 / 1M 0.709 / <strong>3M 0.804 / 6M 0.817</strong>,与简约 LR 统计相当。<strong>重要性随时间迁移:甲状腺重量(0M/1M)→「FT3,FT4 综合水平」(3M)→「FT3,FT4 综合变化速度」(6M)</strong>。形状函数揭示 6M 动量的<strong>非线性阈值效应</strong>(线性模型低估)。偏差-方差与学习曲线证明任务处于<strong>特征信息天花板</strong>。</p>
+<p><strong>结果</strong> EBM 时间外 ROC-AUC 1M 0.709 / <strong>3M 0.804 / 6M 0.817</strong>,与简约 LR 统计相当。<strong>重要性随治疗后随访推进迁移:甲状腺重量(1M)→「FT3,FT4 综合水平」(3M)→「FT3,FT4 综合变化速度」(6M)</strong>。形状函数揭示 6M 动量的<strong>非线性阈值效应</strong>(线性模型低估)。偏差-方差与学习曲线证明任务处于<strong>特征信息天花板</strong>。</p>
 <p><strong>结论</strong> EBM 在不牺牲判别力下提供透明、逐时点、非线性的临床解读;鉴于性能受特征所限,<strong>选择性预测</strong>(弃权 50% → 保留人群准确率 0.78、NPV 0.84)是部署可靠性的可行路径。</p>
 <h2>1. 引言</h2>
 <p>早期识别 RAI 治疗后将复发的 Graves 病人次有助于个体化随访与再治疗决策。临床预测建模(TRIPOD+AI / PROBAST+AI)强调可解释性、校准与时间外验证。<strong>EBM</strong> 是带自动两两交互的广义加性模型(GA2M):每个特征学习一条可视化形状函数,模型输出 = 各形状函数贡献之和——精度接近 boosting、解释性等同加性模型,是"玻璃盒"。本研究用 EBM 回答:早期复发的可解释信号是什么、随随访如何迁移、是否存在非线性效应。</p>
@@ -51,6 +51,7 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 </ul>
 <h2>3. 结果(逐图)</h2>
 <p>判别力随随访累积而升(3M 为跃升拐点),与简约 LR 相当(见 §3.5 图 F38)。下面按时点逐图呈现 ROC / PR / 校准 / 原生重要性 / 形状函数 / 决策曲线 / 风险三档 / 混淆矩阵,每图配解读。</p>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <h3>3.1 基线 0M — 静态负荷主导(9 图)</h3>
 <p><strong>图 F01 · 0M EBM ROC(AUC 0.671)</strong></p>
 <p>ROC 高于对角线,AUC 0.671,中等区分度;低假阳性区(1−spec≈0.1–0.2)即快速爬升至约 0.6 灵敏度,提示对一小撮高危人次识别较好,但中段抬升平缓——符合基线信息不足的预期。</p>
@@ -79,6 +80,22 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>图 F09 · 0M 混淆矩阵(Youden 阈值)</strong></p>
 <p>阈值 0.32(N=201):TN65/FP54/FN26/TP56,灵敏度 0.68、特异度 0.55、精确率 0.51——低阈值换高灵敏但假阳偏多,基线时点为提检出牺牲特异度的折中。</p>
 <p><img id="safe_embedded_img_8" src="" alt="F09" /></p>
+<p>=======</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>origin/m1m3-v2-lasso-trajectory</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 <h3>3.2 早期 1M — 甲状腺重量为锚、甲功起步(9 图)</h3>
 <p><strong>图 F10 · 1M EBM ROC(AUC 0.709)</strong></p>
 <p>凸向左上,AUC 0.709,中等;低假阳性区即陡升至灵敏度约 0.4,对少数高把握病例识别较好、中段平缓。</p>
@@ -139,13 +156,13 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><img id="safe_embedded_img_26" src="" alt="F27" /></p>
 <h3>3.4 后期 6M — 激素动量主导(非线性,9 图)</h3>
 <p><strong>图 F28 · 6M EBM ROC(AUC 0.817)</strong></p>
-<p>AUC 0.817——四时点最高;低假阳性区即升至约 0.6 灵敏度、1−spec≈0.6 处达约 0.96,良好凸形——后期"激素变化趋势"信号使模型在控误报下捕获多数复发。</p>
+<p>AUC 0.817——1M/3M/6M 三时点中最高;低假阳性区即升至约 0.6 灵敏度、1−spec≈0.6 处达约 0.96,良好凸形——后期"激素变化趋势"信号使模型在控误报下捕获多数复发。</p>
 <p><img id="safe_embedded_img_27" src="" alt="F28" /></p>
 <p><strong>图 F29 · 6M EBM 精确率-召回率(AP 0.747)</strong></p>
 <p>AP 0.747,远高于基线;精确率在召回 0–0.7 稳定 0.75–0.85,召回&gt;0.8 才明显下滑——保留高查全时仍维持较好查准。</p>
 <p><img id="safe_embedded_img_28" src="" alt="F29" /></p>
 <p><strong>图 F30 · 6M EBM 校准</strong></p>
-<p>五点紧贴 45° 理想线、斜率约 0.83(四时点最佳),低/高端轻微偏下、中段略高估,整体偏差小无系统性偏移——概率可直接用于分层。</p>
+<p>五点紧贴 45° 理想线、斜率约 0.83(三时点最佳),低/高端轻微偏下、中段略高估,整体偏差小无系统性偏移——概率可直接用于分层。</p>
 <p><img id="safe_embedded_img_29" src="" alt="F30" /></p>
 <p><strong>图 F31 · 6M EBM 原生重要性 top-6</strong></p>
 <p>「FT3,FT4 综合变化速度」约 0.62 居首、「TSH 变化速度」0.42 次之、甲状腺重量 0.38 第三,三者远超其后——6M "激素变化趋势/动量"已主导预测,超越任何单一当前水平。</p>
@@ -166,43 +183,99 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p>阈值 0.32:TN89/FP30/FN20/TP62,灵敏度 0.76、特异度 0.75 均衡;20 例假阴提示该阈值下仍漏检约 1/4 复发,更重查全可下调阈值。</p>
 <p><img id="safe_embedded_img_35" src="" alt="F36" /></p>
 <h3>3.5 跨地标汇总(11 图)</h3>
+<p>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</p>
 <blockquote>
 <p><strong>F41(组热力图)与 F31 等单特征条形图的数值关系</strong>:F41 按<strong>组聚合</strong>(将同组的若干单特征 importance 求和,如 <code>Antibodies</code> 组 = <code>TRAb + TGAb + TPOAb</code> 之和),F31 / F22 等是<strong>单特征 top-6</strong>;<strong>所以同名行的数值不必相等</strong>(组里只有一个单特征时才相等,如 6M 的 <code>FT3,FT4 velocity</code> 组 = 单特征 <code>Velocity_load</code> = 0.62、<code>Goiter</code> 组 = <code>ThyroidW</code> = 0.38)。两图回答不同问题:F41 = "哪类信号最重要"(临床叙事);F31 = "哪个单变量贡献最大"(模型解释)。</p>
-<p><strong>形状函数零点的读法(适用 §3.1–§3.4 所有形状图)</strong>:EBM 形状函数 <code>f(x)</code> 的 <code>f=0</code> 是<strong>模型内部参考点</strong>(cyclic boosting 在训练集上的 baseline 选择),<strong>不是临床安全阈值</strong>;<code>f(x)&gt;0</code> 表示该 x 比该参考点抬升风险,<code>f(x)&lt;0</code> 表示降低风险;参考点位置受训练集分布影响,<strong>临床转化应看相对趋势(单调 / 拐点)与决策曲线(DCA)给的工作阈值</strong>,而非把形状函数零点当作"安全/危险"分界。</p>
+<h1><strong>形状函数零点的读法(适用 §3.1–§3.4 所有形状图)</strong>:EBM 形状函数 <code>f(x)</code> 的 <code>f=0</code> 是<strong>模型内部参考点</strong>(cyclic boosting 在训练集上的 baseline 选择),<strong>不是临床安全阈值</strong>;<code>f(x)&gt;0</code> 表示该 x 比该参考点抬升风险,<code>f(x)&lt;0</code> 表示降低风险;参考点位置受训练集分布影响,<strong>临床转化应看相对趋势(单调 / 拐点)与决策曲线(DCA)给的工作阈值</strong>,而非把形状函数零点当作"安全/危险"分界。</h1>
+<p>说明:本节汇总图(F37/F38/F39/F41/F42/F44/F46)由 <code>module2_v2_ebm_atlas.py</code> 一次性生成、含 0M 治疗前点作<strong>视觉对照</strong>(图本身保留 4 landmark 视图未重生);<strong>性能与重要性的叙述统一以 1M / 3M / 6M 为主线</strong>,0M 数字在 caption 中不再单列。</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>origin/m1m3-v2-lasso-trajectory</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
+</blockquote>
 </blockquote>
 <p><strong>图 F37 · ROC/PR/Brier 随地标</strong></p>
-<p>判别/校准随随访改善:ROC-AUC 0.671→0.817、PR-AUC ~0.64→~0.75、Brier ~0.22→~0.17;0M→1M 仅微升、3M 是性能跃升拐点。</p>
+<p>判别/校准随治疗后随访改善:ROC-AUC 1M 0.709→6M 0.817、PR-AUC ~0.63→~0.75、Brier ~0.21→~0.17;<strong>3M 是性能跃升拐点</strong>(图含 0M 治疗前点仅作灰色对照)。</p>
 <p><img id="safe_embedded_img_36" src="" alt="F37" /></p>
 <p><strong>图 F38 · EBM vs 简约 LR 逐地标 AUC</strong></p>
-<p>两者逐地标 AUC 几乎重合(全程差约 0.01–0.02,0M/1M LR 略高),无地标显示 EBM 系统占优——印证<strong>特征天花板</strong>:增复杂度突破不了线性上限,EBM 价值在可解释而非判别增益。</p>
+<p>两者逐地标 AUC 几乎重合(全程差约 0.01–0.02,1M LR 略高),无地标显示 EBM 系统占优——印证<strong>特征天花板</strong>:增复杂度突破不了线性上限,EBM 价值在可解释而非判别增益。</p>
 <p><img id="safe_embedded_img_37" src="" alt="F38" /></p>
 <p><strong>图 F39 · EBM 全地标 ROC 合并</strong></p>
-<p>3M(绿)/6M(红)明显更贴左上且近重叠,0M/1M 更近对角线——判别力随随访递增、3M 后趋饱和;低假阳性区 6M 灵敏度已约 0.7,适合高特异工作点。</p>
+<p>3M(绿)/6M(红)明显更贴左上且近重叠,1M 更近对角线——判别力随治疗后随访递增、3M 后趋饱和;低假阳性区 6M 灵敏度已约 0.7,适合高特异工作点。</p>
 <p><img id="safe_embedded_img_38" src="" alt="F39" /></p>
 <p><strong>图 F40 · EBM 多 seed(5)temporal AUC 稳定性</strong></p>
 <p>每地标盒须极窄(跨度 0.01–0.02)、四箱完全不重叠逐级抬升——性能对种子高度稳健、随访增益真实;1M 一个约 0.705 离群点但离散仍小。</p>
 <p><img id="safe_embedded_img_39" src="" alt="F40" /></p>
 <p><strong>图 F41 · 原生重要性 组×地标 漂移热力图</strong></p>
-<p>甲状腺重量在 0M/1M 主导(0.54/0.47)→3M 让位「FT3,FT4 综合水平」(0.52)→6M 切换「FT3,FT4 综合变化速度」(0.62)+TSH 速度(0.42);"静态体积→动态水平→动态速度"轨迹合生理,抗体/基线中等平稳、RAI 剂量始终偏低。</p>
+<p>甲状腺重量在 1M 主导(0.47)→3M 让位「FT3,FT4 综合水平」(0.52)→6M 切换「FT3,FT4 综合变化速度」(0.62)+TSH 速度(0.42);"静态体积→动态水平→动态速度"轨迹合生理,抗体/基线中等平稳、RAI 剂量始终偏低。</p>
 <p><img id="safe_embedded_img_40" src="" alt="F41" /></p>
 <p><strong>图 F42 · 校准截距/斜率汇总</strong></p>
-<p>4 点沿对角线从 0M(−0.10,0.65)向 6M(+0.03,0.83)逼近理想点,斜率全程&lt;1(略过自信),早期尤甚——临床应用前建议对早期地标重校准(如等渗回归)。</p>
+<p>1M / 3M / 6M 三点沿对角线向理想点(0, 1)逼近,斜率全程&lt;1(略过自信),早期尤甚——临床应用前建议对早期地标重校准(如等渗回归)。</p>
 <p><img id="safe_embedded_img_41" src="" alt="F42" /></p>
 <p><strong>图 F43 · 共线性:FT3/FT4 同向 vs TSH 反向</strong></p>
 <p>corr(FT3,FT4)全程强正 0.80–0.90,corr(TSH,FT4)为负(3M 最深 −0.44),体现垂体负反馈反向——故聚合 FT3/FT4 为正交轴、TSH 单列合理;6M 的 TSH 相关异常翻正(≈+0.72)疑该地标 TSH 多被抑制/归一所致,值得核查。</p>
 <p><img id="safe_embedded_img_42" src="" alt="F43" /></p>
 <p><strong>图 F44 · 各地标主导特征形状函数面板</strong></p>
-<p>0M/1M 甲状腺重量单调饱和(&gt;25–30 g 转正、&gt;100 g 平台);3M「FT3,FT4 综合水平」递增 S 形;6M「FT3,FT4 综合变化速度」反向下降(速度正=高风险、负=保护)——定量刻画"动量"概念,阶梯跳变源自 EBM 分箱。</p>
+<p>1M 甲状腺重量单调饱和(&gt;25–30 g 转正、&gt;100 g 平台);3M「FT3,FT4 综合水平」递增 S 形;6M「FT3,FT4 综合变化速度」反向下降(速度正=高风险、负=保护)——定量刻画"动量"概念,阶梯跳变源自 EBM 分箱。</p>
 <p><img id="safe_embedded_img_43" src="" alt="F44" /></p>
 <p><strong>图 F45 · 选择性预测 风险-覆盖(pooled)</strong></p>
 <p>弃权 0→50% 时保留人群 accuracy 约 0.66→0.74、NPV 约 0.78→0.89,两线全程上行无回撤——不确定性排序有效;弃 50% 得约 0.74 准确率与约 0.89 高 NPV,适合"高置信自动决策、低置信转专家"分诊。</p>
 <p><img id="safe_embedded_img_44" src="" alt="F45" /></p>
 <p><strong>图 F46 · 各地标工作点 Sens/Spec/PPV/NPV</strong></p>
-<p>0M/1M 偏"高敏低特"(1M Spec 仅 0.49),3M 起趋均衡(Sens 0.79/NPV 0.82),6M 最佳平衡(Sens/Spec 均 0.75);NPV 全程领先(≥0.71)而 PPV 偏低——模型更擅长"排除复发",宜作阴性安抚/降级随访而非阳性确诊。</p>
+<p>1M 偏"高敏低特"(Spec 仅 0.49),3M 起趋均衡(Sens 0.79/NPV 0.82),6M 最佳平衡(Sens/Spec 均 0.75);NPV 全程领先而 PPV 偏低——模型更擅长"排除复发",宜作阴性安抚/降级随访而非阳性确诊。</p>
 <p><img id="safe_embedded_img_45" src="" alt="F46" /></p>
 <p><strong>图 F47 · pooled 校准(全地标合并)</strong></p>
 <p>六点基本贴对角线,低风险段轻微低估、中高段几乎落在理想线——合并后比单一早期地标更接近理想,跨地标概率可直接用于风险沟通。</p>
 <p><img id="safe_embedded_img_46" src="" alt="F47" /></p>
+<h3>3.6 自动发现的两两交互项 — 医学解读与可信度分级</h3>
+<p>EBM 在拟合时自动选择两两交互项(<code>f &amp; g</code> 形式,扣除两特征主效应后的剩余 2D 贡献)。为避免"硬讲故事",<strong>我们只把有强医学证据的交互纳入正式解读</strong>——以下 3 项各自满足"剂量学/文献/跨地标稳定"中至少一条;EBM 还自动选出的其余弱交互(如 0M 时点 <code>TPOAb × FT3,FT4 综合水平</code>(0.101)、<code>TPOAb × FT3,FT4 落差</code>(0.154))<strong>因主效应弱或无文献支撑、易过度解读</strong>,不在此处呈现,数值透明保留在 <code>ebm_paper_summary.json</code> 供审计:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">交互项</th>
+<th style="text-align: center;">landmark</th>
+<th style="text-align: center;">重要性</th>
+<th style="text-align: left;">临床/机制解读</th>
+<th style="text-align: center;">可信度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>ThyroidW × HalfLife</strong></td>
+<td style="text-align: center;">(跨配置)</td>
+<td style="text-align: center;">0.06–0.08</td>
+<td style="text-align: left;">RAI 剂量学公式(Marinelli):有效剂量 ∝ 甲状腺重量 / (摄取率 × 有效半衰期)。两者乘积本来就是剂量学分子分母 → EBM 在抓"有效辐射剂量"这一隐变量。大腺体 + 短半衰期 → 剂量不足 → 易复发;大腺体 + 长半衰期 → 剂量充分 → 易愈合。</td>
+<td style="text-align: center;">★★★(剂量公式级合理)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>TRAb × 病程(log)</strong></td>
+<td style="text-align: center;">0M</td>
+<td style="text-align: center;">0.104</td>
+<td style="text-align: left;">文献 <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12765878/">PMC12765878</a>:<strong>"病程越短 → TRAb 越高 → 复发风险越高"</strong>。机制:短病程 + 高 TRAb = 新诊断、免疫未经 ATD 充分调节就直接 RAI → 残余免疫活性高 → 易复发;长病程 + 低 TRAb = 经长期 ATD 调节、免疫已部分熄灭 → 更易愈合。EBM 学到的是 2D 曲面,可捕捉"短病程-高 TRAb"特定象限的风险陡升。</td>
+<td style="text-align: center;">★★★(文献直接支撑)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>TPOAb × FT3,FT4 综合变化速度</strong></td>
+<td style="text-align: center;">1M / 6M</td>
+<td style="text-align: center;">0.133 / 0.114</td>
+<td style="text-align: left;"><strong>两个 landmark 都出现 → 模式稳定</strong>。TPOAb 阳性 = 桥本式自身免疫背景(腺体淋巴浸润);RAI 杀伤腺体时,TPOAb 阳性会协同 RAI 让甲功下降更陡、更易过冲到甲减或不稳定波动。文献:TPOAb 阳性预测 RAI 后甲减 / 影响甲功变化速率(<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9254270/">PMC9254270</a>)。</td>
+<td style="text-align: center;">★★(机制清晰 + 跨地标稳定)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>整体判断</strong>:
+- <strong>3 项纳入解读的交互各有不同证据底气</strong>:<code>ThyroidW × HalfLife</code> 为剂量学公式级合理、<code>TRAb × 病程</code> 有直接文献支撑、<code>TPOAb × FT3,FT4 综合变化速度</code> 跨 landmark(1M 与 6M 同时出现)稳定;
+- <strong>未纳入的弱交互(透明保留)</strong>:EBM 在 0M 时点还学到了 <code>TPOAb × FT3,FT4 综合水平</code>(0.101)与 <code>TPOAb × FT3,FT4 落差</code>(0.154)两项,因 FT3,FT4 落差作为主效应几乎无独立预测信号(group drop-AUC ≈ 0)、且两项均无直接文献,<strong>主效应弱时纯交互信号易过度解读</strong> → 不在论文正式列表呈现,数值在 <code>ebm_paper_summary.json</code> 中保留供审计;
+- <strong>跨配置稳定性</strong>:<code>ThyroidW × HalfLife</code> 在 atlas 配置中出现、在 paper-summary 不在 top-6 → 同样架构不同种子/配置下 EBM 的交互排序会变;<strong>最稳的指标是同一交互在多个 landmark 重复出现</strong>(如 <code>TPOAb × 速度</code>)。</p>
+<p><strong>写论文/部署的免责</strong>:EBM 自动发现的两两交互是统计模式,<strong>不等于因果机制</strong>。上述生物学解读为 plausible(合理化),<strong>非验证</strong>;若要作为临床推荐(如"短病程 + 高 TRAb 者建议 ...")必须通过独立队列前瞻验证。</p>
 <h2>4. 讨论</h2>
 <p>EBM 在保持与简约模型相当判别力的同时,给出透明、逐时点、非线性的解读,量化了"解剖负荷→激素水平→激素动量"的时间迁移——与临床直觉一致:RAI 早期看腺体大小,随治疗推进看当期甲功,后期看恢复轨迹的快慢。偏差-方差(随机森林可将训练 AUC 拟合至 1.000 而泛化等于 LR)与学习曲线(半量数据即饱和)证明任务处于<strong>特征信息天花板</strong>:增容量、数据增强、级联小模型均无效;EBM 的价值在<strong>解释</strong>。生理上 FT3、FT4 为甲状腺输出、TSH 为垂体反馈(方向相反),「综合变化速度」与「TSH 变化速度」反向互补共同主导 6M。<strong>最具临床价值的非线性发现是 6M 的激素动量阈值效应(F32)</strong>:激素"未下行甚至回升"骤增风险,线性模型会低估。</p>
 <h2>5. 局限</h2>
