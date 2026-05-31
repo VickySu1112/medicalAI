@@ -1,3 +1,0 @@
-Case_Label,TemporalTest_Row_Index,Expected_Prob,Predicted_Risk,Observed_Relapse,Figure
-Patient A,223,0.46427389887403686,0.8815317153930664,1,Figure_27_SHAP_Local_HighRisk.png
-Patient B,421,0.46427389887403686,0.0807822123169899,0,Figure_28_SHAP_Local_LowRisk.png

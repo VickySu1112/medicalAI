@@ -1,6 +1,0 @@
-Standard_Column,Raw_Column_Candidates,Source_Files,Unit,Transform,Baseline_Safe,Used_In_Current_Core_Model
-DiseaseDuration_Months,病程时间 / 病程,raw_tables/甲亢2025.6.2.xlsx; raw_tables/甲亢病住院新24.12.23.xlsx,months,free text parsed to months; raw retained with parse flag,True,False
-PreRAI_ATD_Use,是否用过ATD / ATD,raw_tables/甲亢2025.6.2.xlsx; raw_tables/甲亢病住院新24.12.23.xlsx,binary,free text parsed to yes/no; raw retained with parse flag,True,False
-PreRAI_ATD_Stop_Days,服碘前停ATD时间 / 停ATD时间,raw_tables/甲亢2025.6.2.xlsx; raw_tables/甲亢病住院新24.12.23.xlsx,days,free text parsed to days; raw retained with parse flag,True,False
-Comorbidity_Raw,既往史 / 合并症,raw_tables/甲亢2025.6.2.xlsx; raw_tables/甲亢病住院新24.12.23.xlsx,free_text,raw baseline history/comorbidity text retained,True,False
-EyeSigns_Raw,突眼 / 眼征,raw_tables/甲亢2025.6.2.xlsx; raw_tables/甲亢病住院新24.12.23.xlsx,free_text,raw baseline eye-sign text retained,True,False

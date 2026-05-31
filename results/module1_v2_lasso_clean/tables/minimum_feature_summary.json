@@ -1,8 +1,0 @@
-{
-  "full10_OOF_AUC": 0.7225092311512021,
-  "full10_Tmp_AUC": 0.6852680179402901,
-  "k_smallest_within_0.005_OOF": 1,
-  "k_smallest_within_0.010_Tmp": 1,
-  "only_thyroidw_OOF_AUC": 0.7247899435588309,
-  "only_thyroidw_Tmp_AUC": 0.6824524633138499
-}

@@ -1,9 +1,0 @@
-{
-  "match_rate": 1.0,
-  "disease_cov": 1.0,
-  "atd_cov": 0.9671,
-  "stop_cov": 0.988,
-  "comorb_cov": 0.9701,
-  "discordance": 0.1206,
-  "lr_test_auc": 0.6875
-}

@@ -1,4 +1,0 @@
-{
-  "explanation_model": "augmented random forest TreeSHAP",
-  "method": "shap.TreeExplainer"
-}

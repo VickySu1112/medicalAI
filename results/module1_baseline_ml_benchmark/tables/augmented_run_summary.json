@@ -1,6 +1,0 @@
-{
-  "best_augmented_model_by_development_oof_roc": "RandomForest",
-  "n_augmented_features": 12,
-  "n_total_features": 28,
-  "best_temporal_by_roc": "ExtraTrees"
-}

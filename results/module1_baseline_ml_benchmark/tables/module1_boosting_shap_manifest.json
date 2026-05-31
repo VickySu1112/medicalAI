@@ -1,7 +1,0 @@
-{
-  "explanation_model": "CatBoost",
-  "feature_set": "M1_v2_1003_augmented",
-  "config_id": "CatBoost_cfg01",
-  "method": "shap.TreeExplainer on temporal-test rows",
-  "selection_note": "best available boosting candidate by temporal ROC-AUC for post-hoc explanation only"
-}

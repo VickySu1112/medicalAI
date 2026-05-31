@@ -1,7 +1,0 @@
-Feature,PrettyLabel,Frequency_k_over_n,Count,Total
-ThyroidW,Thyroid weight,1.0,500,500
-TPOAb,TPOAb,0.98,490,500
-log1p_DiseaseDuration_Months_Aug,Log disease duration (months),0.98,490,500
-Sex,Sex,0.97,485,500
-TSH_0M,TSH at baseline,0.97,485,500
-FT4_0M,FT4 at baseline,0.888,444,500
