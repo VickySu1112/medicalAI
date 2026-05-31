@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>RAI Graves 早期复发 · EBM 玻璃盒(图文版)</title>
+<title>RAI Graves 早期复发 · EBM 玻璃盒分析(图文版)</title>
 <style>
   body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
        font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
@@ -65,10 +65,12 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p>甲状腺重量约 0.47 绝对主导(约为第二名「FT3,FT4 综合水平」0.19 的两倍余),甲功综合水平开始进场——1M 是"甲状腺重量为锚、甲功起步"的过渡时点。</p>
 <p><img id="safe_embedded_img_3" src="" alt="F13" /></p>
 <p><strong>图 F14 · 1M 形状函数 #1:甲状腺重量</strong></p>
-<p>单调递增饱和型,约 25 g 穿零,小腺体负贡献、50 g 附近陡升、&gt;100 g 平台(约 +1.4)——腺体越大风险越高且边际递减。</p>
+<p>单调递增饱和型:小腺体(&lt;25 g)贡献最小、50 g 附近陡升、&gt;100 g 平台(约 +1.4)——腺体越大风险越高且边际递减(零点为模型内部参考,见 §3.5)。</p>
 <p><img id="safe_embedded_img_4" src="" alt="F14" /></p>
 <p><strong>图 F15 · 1M 形状函数 #2:FT3,FT4 综合水平</strong></p>
-<p>单调上升、约 −0.7 过零、高值端平台(约 +0.6);贡献幅度(±0.5)远小于甲状腺重量(±1.4),量化了 1M 二者相对权重。</p>
+<p><strong>大白话读法</strong>:横轴是这位病人 1M 时 FT3、FT4 综合水平,<strong>用 dev 集 802 例的 1M 平均做基准的"高低指数"</strong>(z-score);<code>z = 0</code> <strong>不是健康正常</strong>,是 <strong>dev 1M 群体平均(FT3 ≈ 9.1 / FT4 ≈ 20.6 pmol/L,本身就是轻度甲亢残留,因为治疗才 1 月)</strong>。纵轴 = 该指标给"复发风险"的加 / 减分(log-odds);右边加分(变危险),左边减分(变安全)。</p>
+<p><strong>关键数值</strong>:幅度从 z=−2(FT4 ≈ 4.8,临床甲减)的 <strong>−0.4 分</strong>,到 z=+5(残留甲亢未控)的 <strong>+0.6 分</strong>,整条单调上升;曲线"减分变加分"的参考点在 <strong>z ≈ −0.7(FT4 ≈ 15.1,接近 FT4 临床正常上限)</strong>。<strong>这个 −0.7 不是临床安全阈值</strong>(只是模型的 baseline 选择),临床应看相对趋势,<strong>不要把它误读为"低于 −0.7 才安全"</strong>(详见 §3.5 形状函数零点说明与 <strong><a href="Module2v2_S1_FT3FT4_z反算表.md">补充材料 S1</a></strong> — 每个 landmark 给 z → 实际 FT3/FT4/临床意义的完整反算表)。</p>
+<p><strong>与甲状腺重量对比</strong>:本曲线幅度(±0.5)远小于甲状腺重量曲线(±1.4),<strong>1M 时甲状腺重量对风险的影响约是 FT3,FT4 综合水平的 3 倍</strong> —— 1M 是"甲状腺重量为锚、甲功起步"的过渡时点。</p>
 <p><img id="safe_embedded_img_5" src="" alt="F15" /></p>
 <p><strong>图 F16 · 1M 决策曲线</strong></p>
 <p>几乎全阈值区间(0.05–0.6)EBM 净获益不低于两条参考线,阈值&gt;0.2 后对 treat-all 优势持续扩大——临床合理阈值范围内有正向净获益。</p>
@@ -93,10 +95,10 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p>「FT3,FT4 综合水平」约 0.53 居首,甲状腺重量 0.37 退居第二,当期 TSH 0.28 第三——当期甲功水平接管首位主导,体现"当前状态"对近期复发的强预测。</p>
 <p><img id="safe_embedded_img_12" src="" alt="F22" /></p>
 <p><strong>图 F23 · 3M 形状函数 #1:FT3,FT4 综合水平</strong></p>
-<p>单调递增强非线性,均值附近骤升穿零,2 与 4 附近台阶式跳升(−0.7→+1.6)——当期甲功越高风险贡献越大,低值保护、高值饱和。</p>
+<p>单调递增强非线性:均值附近(z ≈ 0)骤升、z = 2 与 4 附近台阶式跳升,<strong>贡献从约 −0.7 升到 +1.6</strong>——当期甲功越高风险贡献越大,低值降风险、高值饱和(零点为模型内部参考,见 §3.5)。</p>
 <p><img id="safe_embedded_img_13" src="" alt="F23" /></p>
 <p><strong>图 F24 · 3M 形状函数 #2:甲状腺重量</strong></p>
-<p>单调递增饱和,约 25 g 以下保护、30 g 穿零、&gt;100 g 平台(约 +1.1)——体积越大贡献越高,超 100 g 边际消失,符合生理饱和。</p>
+<p>单调递增饱和:小腺体(&lt;30 g)贡献最小、&gt;100 g 平台(约 +1.1)——体积越大贡献越高,超 100 g 边际消失,符合生理饱和(零点为模型内部参考)。</p>
 <p><img id="safe_embedded_img_14" src="" alt="F24" /></p>
 <p><strong>图 F25 · 3M 决策曲线</strong></p>
 <p>约 0.1–0.6 阈值区间 EBM 净获益持续高于两条参考线(其在约 0.41 交叉),临床相关阈值区间使用模型有实际净获益。</p>
@@ -138,6 +140,8 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <h3>3.5 跨地标汇总(11 图)</h3>
 <blockquote>
 <p>说明:本节汇总图(F37/F38/F39/F41/F42/F44/F46)由 <code>module2_v2_ebm_atlas.py</code> 一次性生成、含 0M 治疗前点作<strong>视觉对照</strong>(图本身保留 4 landmark 视图未重生);<strong>性能与重要性的叙述统一以 1M / 3M / 6M 为主线</strong>,0M 数字在 caption 中不再单列。</p>
+<p><strong>F41(组热力图)与 F22/F31 等单特征条形图的数值关系</strong>:F41 按<strong>组聚合</strong>(同组若干单特征 importance 求和,如 <code>Antibodies</code> 组 = <code>TRAb + TGAb + TPOAb</code>),F22/F31 等是<strong>单特征 top-6</strong>;<strong>同名行的数值不必相等</strong>(组里只有一个单特征时才相等,如 6M 的 <code>FT3,FT4 velocity</code> 组 = 单特征 <code>Velocity_load</code> = 0.62、<code>Goiter</code> 组 = <code>ThyroidW</code> = 0.38)。两图回答不同问题:F41 = "哪类信号最重要"(临床叙事);F22/F31 = "哪个单变量贡献最大"(模型解释)。</p>
+<p><strong>形状函数零点的读法(适用 §3.2–§3.4 所有形状图)</strong>:EBM 形状函数 <code>f(x)</code> 的 <code>f=0</code> 是<strong>模型内部参考点</strong>(cyclic boosting 在训练集上的 baseline 选择),<strong>不是临床安全阈值</strong>;<code>f(x)&gt;0</code> 表示该 x 比该参考点抬升风险,<code>f(x)&lt;0</code> 表示降低风险;参考点位置受训练集分布影响,<strong>临床转化应看相对趋势(单调 / 拐点)与决策曲线(DCA)给的工作阈值</strong>,而非把形状函数零点当作"安全/危险"分界。<strong>对 FT3,FT4 综合水平 z 值与实际激素值的精确反算(逐 landmark)见 <a href="Module2v2_S1_FT3FT4_z反算表.md">补充材料 S1</a></strong>。</p>
 </blockquote>
 <p><strong>图 F37 · ROC/PR/Brier 随地标</strong></p>
 <p>判别/校准随治疗后随访改善:ROC-AUC 1M 0.709→6M 0.817、PR-AUC ~0.63→~0.75、Brier ~0.21→~0.17;<strong>3M 是性能跃升拐点</strong>(图含 0M 治疗前点仅作灰色对照)。</p>
