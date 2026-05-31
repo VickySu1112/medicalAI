@@ -1,28 +1,28 @@
 tag,term,log_odds_contribution,OR_factor
-Low,TSH (current),-0.9985,0.368
-Low,"FT3,FT4 level",-0.8815,0.414
-Low,"FT3,FT4 level × FT3,FT4 velocity",-0.741,0.477
-Low,"TSH (current) × FT3,FT4 vel gap",-0.4474,0.639
-Low,Thyroid weight (g),-0.3067,0.736
-Low,"FT3,FT4 gap",0.3007,1.351
-Low,"FT3,FT4 velocity",-0.2382,0.788
-Low,"TSH (current) × FT3,FT4 velocity",-0.2037,0.816
-Low,intercept,-0.9411,0.39
-Mid,TSH (current),0.4817,1.619
-Mid,"FT3,FT4 velocity",-0.2292,0.795
-Mid,Thyroid weight (g),-0.2023,0.817
-Mid,"FT3,FT4 gap",-0.1938,0.824
-Mid,TSH velocity,0.1569,1.17
-Mid,FT4 baseline,-0.1517,0.859
-Mid,"TSH (current) × FT3,FT4 vel gap",0.0877,1.092
-Mid,log Duration (mo),-0.0812,0.922
-Mid,intercept,-0.9411,0.39
-High,"FT3,FT4 velocity",1.8641,6.45
-High,Thyroid weight (g),0.5945,1.812
-High,"FT3,FT4 level",0.5328,1.704
-High,TSH (current),0.4817,1.619
-High,TRAb,0.2313,1.26
-High,"FT3,FT4 gap",-0.1827,0.833
-High,TSH velocity,0.1569,1.17
-High,FT4 baseline,-0.0923,0.912
-High,intercept,-0.9411,0.39
+Low,TSH velocity,-0.9242,0.397
+Low,"FT3,FT4 velocity",-0.5373,0.584
+Low,Thyroid weight (g),-0.3605,0.697
+Low,log Duration (mo),-0.1355,0.873
+Low,TRAb,-0.117,0.89
+Low,Thyroid weight (g) × TPOAb,0.1162,1.123
+Low,"TGAb × FT3,FT4 velocity",-0.1149,0.891
+Low,"TPOAb × FT3,FT4 velocity",0.0455,1.047
+Low,intercept,-0.7069,0.493
+Mid,Thyroid weight (g),-0.4143,0.661
+Mid,TSH velocity,0.2514,1.286
+Mid,"FT3,FT4 vel gap",-0.2076,0.813
+Mid,TRAb,-0.1217,0.885
+Mid,"FT3,FT4 velocity",-0.1187,0.888
+Mid,log Duration (mo),0.1021,1.108
+Mid,Thyroid weight (g) × TPOAb,0.0935,1.098
+Mid,Iodine half-life,-0.0545,0.947
+Mid,intercept,-0.7069,0.493
+High,"FT3,FT4 velocity",1.5399,4.664
+High,"TPOAb × FT3,FT4 velocity",0.5483,1.73
+High,TSH velocity,0.3554,1.427
+High,"FT4 baseline × FT3,FT4 velocity",-0.1143,0.892
+High,"TGAb × FT3,FT4 velocity",0.1055,1.111
+High,log Duration (mo),0.0919,1.096
+High,Thyroid weight (g) × TPOAb,0.0821,1.086
+High,TPOAb,0.0716,1.074
+High,intercept,-0.7069,0.493

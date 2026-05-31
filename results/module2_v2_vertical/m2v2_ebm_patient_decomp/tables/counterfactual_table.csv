@@ -1,76 +1,76 @@
 tag,swept_feature,value,predicted_p
-Low,TSH (current),0.004,0.1538
-Low,TSH (current),2.0187,0.0288
-Low,TSH (current),4.0334,0.0243
-Low,TSH (current),6.0481,0.0219
-Low,TSH (current),8.0628,0.0211
-Low,TSH (current),10.0775,0.0203
-Low,TSH (current),12.0922,0.0196
-Low,TSH (current),14.1069,0.0194
-Low,TSH (current),16.1216,0.0191
-Low,TSH (current),18.1363,0.019
-Low,TSH (current),20.151,0.0188
-Low,TSH (current),22.1657,0.0185
-Low,TSH (current),24.1804,0.0188
-Low,TSH (current),26.1951,0.0186
-Low,TSH (current),28.2098,0.0184
-Low,TSH (current),30.2245,0.0183
-Low,TSH (current),32.2392,0.0183
-Low,TSH (current),34.2539,0.0183
-Low,TSH (current),36.2686,0.0177
-Low,TSH (current),38.2833,0.0181
-Low,TSH (current),40.298,0.0179
-Low,TSH (current),42.3127,0.0168
-Low,TSH (current),44.3274,0.0167
-Low,TSH (current),46.3421,0.0167
-Low,TSH (current),48.3567,0.0154
-Mid,TSH (current),0.004,0.2793
-Mid,TSH (current),2.0187,0.0867
-Mid,TSH (current),4.0334,0.0742
-Mid,TSH (current),6.0481,0.0672
-Mid,TSH (current),8.0628,0.065
-Mid,TSH (current),10.0775,0.0626
-Mid,TSH (current),12.0922,0.0608
-Mid,TSH (current),14.1069,0.06
-Mid,TSH (current),16.1216,0.0594
-Mid,TSH (current),18.1363,0.0589
-Mid,TSH (current),20.151,0.0583
-Mid,TSH (current),22.1657,0.0575
-Mid,TSH (current),24.1804,0.0583
-Mid,TSH (current),26.1951,0.0576
-Mid,TSH (current),28.2098,0.0571
-Mid,TSH (current),30.2245,0.0569
-Mid,TSH (current),32.2392,0.0566
-Mid,TSH (current),34.2539,0.0567
-Mid,TSH (current),36.2686,0.055
-Mid,TSH (current),38.2833,0.0561
-Mid,TSH (current),40.298,0.0556
-Mid,TSH (current),42.3127,0.052
-Mid,TSH (current),44.3274,0.0518
-Mid,TSH (current),46.3421,0.0515
-Mid,TSH (current),48.3567,0.0476
-High,"FT3,FT4 velocity",-2.2181,0.72
-High,"FT3,FT4 velocity",-2.0619,0.7085
-High,"FT3,FT4 velocity",-1.9056,0.6826
-High,"FT3,FT4 velocity",-1.7494,0.6755
-High,"FT3,FT4 velocity",-1.5932,0.6726
-High,"FT3,FT4 velocity",-1.4369,0.7011
-High,"FT3,FT4 velocity",-1.2807,0.7171
-High,"FT3,FT4 velocity",-1.1244,0.7155
-High,"FT3,FT4 velocity",-0.9682,0.7203
-High,"FT3,FT4 velocity",-0.812,0.7414
-High,"FT3,FT4 velocity",-0.6557,0.7367
-High,"FT3,FT4 velocity",-0.4995,0.7429
-High,"FT3,FT4 velocity",-0.3433,0.7388
-High,"FT3,FT4 velocity",-0.187,0.7137
-High,"FT3,FT4 velocity",-0.0308,0.7035
-High,"FT3,FT4 velocity",0.1255,0.7125
-High,"FT3,FT4 velocity",0.2817,0.7386
-High,"FT3,FT4 velocity",0.4379,0.7902
-High,"FT3,FT4 velocity",0.5942,0.8077
-High,"FT3,FT4 velocity",0.7504,0.8189
-High,"FT3,FT4 velocity",0.9066,0.8238
-High,"FT3,FT4 velocity",1.0629,0.8329
-High,"FT3,FT4 velocity",1.2191,0.8334
-High,"FT3,FT4 velocity",1.3754,0.8916
-High,"FT3,FT4 velocity",1.5316,0.8974
+Low,TSH velocity,-26.8886,0.0672
+Low,TSH velocity,-25.7683,0.0675
+Low,TSH velocity,-24.6479,0.0682
+Low,TSH velocity,-23.5275,0.069
+Low,TSH velocity,-22.4072,0.071
+Low,TSH velocity,-21.2868,0.0712
+Low,TSH velocity,-20.1665,0.0719
+Low,TSH velocity,-19.0461,0.0727
+Low,TSH velocity,-17.9257,0.0745
+Low,TSH velocity,-16.8054,0.0752
+Low,TSH velocity,-15.685,0.0768
+Low,TSH velocity,-14.5647,0.0787
+Low,TSH velocity,-13.4443,0.0812
+Low,TSH velocity,-12.3239,0.0839
+Low,TSH velocity,-11.2036,0.0881
+Low,TSH velocity,-10.0832,0.0903
+Low,TSH velocity,-8.9629,0.0928
+Low,TSH velocity,-7.8425,0.0954
+Low,TSH velocity,-6.7222,0.098
+Low,TSH velocity,-5.6018,0.1007
+Low,TSH velocity,-4.4814,0.1033
+Low,TSH velocity,-3.3611,0.1092
+Low,TSH velocity,-2.2407,0.1142
+Low,TSH velocity,-1.1204,0.1205
+Low,TSH velocity,0.0,0.2019
+Mid,Thyroid weight (g),11.5,0.1658
+Mid,Thyroid weight (g),14.5329,0.1713
+Mid,Thyroid weight (g),17.5658,0.2465
+Mid,Thyroid weight (g),20.5987,0.2654
+Mid,Thyroid weight (g),23.6317,0.3112
+Mid,Thyroid weight (g),26.6646,0.3407
+Mid,Thyroid weight (g),29.6975,0.3568
+Mid,Thyroid weight (g),32.7304,0.3687
+Mid,Thyroid weight (g),35.7633,0.3788
+Mid,Thyroid weight (g),38.7962,0.3751
+Mid,Thyroid weight (g),41.8292,0.3866
+Mid,Thyroid weight (g),44.8621,0.3965
+Mid,Thyroid weight (g),47.895,0.4083
+Mid,Thyroid weight (g),50.9279,0.4694
+Mid,Thyroid weight (g),53.9608,0.5105
+Mid,Thyroid weight (g),56.9937,0.5203
+Mid,Thyroid weight (g),60.0267,0.5283
+Mid,Thyroid weight (g),63.0596,0.5434
+Mid,Thyroid weight (g),66.0925,0.5485
+Mid,Thyroid weight (g),69.1254,0.5574
+Mid,Thyroid weight (g),72.1583,0.5492
+Mid,Thyroid weight (g),75.1912,0.551
+Mid,Thyroid weight (g),78.2242,0.5533
+Mid,Thyroid weight (g),81.2571,0.5561
+Mid,Thyroid weight (g),84.29,0.5595
+High,"FT3,FT4 velocity",-2.9429,0.9196
+High,"FT3,FT4 velocity",-2.776,0.9189
+High,"FT3,FT4 velocity",-2.6092,0.9188
+High,"FT3,FT4 velocity",-2.4423,0.9186
+High,"FT3,FT4 velocity",-2.2755,0.8627
+High,"FT3,FT4 velocity",-2.1087,0.8605
+High,"FT3,FT4 velocity",-1.9418,0.8248
+High,"FT3,FT4 velocity",-1.775,0.8227
+High,"FT3,FT4 velocity",-1.6081,0.8132
+High,"FT3,FT4 velocity",-1.4413,0.8104
+High,"FT3,FT4 velocity",-1.2745,0.6826
+High,"FT3,FT4 velocity",-1.1076,0.6747
+High,"FT3,FT4 velocity",-0.9408,0.6688
+High,"FT3,FT4 velocity",-0.774,0.6612
+High,"FT3,FT4 velocity",-0.6071,0.6422
+High,"FT3,FT4 velocity",-0.4403,0.632
+High,"FT3,FT4 velocity",-0.2734,0.4337
+High,"FT3,FT4 velocity",-0.1066,0.4151
+High,"FT3,FT4 velocity",0.0602,0.4251
+High,"FT3,FT4 velocity",0.2271,0.3584
+High,"FT3,FT4 velocity",0.3939,0.3347
+High,"FT3,FT4 velocity",0.5608,0.3105
+High,"FT3,FT4 velocity",0.7276,0.3119
+High,"FT3,FT4 velocity",0.8944,0.306
+High,"FT3,FT4 velocity",1.0613,0.2364

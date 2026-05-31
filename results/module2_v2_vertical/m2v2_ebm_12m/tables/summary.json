@@ -10,9 +10,9 @@
       "landmark": "1M",
       "N_test": 201,
       "events_test": 82,
-      "ROC_AUC": 0.7093,
-      "PR_AUC": 0.6214,
-      "Brier": 0.2141,
+      "ROC_AUC": 0.7079,
+      "PR_AUC": 0.6472,
+      "Brier": 0.2112,
       "lead_months_to_24M": 23,
       "FT4_current_coverage_pct": 100.0
     },
@@ -20,9 +20,9 @@
       "landmark": "3M",
       "N_test": 201,
       "events_test": 82,
-      "ROC_AUC": 0.8029,
-      "PR_AUC": 0.7208,
-      "Brier": 0.1762,
+      "ROC_AUC": 0.7954,
+      "PR_AUC": 0.7261,
+      "Brier": 0.1801,
       "lead_months_to_24M": 21,
       "FT4_current_coverage_pct": 100.0
     },
@@ -30,9 +30,9 @@
       "landmark": "6M",
       "N_test": 201,
       "events_test": 82,
-      "ROC_AUC": 0.8544,
-      "PR_AUC": 0.8185,
-      "Brier": 0.1489,
+      "ROC_AUC": 0.8092,
+      "PR_AUC": 0.7255,
+      "Brier": 0.1783,
       "lead_months_to_24M": 18,
       "FT4_current_coverage_pct": 100.0
     },
@@ -40,9 +40,9 @@
       "landmark": "12M",
       "N_test": 201,
       "events_test": 82,
-      "ROC_AUC": 0.8155,
-      "PR_AUC": 0.7696,
-      "Brier": 0.1696,
+      "ROC_AUC": 0.67,
+      "PR_AUC": 0.6384,
+      "Brier": 0.2189,
       "lead_months_to_24M": 12,
       "FT4_current_coverage_pct": 100.0
     }
@@ -52,145 +52,145 @@
       "landmark": "1M",
       "rank": 1,
       "feature": "Thyroid weight",
-      "importance": 0.4759
+      "importance": 0.4635
     },
     {
       "landmark": "1M",
       "rank": 2,
       "feature": "FT3,FT4 level",
-      "importance": 0.2062
+      "importance": 0.1999
     },
     {
       "landmark": "1M",
       "rank": 3,
-      "feature": "TPOAb × FT3,FT4 velocity",
-      "importance": 0.1309
+      "feature": "Duration (log,mo)",
+      "importance": 0.1089
     },
     {
       "landmark": "1M",
       "rank": 4,
-      "feature": "Duration (log,mo)",
-      "importance": 0.114
+      "feature": "TPOAb × FT3,FT4 velocity",
+      "importance": 0.0983
     },
     {
       "landmark": "1M",
       "rank": 5,
       "feature": "FT3,FT4 velocity",
-      "importance": 0.0983
+      "importance": 0.0966
     },
     {
       "landmark": "1M",
       "rank": 6,
-      "feature": "Duration (log,mo) × FT3,FT4 level",
-      "importance": 0.0949
+      "feature": "TRAb",
+      "importance": 0.0879
     },
     {
       "landmark": "3M",
       "rank": 1,
       "feature": "FT3,FT4 level",
-      "importance": 0.5274
+      "importance": 0.556
     },
     {
       "landmark": "3M",
       "rank": 2,
       "feature": "Thyroid weight",
-      "importance": 0.3657
+      "importance": 0.3617
     },
     {
       "landmark": "3M",
       "rank": 3,
       "feature": "TSH (current)",
-      "importance": 0.282
+      "importance": 0.2839
     },
     {
       "landmark": "3M",
       "rank": 4,
       "feature": "TSH velocity",
-      "importance": 0.1851
+      "importance": 0.186
     },
     {
       "landmark": "3M",
       "rank": 5,
       "feature": "FT3,FT4 gap",
-      "importance": 0.1269
+      "importance": 0.1314
     },
     {
       "landmark": "3M",
       "rank": 6,
       "feature": "TRAb",
-      "importance": 0.1238
+      "importance": 0.1228
     },
     {
       "landmark": "6M",
       "rank": 1,
-      "feature": "FT3,FT4 level",
-      "importance": 0.7753
-    },
-    {
-      "landmark": "6M",
-      "rank": 2,
-      "feature": "TSH (current)",
-      "importance": 0.5455
-    },
-    {
-      "landmark": "6M",
-      "rank": 3,
-      "feature": "Thyroid weight",
-      "importance": 0.3542
-    },
-    {
-      "landmark": "6M",
-      "rank": 4,
-      "feature": "TSH velocity",
-      "importance": 0.2686
-    },
-    {
-      "landmark": "6M",
-      "rank": 5,
       "feature": "FT3,FT4 velocity",
-      "importance": 0.2164
+      "importance": 0.6223
+    },
+    {
+      "landmark": "6M",
+      "rank": 2,
+      "feature": "TSH velocity",
+      "importance": 0.4303
+    },
+    {
+      "landmark": "6M",
+      "rank": 3,
+      "feature": "Thyroid weight",
+      "importance": 0.3874
+    },
+    {
+      "landmark": "6M",
+      "rank": 4,
+      "feature": "TPOAb × FT3,FT4 velocity",
+      "importance": 0.1835
+    },
+    {
+      "landmark": "6M",
+      "rank": 5,
+      "feature": "Thyroid weight × TPOAb",
+      "importance": 0.1751
     },
     {
       "landmark": "6M",
       "rank": 6,
-      "feature": "TSH (current) × FT3,FT4 velocity",
-      "importance": 0.1875
+      "feature": "FT3,FT4 vel gap",
+      "importance": 0.1461
     },
     {
       "landmark": "12M",
       "rank": 1,
-      "feature": "FT3,FT4 level",
-      "importance": 0.5235
+      "feature": "Thyroid weight",
+      "importance": 0.5656
     },
     {
       "landmark": "12M",
       "rank": 2,
-      "feature": "TSH (current)",
-      "importance": 0.5052
+      "feature": "TPOAb",
+      "importance": 0.1542
     },
     {
       "landmark": "12M",
       "rank": 3,
-      "feature": "Thyroid weight",
-      "importance": 0.4435
+      "feature": "Duration (log,mo)",
+      "importance": 0.124
     },
     {
       "landmark": "12M",
       "rank": 4,
-      "feature": "FT3,FT4 level × FT3,FT4 vel gap",
-      "importance": 0.347
+      "feature": "TRAb",
+      "importance": 0.1066
     },
     {
       "landmark": "12M",
       "rank": 5,
-      "feature": "TSH (current) × FT3,FT4 velocity",
-      "importance": 0.3078
+      "feature": "Thyroid weight × Iodine half-life",
+      "importance": 0.0713
     },
     {
       "landmark": "12M",
       "rank": 6,
-      "feature": "FT3,FT4 level × FT3,FT4 velocity",
-      "importance": 0.2584
+      "feature": "TSH (0M)",
+      "importance": 0.0555
     }
   ],
   "drift_interpretation_hint": "Compare top-1 at 6M vs 12M:  - velocity remains #1 → drift plateau (negative finding still useful)  - level/cumulative emerges → new chapter for 12M phenotype  - TRAb-related rises → immune-driven late-phase indicator",
