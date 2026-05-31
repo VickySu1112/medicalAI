@@ -8,20 +8,22 @@
 
 ---
 
-## 文献综述包（先看这里）
+## 📚 文献综述包
 
-**30 篇 Q2+ 文献摘要、综合表与主题综述位于：**
-[`docs/literature/rai_ml_q2plus_30/`](docs/literature/rai_ml_q2plus_30/)
+30 篇 Q2+ 文献摘要 / 综合汇总表 / 主题综述 / 完成度审计 → **[`docs/literature/rai_ml_q2plus_30/`](docs/literature/rai_ml_q2plus_30/)**
 
-| 入口 | 用途 |
-|:---|:---|
-| [`README.md`](docs/literature/rai_ml_q2plus_30/README.md) | 文献包说明与导读 |
-| [`index.md`](docs/literature/rai_ml_q2plus_30/index.md) | 30 篇文献索引 |
-| [`30_paper_summary_table.md`](docs/literature/rai_ml_q2plus_30/30_paper_summary_table.md) | 30 篇综合汇总表 |
-| [`thematic_synthesis.md`](docs/literature/rai_ml_q2plus_30/thematic_synthesis.md) | 主题综合（按问题/方法/证据级别） |
-| [`summaries/P01..P30_*.md`](docs/literature/rai_ml_q2plus_30/summaries/) | 30 篇单文摘要（每篇一文件） |
-| [`tables/`](docs/literature/rai_ml_q2plus_30/tables/) | 期刊分位证据、开放获取来源、筛选决策、检索日志 |
-| [`completion_audit.md`](docs/literature/rai_ml_q2plus_30/completion_audit.md) | 综述完成度审计 |
+---
+
+## 📋 更新日志 / Roadmap
+
+> 每次*有洞见*的 merge/push 在此留一行(日期 · 一句洞见 · PR/commit);倒序,新条目加最上面。
+
+- **2026-05-31** · **统一 corrected 真值口径(进行中)** — 发现主线「当期化验」读错列(`FT4_6M` 仅 13/1003 真值、`FT4_12M` 全 0;真值其实在 long 表 `*_Current` 列):切真值后 6M EBM **0.817→0.873**、12M **0.884**,persistence 基线 0.50→0.62;loader 扩到 1/3/6/12。三激素真值人次:3M 820 / 6M 746 / 12M 605 / 18M 442(随访脱落递减,亦是 12M 更难的机制之一)。
+- **2026-05-30** · PR#4(VickySu1112)merged — M3 拆出独立成文 + 12M EBM 扩展 + 患者级分解(waterfall/反事实)+ GREAT 对标。
+- **2026-05-30** · PR#1 merged — EBM 论文 §3.6:自动发现的两两交互项「医学解读 + 可信度分级」(可信 3 项 vs 弱交互透明保留供审计)。
+- **2026-05-30** · PR#3(VickySu1112)merged — M2 不做 0M 性能分析、从 1M 起(0M 治疗前归 M1 模块);跨地标叙事统一为 1M/3M/6M。
+- **2026-05-30** · EBM 交互版升级 drill-down — 下拉选特征大图 / x 轴滑块缩放 / 交互项 2D 查表悬停看每格人次+事件率;新增 EBM 原理图解教程(人话→数学→1D 形状→2D 交互→正交/共线辨析)。
+- **2026-05-29** · EBM 玻璃盒论文图文版 — 47 图内嵌 + 逐图评论 + §2.1 数学定位(GA2M / LR 局部 OR = exp(Δ));EBM vs 12 类 ML 方法对比(印证特征天花板)。
 
 ---
 

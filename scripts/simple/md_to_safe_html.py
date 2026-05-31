@@ -79,6 +79,18 @@ def main() -> None:
     root = Path(args.resource_root) if args.resource_root else in_path.parent
 
     src_md = in_path.read_text(encoding="utf-8")
+    # Strikethrough: Python-Markdown core has no ~~del~~ extension and pymdownx is
+    # not installed here, so convert ~~text~~ → <del>text</del> ourselves (single
+    # line, non-empty, non-tilde inner) before rendering. <del> passes through
+    # markdown unchanged; reports without ~~ are unaffected. Skip fenced-code
+    # spans so code containing ~~ is left literal.
+    def _strike_outside_code(text: str) -> str:
+        parts = re.split(r"(```.*?```|~~~.*?~~~)", text, flags=re.DOTALL)
+        for i in range(0, len(parts), 2):  # even indices are non-code
+            parts[i] = re.sub(r"~~(?=\S)(.+?)(?<=\S)~~", r"<del>\1</del>", parts[i])
+        return "".join(parts)
+
+    src_md = _strike_outside_code(src_md)
     html_body = md_lib.markdown(
         src_md,
         extensions=["tables", "fenced_code", "sane_lists"],

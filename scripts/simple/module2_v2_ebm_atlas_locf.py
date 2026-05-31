@@ -1,0 +1,417 @@
+#!/usr/bin/env python
+"""M2 · v2 — EBM figure atlas (corrected + LOCF口径, landmarks 1/3/6/12).
+
+Fork of module2_v2_ebm_atlas.py re-cut for the FINAL口径:
+  * data   : module2_v2_impute_experiment.build_rows_for_method("locf", …)
+             — load_stacked_x(corrected=True) skeleton (real 6M/12M truth) with
+               genuinely-missing hormone levels filled by LOCF (carry the same
+               episode's most recent EARLIER true value; residual → dev-median).
+  * scoring: ebm_oof_and_temporal — dev rows get 5-fold StratifiedGroupKFold OOF,
+             temporal rows get the final dev-fit prediction (no in-sample leak).
+             ROC/PR/calibration are on TEMPORAL; thresholds/tertiles from OOF(dev).
+  * landmarks: (1, 3, 6, 12) — 0M is M1's job and is dropped here; 12M is新增.
+
+Per landmark (1/3/6/12): ROC, PR, calibration, EBM native importance, shape of
+the top-2 univariate features, decision curve (DCA), risk-tertile event rate,
+confusion matrix (9 × 4 = 36). Plus cross-landmark summaries over the 4-point
+x-axis (importance drift heatmap, ROC merge, metrics-over-landmark, EBM vs LR,
+calibration summary, lead-shape panel, selective prediction, pooled calibration,
+multi-seed stability, operating point, collinearity).
+
+Temporal AUC (this口径): 1M 0.694 / 3M 0.791 / 6M 0.878 / 12M 0.908.
+
+Output: results/module2_v2_vertical/m2v2_ebm_full_locf/figures/ + manifest.json.
+"""
+from __future__ import annotations
+
+import os
+
+os.environ.setdefault("MPLBACKEND", "Agg")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+
+import argparse
+import json
+import sys
+import warnings
+from pathlib import Path
+
+warnings.simplefilter("ignore")
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as _fm
+for _fp in ("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", "/Library/Fonts/Arial Unicode.ttf"):
+    if os.path.exists(_fp):
+        _fm.fontManager.addfont(_fp); plt.rcParams["font.family"] = "Arial Unicode MS"; break
+plt.rcParams["axes.unicode_minus"] = False
+import numpy as np
+from interpret.glassbox import ExplainableBoostingClassifier
+from sklearn.metrics import (average_precision_score, brier_score_loss,
+                             precision_recall_curve, roc_auc_score, roc_curve)
+from sklearn.linear_model import LogisticRegression
+
+from scripts.simple.module2_v2_shared import PY_SEED
+from scripts.simple.module2_v2_impute_experiment import build_rows_for_method
+from scripts.simple.module2_v2_b4_ebm_axes import build_feats_at_L, FEATS
+from scripts.simple.module2_v2_b4_ebm_oof import ebm_oof_and_temporal, persistence_proba
+
+# corrected + LOCF口径, landmarks 1/3/6/12 (0M is M1's job; 12M added)
+LANDMARKS = (1, 3, 6, 12)
+OUT = ROOT / "results" / "module2_v2_vertical" / "m2v2_ebm_full_locf"
+FIGD = OUT / "figures"
+DISP = {"ThyroidW": "Thyroid weight", "TRAb": "TRAb", "TGAb": "TGAb", "TPOAb": "TPOAb",
+        "Sex": "Sex", "FT4_0M": "FT4 (0M)", "TSH_0M": "TSH (0M)",
+        "log1p_DiseaseDuration_Months_Aug": "Duration (log,mo)", "Uptake24h": "24h uptake",
+        "HalfLife": "Iodine half-life", "TSH_current": "TSH (current)", "TSH_velocity": "TSH velocity",
+        "Hormone_load": "FT3,FT4 level", "T3T4_balance": "FT3,FT4 gap",
+        "Velocity_load": "FT3,FT4 velocity", "Velocity_balance": "FT3,FT4 vel gap"}
+manifest = []
+_n = [0]
+
+
+def _resolve(term: str, live) -> str:
+    """Map an EBM term name to a real feature name using the `live` column order.
+
+    ebm_oof_and_temporal fits the EBM on a numpy array, so explain_global() returns
+    placeholder names ``feature_NNNN`` (single) / ``feature_NNNN & feature_MMMM``
+    (interaction). Index N corresponds to live[N]. Returns the real feature name(s)
+    joined with " & " so downstream _disp / GROUP lookups work as before.
+    """
+    def one(tok: str) -> str:
+        tok = tok.strip()
+        if tok.startswith("feature_"):
+            try:
+                return live[int(tok.split("_")[1])]
+            except (ValueError, IndexError):
+                return tok
+        return tok
+    if " & " in term:
+        return " & ".join(one(p) for p in term.split(" & "))
+    return one(term)
+
+
+def _disp(t):
+    return " × ".join(DISP.get(p, p) for p in t.split(" & ")) if " & " in t else DISP.get(t, t)
+
+
+def save(fig, slug, caption):
+    _n[0] += 1
+    name = f"F{_n[0]:02d}_{slug}.png"
+    fig.savefig(FIGD / name, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    manifest.append({"n": _n[0], "file": name, "caption": caption})
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--quick", action="store_true",
+                    help="smoke: single landmark (6M) full battery only")
+    args = ap.parse_args()
+    landmarks = (6,) if args.quick else LANDMARKS
+
+    FIGD.mkdir(parents=True, exist_ok=True)
+    # corrected truth (real 6M/12M) + LOCF imputation, strictly time-safe.
+    rows = build_rows_for_method("locf", landmarks)
+    y = rows["Y_24M_NHRH"].values
+    lm = rows["landmark"].values
+    is_dev = (rows["Split"] == "Development").values
+
+    M = {}  # per-landmark fitted artifacts (OOF dev + temporal)
+    for L in landmarks:
+        devL = is_dev & (lm == L); tstL = (~is_dev) & (lm == L)
+        # EBM OOF(dev) + temporal(final-fit). The returned EBM is the final dev fit.
+        pred, ebm, live = ebm_oof_and_temporal(rows, y, lm, is_dev, L)
+        # persistence baseline (TSH_current only, same OOF/temporal protocol)
+        pers = persistence_proba(rows, y, lm, is_dev, L)
+        feat = build_feats_at_L(rows, devL)
+        Xte = feat.loc[tstL, live]
+        pe = pred[tstL]            # temporal predictions
+        pe_dev = pred[devL]        # OOF dev predictions (thresholds/tertiles)
+        M[L] = dict(ebm=ebm, Xte=Xte, yte=y[tstL], pe=pe, pe_dev=pe_dev, ydev=y[devL],
+                    pers_te=pers[tstL], pers_dev=pers[devL],
+                    auc=roc_auc_score(y[tstL], pe), live=live,
+                    prev=float(np.mean(y[is_dev])))
+
+    # ---- per-landmark figures ----
+    for L in landmarks:
+        m = M[L]; yte, pe = m["yte"], m["pe"]
+        # ROC (temporal) — EBM vs persistence
+        fpr, tpr, _ = roc_curve(yte, pe)
+        pfpr, ptpr, _ = roc_curve(yte, m["pers_te"]); pers_auc = roc_auc_score(yte, m["pers_te"])
+        f, a = plt.subplots(figsize=(4, 3.6)); a.plot(fpr, tpr, color="#2a6f97", lw=2, label=f"EBM {m['auc']:.3f}")
+        a.plot(pfpr, ptpr, color="#b07aa1", lw=1.4, ls="-.", label=f"persistence {pers_auc:.3f}")
+        a.plot([0, 1], [0, 1], ":", color="#999")
+        a.set_title(f"{L}M EBM ROC (AUC {m['auc']:.3f})", fontsize=9)
+        a.set_xlabel("1−spec", fontsize=8); a.set_ylabel("sens", fontsize=8); a.legend(fontsize=6, loc="lower right")
+        save(f, f"ROC_{L}M", f"{L}M EBM 时间外 ROC,AUC {m['auc']:.3f}(虚线=persistence 当前功能态基线 {pers_auc:.3f})")
+        # PR (temporal)
+        pr, rc, _ = precision_recall_curve(yte, pe); ap = average_precision_score(yte, pe)
+        f, a = plt.subplots(figsize=(4, 3.6)); a.plot(rc, pr, color="#8a5a3b", lw=2)
+        a.axhline(yte.mean(), ls=":", color="#999"); a.set_title(f"{L}M EBM PR (AP {ap:.3f})", fontsize=9)
+        a.set_xlabel("recall", fontsize=8); a.set_ylabel("precision", fontsize=8)
+        save(f, f"PR_{L}M", f"{L}M EBM 时间外精确率-召回率,AP {ap:.3f}(基线={yte.mean():.2f})")
+        # Calibration (temporal)
+        bins = np.quantile(pe, np.linspace(0, 1, 6)); bins[0], bins[-1] = -1e-3, 1 + 1e-3
+        bi = np.digitize(pe, bins) - 1; xs, ys = [], []
+        for j in range(5):
+            mm = bi == j
+            if mm.sum() >= 4:
+                xs.append(pe[mm].mean()); ys.append(yte[mm].mean())
+        f, a = plt.subplots(figsize=(4, 3.6)); a.plot([0, 1], [0, 1], ":", color="#999")
+        a.plot(xs, ys, "o-", color="#2a7f5f"); a.set_title(f"{L}M EBM calibration", fontsize=9)
+        a.set_xlabel("predicted", fontsize=8); a.set_ylabel("observed", fontsize=8); a.set_xlim(0, 1); a.set_ylim(0, 1)
+        save(f, f"Calib_{L}M", f"{L}M EBM 时间外校准可靠性")
+        # Importance bar (final dev-fit EBM). EBM term names are placeholders
+        # (feature_NNNN); resolve to real feature names via `live` for display.
+        g = m["ebm"].explain_global(); nm, sc = g.data()["names"], g.data()["scores"]
+        live = m["live"]
+        # (orig_term_name, resolved_real_name, score)
+        top = [(n, _resolve(n, live), s) for n, s in sorted(zip(nm, sc), key=lambda t: -t[1])[:6]]
+        f, a = plt.subplots(figsize=(4.6, 3.6))
+        a.barh(range(len(top)), [s for _, _, s in top][::-1], color="#2a6f97")
+        a.set_yticks(range(len(top))); a.set_yticklabels([_disp(rn) for _, rn, _ in top][::-1], fontsize=7)
+        a.set_title(f"{L}M EBM importance", fontsize=9); a.set_xlabel("mean |contribution|", fontsize=8)
+        save(f, f"Importance_{L}M", f"{L}M EBM 原生重要性 top-6")
+        # Shapes (top-2 UNIVARIATE features; skip interaction terms "A & B").
+        # term_names_ uses the SAME placeholder names → index by orig name,
+        # display the resolved real name.
+        univ = [(n, rn) for n, rn, _ in top if " & " not in n][:2]
+        for rank, (feat_n, feat_rn) in enumerate(univ):
+            if feat_n not in m["ebm"].term_names_:
+                continue
+            dd = g.data(m["ebm"].term_names_.index(feat_n))
+            xs2v, ys2v = dd.get("names"), dd.get("scores")
+            if xs2v is None or ys2v is None:
+                continue
+            xs2 = np.asarray(xs2v, float); ys2 = np.asarray(ys2v, float)
+            f, a = plt.subplots(figsize=(4, 3.6))
+            if len(xs2) == len(ys2) + 1:
+                mid = (xs2[:-1] + xs2[1:]) / 2; a.step(mid, ys2, where="mid", color="#a23b3b", lw=2)
+                a.fill_between(mid, ys2, step="mid", alpha=0.12, color="#a23b3b")
+            else:
+                a.plot(xs2[:len(ys2)], ys2, "o-", color="#a23b3b")
+            a.axhline(0, color="#999", ls=":", lw=.8); a.set_title(f"{L}M shape: {_disp(feat_rn)}", fontsize=9)
+            a.set_xlabel("value", fontsize=8); a.set_ylabel("log-odds contrib", fontsize=8)
+            save(f, f"Shape_{L}M_r{rank+1}", f"{L}M EBM 形状函数 #{rank+1}:{_disp(feat_rn)}")
+        # DCA (temporal)
+        prev = yte.mean(); pts = np.linspace(0.05, 0.6, 40); nb_m, nb_all = [], []
+        for pt in pts:
+            pred_ = (pe >= pt).astype(int); tp = ((pred_ == 1) & (yte == 1)).sum(); fp = ((pred_ == 1) & (yte == 0)).sum()
+            nb_m.append(tp / len(yte) - fp / len(yte) * pt / (1 - pt))
+            nb_all.append(prev - (1 - prev) * pt / (1 - pt))
+        f, a = plt.subplots(figsize=(4, 3.6)); a.plot(pts, nb_m, color="#1d4e89", lw=2, label="EBM")
+        a.plot(pts, nb_all, "--", color="#888", label="treat-all"); a.axhline(0, color="#bbb", lw=.8, label="treat-none")
+        a.set_title(f"{L}M EBM decision curve", fontsize=9); a.set_xlabel("threshold", fontsize=8)
+        a.set_ylabel("net benefit", fontsize=8); a.legend(fontsize=6)
+        save(f, f"DCA_{L}M", f"{L}M EBM 时间外决策曲线(DCA)")
+        # Risk-tertile event rate (tertiles from OOF dev; evaluated on temporal)
+        c1, c2 = np.quantile(m["pe_dev"], [1 / 3, 2 / 3])
+        tier = np.where(pe <= c1, 0, np.where(pe <= c2, 1, 2))
+        er = [yte[tier == t].mean() if (tier == t).sum() else np.nan for t in (0, 1, 2)]
+        f, a = plt.subplots(figsize=(4, 3.6)); a.bar(["low", "mid", "high"], er, color=["#6aa84f", "#e69138", "#cc0000"])
+        for i, v in enumerate(er):
+            if not np.isnan(v):
+                a.text(i, v + 0.01, f"{v:.2f}", ha="center", fontsize=8)
+        a.set_title(f"{L}M EBM 风险三档事件率", fontsize=9); a.set_ylabel("temporal event rate", fontsize=8); a.set_ylim(0, 1)
+        save(f, f"RiskTier_{L}M", f"{L}M EBM 风险三档(OOF dev 三分位)时间外事件率")
+        # Confusion at Youden(OOF dev)
+        ths = np.linspace(0.05, 0.95, 181)
+        def yj(t):
+            pr_ = (m["pe_dev"] >= t).astype(int); yy = m["ydev"]
+            tp = ((pr_ == 1) & (yy == 1)).sum(); fn = ((pr_ == 0) & (yy == 1)).sum()
+            tn = ((pr_ == 0) & (yy == 0)).sum(); fp = ((pr_ == 1) & (yy == 0)).sum()
+            return (tp / (tp + fn + 1e-9)) + (tn / (tn + fp + 1e-9)) - 1
+        thr = float(ths[int(np.argmax([yj(t) for t in ths]))])
+        pr_ = (pe >= thr).astype(int)
+        cm = np.array([[((pr_ == 0) & (yte == 0)).sum(), ((pr_ == 1) & (yte == 0)).sum()],
+                       [((pr_ == 0) & (yte == 1)).sum(), ((pr_ == 1) & (yte == 1)).sum()]])
+        f, a = plt.subplots(figsize=(3.8, 3.4)); im = a.imshow(cm, cmap="Blues")
+        for i in range(2):
+            for j in range(2):
+                a.text(j, i, int(cm[i, j]), ha="center", va="center",
+                       color="white" if cm[i, j] > cm.max() * .6 else "#222", fontsize=11)
+        a.set_xticks([0, 1]); a.set_xticklabels(["pred 0", "pred 1"], fontsize=8)
+        a.set_yticks([0, 1]); a.set_yticklabels(["true 0", "true 1"], fontsize=8)
+        a.set_title(f"{L}M EBM confusion (thr {thr:.2f})", fontsize=9)
+        save(f, f"Confusion_{L}M", f"{L}M EBM 混淆矩阵(OOF dev Youden 阈值 {thr:.2f})")
+
+    if args.quick:
+        (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
+        print(f"[--quick] 生成 EBM(LOCF)单地标电池 {_n[0]} 张 → {FIGD}", flush=True)
+        for r in manifest:
+            print(f"  F{r['n']:02d} {r['file']}", flush=True)
+        return
+
+    # ---- cross-landmark summaries (x-axis = 4 points: 1/3/6/12M) ----
+    aucs = [M[L]["auc"] for L in landmarks]
+    aps = [average_precision_score(M[L]["yte"], M[L]["pe"]) for L in landmarks]
+    brs = [brier_score_loss(M[L]["yte"], M[L]["pe"]) for L in landmarks]
+    xp = range(len(landmarks))
+    f, a = plt.subplots(figsize=(5, 3.6))
+    a.plot(xp, aucs, "o-", label="ROC-AUC"); a.plot(xp, aps, "s-", label="PR-AUC"); a.plot(xp, brs, "^-", label="Brier")
+    a.set_xticks(list(xp)); a.set_xticklabels([f"{L}M" for L in landmarks]); a.legend(fontsize=8)
+    a.set_title("EBM 判别/校准随地标(corrected+LOCF)", fontsize=10)
+    save(f, "Metrics_over_time", "EBM ROC/PR/Brier 随地标(1/3/6/12M,时间外)")
+
+    # EBM vs persistence (the project's naive functional-state baseline), per landmark
+    pers_aucs = [roc_auc_score(M[L]["yte"], M[L]["pers_te"]) for L in landmarks]
+    f, a = plt.subplots(figsize=(5, 3.6))
+    a.plot(xp, aucs, "o-", color="#2a6f97", label="EBM(轴+静态+抗体)")
+    a.plot(xp, pers_aucs, "s--", color="#b07aa1", label="persistence(当前 TSH)")
+    a.axhline(0.5, ls=":", color="#bbb", label="naive prevalence (AUC 0.5)")
+    a.set_xticks(list(xp)); a.set_xticklabels([f"{L}M" for L in landmarks]); a.legend(fontsize=8); a.set_ylim(0.45, 0.95)
+    a.set_title("EBM vs persistence / naive(逐地标 AUC)", fontsize=10)
+    save(f, "EBM_vs_persistence", "EBM vs persistence(当前功能态)+ naive(prevalence)逐地标 AUC")
+
+    # ROC merge
+    f, a = plt.subplots(figsize=(5, 4))
+    for L in landmarks:
+        fpr, tpr, _ = roc_curve(M[L]["yte"], M[L]["pe"]); a.plot(fpr, tpr, lw=2, label=f"{L}M ({M[L]['auc']:.3f})")
+    a.plot([0, 1], [0, 1], ":", color="#999"); a.legend(fontsize=8); a.set_title("EBM ROC 全地标合并(1/3/6/12M)", fontsize=10)
+    a.set_xlabel("1−spec"); a.set_ylabel("sens")
+    save(f, "ROC_all", "EBM 全地标 ROC(1/3/6/12M 时间外)")
+
+    # multi-seed stability (temporal)
+    f, a = plt.subplots(figsize=(5, 3.6)); data = []
+    for L in landmarks:
+        seedaucs = []
+        for s in (1, 2, 3, 4, 5):
+            pred_s, _e, _l = ebm_oof_and_temporal(rows, y, lm, is_dev, L, seed=s)
+            tstL = (~is_dev) & (lm == L)
+            seedaucs.append(roc_auc_score(y[tstL], pred_s[tstL]))
+        data.append(seedaucs)
+    a.boxplot(data, labels=[f"{L}M" for L in landmarks]); a.set_title("EBM 多seed temporal AUC 稳定性", fontsize=10)
+    a.set_ylabel("temporal AUC")
+    save(f, "MultiSeed_stability", "EBM 多 seed(5)temporal AUC 稳定性(1/3/6/12M)")
+
+    # group-importance drift heatmap (EBM native univariate, group × landmark)
+    GRP = {"Goiter": ["ThyroidW"], "Antibodies": ["TRAb", "TGAb", "TPOAb"],
+           "Baseline/dur": ["FT4_0M", "TSH_0M", "log1p_DiseaseDuration_Months_Aug", "Sex"],
+           "RAI": ["Uptake24h", "HalfLife"], "FT3,FT4 level": ["Hormone_load"], "TSH level": ["TSH_current"],
+           "FT3,FT4 velocity": ["Velocity_load"], "TSH velocity": ["TSH_velocity"], "FT3,FT4 gap": ["T3T4_balance"]}
+    gmat = np.zeros((len(GRP), len(landmarks)))
+    for j, L in enumerate(landmarks):
+        gg = M[L]["ebm"].explain_global(); live = M[L]["live"]
+        imp = {_resolve(n, live): s for n, s in zip(gg.data()["names"], gg.data()["scores"]) if " & " not in n}
+        for i, (gn, cols) in enumerate(GRP.items()):
+            gmat[i, j] = sum(imp.get(c, 0) for c in cols)
+    f, a = plt.subplots(figsize=(6.5, 4.4)); im = a.imshow(gmat, cmap="YlOrRd", aspect="auto")
+    a.set_xticks(range(len(landmarks))); a.set_xticklabels([f"{L}M" for L in landmarks]); a.set_yticks(range(len(GRP))); a.set_yticklabels(list(GRP), fontsize=8)
+    for i in range(len(GRP)):
+        for j in range(len(landmarks)):
+            a.text(j, i, f"{gmat[i, j]:.2f}", ha="center", va="center", fontsize=7, color="white" if gmat[i, j] > gmat.max() * .6 else "#222")
+    a.set_title("EBM 原生重要性(组 × 地标,corrected+LOCF)", fontsize=10); f.colorbar(im, ax=a, fraction=.025)
+    save(f, "GroupImportance_heatmap", "EBM 原生重要性 组×地标 漂移热力图(1/3/6/12M)")
+
+    # calibration summary scatter
+    def _cal(yy, pp):
+        pp = np.clip(pp, 1e-6, 1 - 1e-6); z = np.log(pp / (1 - pp)).reshape(-1, 1)
+        l = LogisticRegression(solver="lbfgs", max_iter=2000).fit(z, yy); return float(l.intercept_[0]), float(l.coef_[0][0])
+    f, a = plt.subplots(figsize=(4.6, 4))
+    for L in landmarks:
+        ic, sl = _cal(M[L]["yte"], M[L]["pe"]); a.scatter(ic, sl, s=60); a.annotate(f"{L}M", (ic, sl), textcoords="offset points", xytext=(5, 4), fontsize=9)
+    a.axhline(1, ls=":", color="#999"); a.axvline(0, ls=":", color="#999"); a.axhspan(.8, 1.2, alpha=.08, color="#2a7f5f")
+    a.set_xlabel("calib intercept"); a.set_ylabel("calib slope"); a.set_title("EBM 校准汇总(各地标,时间外)", fontsize=10)
+    save(f, "Calib_summary", "EBM 校准截距/斜率汇总(1/3/6/12M)")
+
+    # collinearity FT3/FT4 vs TSH (uses dev@L corrected current)
+    f, a = plt.subplots(figsize=(5, 3.6)); xp2 = np.arange(len(landmarks)); w = .35; c34, ct4 = [], []
+    for L in landmarks:
+        md = is_dev & (lm == L)
+        f3 = rows.loc[md, "FT3_current"].values; f4 = rows.loc[md, "FT4_current"].values; ts = rows.loc[md, "TSH_current"].values
+        c34.append(np.corrcoef(f3, f4)[0, 1]); ct4.append(np.corrcoef(ts, f4)[0, 1])
+    a.bar(xp2 - w / 2, c34, w, label="corr(FT3,FT4)", color="#2a6f97"); a.bar(xp2 + w / 2, ct4, w, label="corr(TSH,FT4)", color="#a23b3b")
+    a.set_xticks(xp2); a.set_xticklabels([f"{L}M" for L in landmarks]); a.axhline(0, color="#999", lw=.8); a.legend(fontsize=8)
+    a.set_title("共线性: FT3/FT4 同向 · TSH 反向(corrected)", fontsize=10)
+    save(f, "Collinearity", "FT3-FT4 同向 vs TSH 反向 相关性(轴构造依据,1/3/6/12M)")
+
+    # lead shapes 2x2 panel
+    f, axs = plt.subplots(2, 2, figsize=(10, 7))
+    for k, L in enumerate(landmarks):
+        gg = M[L]["ebm"].explain_global(); live = M[L]["live"]
+        univ = [n for n, s in sorted(zip(gg.data()["names"], gg.data()["scores"]), key=lambda t: -t[1]) if " & " not in n]
+        fn = univ[0]; dd = gg.data(M[L]["ebm"].term_names_.index(fn))
+        xs = np.asarray(dd.get("names", []), float); ys = np.asarray(dd.get("scores", []), float); ax = axs[k // 2][k % 2]
+        if len(xs) == len(ys) + 1:
+            mid = (xs[:-1] + xs[1:]) / 2; ax.step(mid, ys, where="mid", color="#a23b3b", lw=2); ax.fill_between(mid, ys, step="mid", alpha=.12, color="#a23b3b")
+        elif len(ys):
+            ax.plot(xs[:len(ys)], ys, "o-", color="#a23b3b")
+        ax.axhline(0, ls=":", color="#999"); ax.set_title(f"{L}M lead: {_disp(_resolve(fn, live))}", fontsize=9)
+    f.suptitle("EBM 主导特征形状函数(逐地标,corrected+LOCF)", fontsize=11); f.tight_layout(rect=[0, 0, 1, .96])
+    save(f, "Lead_shapes_panel", "EBM 各地标主导特征形状函数面板(1/3/6/12M)")
+
+    # selective prediction (EBM pooled temporal)
+    allp = np.concatenate([M[L]["pe"] for L in landmarks]); ally = np.concatenate([M[L]["yte"] for L in landmarks])
+    alldp = np.concatenate([M[L]["pe_dev"] for L in landmarks]); alldy = np.concatenate([M[L]["ydev"] for L in landmarks])
+    ths = np.linspace(.05, .95, 181)
+    def _yj(t, pp, yy):
+        pr = (pp >= t).astype(int); tp = ((pr == 1) & (yy == 1)).sum(); fn = ((pr == 0) & (yy == 1)).sum(); tn = ((pr == 0) & (yy == 0)).sum(); fp = ((pr == 1) & (yy == 0)).sum()
+        return tp / (tp + fn + 1e-9) + tn / (tn + fp + 1e-9) - 1
+    thr = float(ths[int(np.argmax([_yj(t, alldp, alldy) for t in ths]))])
+    order = np.argsort(-np.abs(allp - thr)); absts = [0, 10, 20, 30, 40, 50]; accs, npvs = [], []
+    for ab in absts:
+        keep = order[:int(round((1 - ab / 100) * len(ally)))]; yk = ally[keep]; pk = (allp[keep] >= thr).astype(int)
+        tp = ((pk == 1) & (yk == 1)).sum(); tn = ((pk == 0) & (yk == 0)).sum(); fn = ((pk == 0) & (yk == 1)).sum()
+        accs.append((tp + tn) / len(yk)); npvs.append(tn / (tn + fn + 1e-9))
+    f, a = plt.subplots(figsize=(5.2, 3.8)); a.plot(absts, accs, "o-", label="accuracy", color="#1d4e89"); a.plot(absts, npvs, "s-", label="NPV", color="#2a7f5f")
+    a.set_xlabel("abstention %"); a.set_ylabel("retained performance"); a.set_title("EBM 选择性预测(pooled temporal,1/3/6/12M)", fontsize=10); a.legend(fontsize=8)
+    save(f, "Selective_prediction", "EBM 选择性弃权 风险-覆盖(pooled,1/3/6/12M)")
+
+    # operating point sens/spec/PPV/NPV per landmark (Youden on OOF dev)
+    f, a = plt.subplots(figsize=(6, 3.8)); mets = {"Sens": [], "Spec": [], "PPV": [], "NPV": []}
+    for L in landmarks:
+        thr = float(ths[int(np.argmax([_yj(t, M[L]["pe_dev"], M[L]["ydev"]) for t in ths]))])
+        pr = (M[L]["pe"] >= thr).astype(int); yy = M[L]["yte"]
+        tp = ((pr == 1) & (yy == 1)).sum(); fp = ((pr == 1) & (yy == 0)).sum(); tn = ((pr == 0) & (yy == 0)).sum(); fn = ((pr == 0) & (yy == 1)).sum()
+        mets["Sens"].append(tp / (tp + fn + 1e-9)); mets["Spec"].append(tn / (tn + fp + 1e-9)); mets["PPV"].append(tp / (tp + fp + 1e-9)); mets["NPV"].append(tn / (tn + fn + 1e-9))
+    xp3 = np.arange(len(landmarks)); w = .2
+    for i, (k, v) in enumerate(mets.items()):
+        a.bar(xp3 + (i - 1.5) * w, v, w, label=k)
+    a.set_xticks(xp3); a.set_xticklabels([f"{L}M" for L in landmarks]); a.legend(fontsize=7, ncol=4); a.set_ylim(0, 1)
+    a.set_title("EBM 工作点 Sens/Spec/PPV/NPV(OOF Youden,1/3/6/12M)", fontsize=10)
+    save(f, "OperatingPoint", "EBM 各地标工作点 敏感度/特异度/PPV/NPV(1/3/6/12M)")
+
+    # pooled calibration reliability (all temporal)
+    bins = np.quantile(allp, np.linspace(0, 1, 7)); bins[0], bins[-1] = -1e-3, 1 + 1e-3; bi = np.digitize(allp, bins) - 1
+    xs, ys = [], []
+    for j in range(6):
+        mm = bi == j
+        if mm.sum() >= 8:
+            xs.append(allp[mm].mean()); ys.append(ally[mm].mean())
+    f, a = plt.subplots(figsize=(4.4, 4)); a.plot([0, 1], [0, 1], ":", color="#999"); a.plot(xs, ys, "o-", color="#2a7f5f")
+    a.set_xlabel("predicted"); a.set_ylabel("observed"); a.set_title("EBM pooled 校准(全地标,1/3/6/12M)", fontsize=10); a.set_xlim(0, 1); a.set_ylim(0, 1)
+    save(f, "Calib_pooled", "EBM pooled 校准可靠性(全地标合并,1/3/6/12M)")
+
+    (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
+    # also dump per-landmark headline metrics for the paper's audit trail
+    metrics_dump = {
+        "口径": "corrected truth (Current_Time) + LOCF impute (time-safe), landmarks 1/3/6/12",
+        "per_landmark": {
+            f"{L}M": {
+                "temporal_AUC": round(float(M[L]["auc"]), 4),
+                "temporal_AP": round(float(average_precision_score(M[L]["yte"], M[L]["pe"])), 4),
+                "temporal_Brier": round(float(brier_score_loss(M[L]["yte"], M[L]["pe"])), 4),
+                "persistence_AUC": round(float(roc_auc_score(M[L]["yte"], M[L]["pers_te"])), 4),
+                "native_top6": [[_resolve(n, M[L]["live"]), round(float(s), 4)] for n, s in
+                                sorted(zip(M[L]["ebm"].explain_global().data()["names"],
+                                           M[L]["ebm"].explain_global().data()["scores"]),
+                                       key=lambda t: -t[1])[:6]],
+            } for L in landmarks
+        },
+    }
+    (OUT / "ebm_locf_metrics.json").write_text(json.dumps(metrics_dump, indent=2, ensure_ascii=False))
+    print(f"生成 EBM(LOCF)图谱 {_n[0]} 张 → {FIGD}", flush=True)
+    for r in manifest:
+        print(f"  F{r['n']:02d} {r['file']}", flush=True)
+    print("\n=== per-landmark temporal headline ===", flush=True)
+    for L in landmarks:
+        md = metrics_dump["per_landmark"][f"{L}M"]
+        print(f"  {L}M: AUC={md['temporal_AUC']} AP={md['temporal_AP']} Brier={md['temporal_Brier']} "
+              f"persistence={md['persistence_AUC']} top3={[t[0] for t in md['native_top6'][:3]]}", flush=True)
+
+
+if __name__ == "__main__":
+    main()

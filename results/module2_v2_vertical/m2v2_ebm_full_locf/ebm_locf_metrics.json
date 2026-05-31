@@ -1,0 +1,133 @@
+{
+  "口径": "corrected truth (Current_Time) + LOCF impute (time-safe), landmarks 1/3/6/12",
+  "per_landmark": {
+    "1M": {
+      "temporal_AUC": 0.6939,
+      "temporal_AP": 0.6024,
+      "temporal_Brier": 0.2191,
+      "persistence_AUC": 0.5509,
+      "native_top6": [
+        [
+          "ThyroidW",
+          0.5013
+        ],
+        [
+          "Hormone_load",
+          0.212
+        ],
+        [
+          "log1p_DiseaseDuration_Months_Aug",
+          0.1215
+        ],
+        [
+          "TPOAb & Velocity_load",
+          0.1211
+        ],
+        [
+          "TPOAb",
+          0.108
+        ],
+        [
+          "TRAb",
+          0.1029
+        ]
+      ]
+    },
+    "3M": {
+      "temporal_AUC": 0.7914,
+      "temporal_AP": 0.7273,
+      "temporal_Brier": 0.1803,
+      "persistence_AUC": 0.6837,
+      "native_top6": [
+        [
+          "Hormone_load",
+          0.5407
+        ],
+        [
+          "ThyroidW",
+          0.3773
+        ],
+        [
+          "TSH_current",
+          0.2675
+        ],
+        [
+          "TSH_velocity",
+          0.1833
+        ],
+        [
+          "Velocity_load",
+          0.1509
+        ],
+        [
+          "TRAb",
+          0.1276
+        ]
+      ]
+    },
+    "6M": {
+      "temporal_AUC": 0.878,
+      "temporal_AP": 0.8391,
+      "temporal_Brier": 0.1346,
+      "persistence_AUC": 0.7545,
+      "native_top6": [
+        [
+          "Hormone_load",
+          1.0713
+        ],
+        [
+          "TSH_current",
+          0.5367
+        ],
+        [
+          "Velocity_load",
+          0.412
+        ],
+        [
+          "ThyroidW",
+          0.3347
+        ],
+        [
+          "TSH_velocity",
+          0.283
+        ],
+        [
+          "TPOAb & T3T4_balance",
+          0.2355
+        ]
+      ]
+    },
+    "12M": {
+      "temporal_AUC": 0.9075,
+      "temporal_AP": 0.8828,
+      "temporal_Brier": 0.1195,
+      "persistence_AUC": 0.7512,
+      "native_top6": [
+        [
+          "Hormone_load",
+          1.0787
+        ],
+        [
+          "TSH_current",
+          0.6145
+        ],
+        [
+          "Hormone_load & Velocity_load",
+          0.3679
+        ],
+        [
+          "ThyroidW",
+          0.3423
+        ],
+        [
+          "Velocity_load",
+          0.3316
+        ],
+        [
+          "ThyroidW & T3T4_balance",
+          0.2979
+        ]
+      ]
+    }
+  }
+}

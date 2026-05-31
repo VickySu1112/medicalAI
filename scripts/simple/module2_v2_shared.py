@@ -48,9 +48,26 @@ BOOTSTRAP_N = 1000
 BOOTSTRAP_SEED = 7
 
 LANDMARKS = (0, 1, 3, 6)
+# Cross-landmark extension: adds the 12M landmark (FT3/FT4/TSH_12M ~100% covered
+# in stage2_long_table). Mainline LANDMARKS is untouched so load_stacked() stays
+# byte-for-byte identical; load_stacked_x() opts into the extended set.
+LANDMARKS_X = (0, 1, 3, 6, 12)
 EXPECTED_EPISODES = 1003
 EXPECTED_DEV = 802
 EXPECTED_TEMPORAL = 201
+
+
+def _prev_landmark_map(landmarks: Sequence[int]) -> dict[int, int | None]:
+    """Map each landmark to its immediate predecessor in the ordered set.
+
+    First landmark → None (no velocity). Used for Δ/Δt velocity construction so
+    that the extended set (…, 6, 12) chains 12M off 6M automatically.
+    """
+    ordered = sorted(landmarks)
+    out: dict[int, int | None] = {}
+    for i, L in enumerate(ordered):
+        out[L] = None if i == 0 else ordered[i - 1]
+    return out
 
 # Data sources
 STAGE2_LONG = ROOT / "results" / "stage2_mh_h6h12_cjk" / "tables" / "stage2_long_table.csv"
@@ -180,12 +197,16 @@ def _load_m1_frozen() -> pd.DataFrame:
     return out
 
 
-def _load_stage2_landmark_features() -> pd.DataFrame:
+def _load_stage2_landmark_features(landmarks: Sequence[int] = LANDMARKS) -> pd.DataFrame:
     """Load per-episode landmark-specific TSH/FT4 from stage 2 long table.
 
     Stage2 long table has one row per (episode × M3 window); we take the first
     row per episode_id (all rows of same episode share the same baseline+landmark
-    columns) and extract FT3_0M..FT3_6M, FT4_0M..FT4_6M, TSH_0M..TSH_6M.
+    columns) and extract FT3/FT4/TSH at each landmark L>0M.
+
+    `landmarks` defaults to the mainline (0, 1, 3, 6); pass LANDMARKS_X to also
+    pull the 12M labs. Only L>0M columns are read here — M1 frozen matrix is
+    authoritative for baseline (0M) burden.
     """
     df = pd.read_csv(STAGE2_LONG, low_memory=False)
     one_per = (
@@ -199,7 +220,8 @@ def _load_stage2_landmark_features() -> pd.DataFrame:
         )
     # Skip 0M variants — M1 frozen matrix is authoritative for baseline; only
     # take L>0M dynamic landmark labs from stage2.
-    landmark_cols = [f"{m}_{L}M" for m in ("FT3", "FT4", "TSH") for L in (1, 3, 6)]
+    nonzero = [L for L in sorted(landmarks) if L != 0]
+    landmark_cols = [f"{m}_{L}M" for m in ("FT3", "FT4", "TSH") for L in nonzero]
     keep = ["Treatment_ID", "Treatment_Index"] + landmark_cols
     out = one_per[keep].copy()
     # Both M1 frozen matrix and Stage2 long table use 0..1002 episode indexing.
@@ -207,18 +229,115 @@ def _load_stage2_landmark_features() -> pd.DataFrame:
     return out
 
 
-def _restack_long(combined: pd.DataFrame) -> pd.DataFrame:
-    """Reshape one-row-per-episode wide → 4-rows-per-episode long.
+# ---------------------------------------------------------------------------
+# Corrected landmark truth-value source (single source of truth)
+# ---------------------------------------------------------------------------
+#
+# The degenerate wide columns FT3/FT4/TSH_{L}M in the stage2 long table are real
+# on the FIRST (3M) row per episode only for L∈{0,1,3}; the _6M cell is real for
+# just ~13/1003 episodes and the _12M cell is all-zeros there. The information-
+# bearing, time-safe value at landmark L lives on the row whose Current_Time ==
+# "{L}M", in the {marker}_Current column (where it equals {marker}_{L}M exactly,
+# verified). _corrected_landmark_values recovers those real 6M/12M levels.
+#
+# This is the ONE place the corrected pull is implemented; load_stacked(corrected=
+# True) / load_stacked_x() consume it so the direct build_feats_at_L path reads
+# truth, and module2_v2_b4_ebm_oof imports it instead of duplicating the logic.
 
-    Inputs `combined` has columns including FT3_{0,1,3,6}M, FT4_{...}, TSH_{...}.
-    Output: one row per (episode × landmark), with TSH_current / FT4_current
-    set by landmark lookup, plus audit columns retained.
+CORRECTED_MARKERS = ("FT3", "FT4", "TSH")
+
+
+def _corrected_landmark_values(
+    landmarks: Sequence[int] = LANDMARKS,
+    markers: Sequence[str] = CORRECTED_MARKERS,
+) -> dict[str, dict[int, np.ndarray]]:
+    """Per-episode, per-landmark corrected hormone level (time-safe).
+
+    Returns ``{marker: {L: array indexed by episode-order}}`` where episode order
+    is the stage2 long-table's unique Treatment_Index ascending (0..1002).
+
+    Strategy per (marker, L):
+      1. Prefer the ``Current_Time == "{L}M"`` row's ``{marker}_Current`` — the
+         value measured at L (≤ L; never reads a month > L).
+      2. Fall back to the wide ``{marker}_{L}M`` on the first row per episode for
+         landmarks without a Current_Time row (0M/1M), or where source 1 is
+         missing / a degenerate 0.
+
+    This is intentionally identical to the former ebm_oof ``_episode_landmark_value``
+    so the consolidated data-layer path reproduces the corrected EBM numbers.
     """
+    df = pd.read_csv(STAGE2_LONG, low_memory=False)
+    df["Treatment_Index"] = pd.to_numeric(df["Treatment_Index"], errors="coerce").astype(int)
+    episodes = (
+        df.drop_duplicates("Treatment_Index", keep="first")
+        .sort_values("Treatment_Index")["Treatment_Index"].astype(int).values
+    )
+    pos = {int(e): i for i, e in enumerate(episodes)}
+    first = df.drop_duplicates("Treatment_Index", keep="first")
+    out: dict[str, dict[int, np.ndarray]] = {}
+    for marker in markers:
+        cur_col = f"{marker}_Current"
+        out[marker] = {}
+        for L in sorted(set(landmarks)):
+            vals = np.full(len(episodes), np.nan, dtype=float)
+            # Source 1: Current_Time == "{L}M" row.
+            if "Current_Time" in df.columns and cur_col in df.columns:
+                sub = df[df["Current_Time"].astype(str) == f"{L}M"].drop_duplicates(
+                    "Treatment_Index", keep="first"
+                )
+                cvals = pd.to_numeric(sub[cur_col], errors="coerce").values.astype(float)
+                for e, v in zip(sub["Treatment_Index"].astype(int).values, cvals):
+                    if int(e) in pos:
+                        vals[pos[int(e)]] = v
+            # Source 2: wide {marker}_{L}M on first row (0M/1M + gaps/degenerate 0).
+            wide_col = f"{marker}_{L}M"
+            if wide_col in first.columns:
+                wvals = pd.to_numeric(first[wide_col], errors="coerce").values.astype(float)
+                for e, v in zip(first["Treatment_Index"].astype(int).values, wvals):
+                    i = pos.get(int(e))
+                    if i is not None and (np.isnan(vals[i]) or vals[i] == 0.0) and not np.isnan(v):
+                        vals[i] = v
+            out[marker][L] = vals
+    return out
+
+
+def _restack_long(
+    combined: pd.DataFrame,
+    landmarks: Sequence[int] = LANDMARKS,
+    *,
+    corrected: bool = False,
+) -> pd.DataFrame:
+    """Reshape one-row-per-episode wide → len(landmarks)-rows-per-episode long.
+
+    Inputs `combined` has columns including FT3/FT4/TSH at every L in `landmarks`.
+    Output: one row per (episode × landmark), with TSH_current / FT4_current set
+    by landmark lookup, plus audit columns (TSH/FT4_at_{L}M for each landmark)
+    retained for the leakage gate.
+
+    When ``corrected=True`` the current + audit hormone columns (and an added
+    FT3_current / FT3_at_{L}M) are taken from the single-source-of-truth
+    ``_corrected_landmark_values`` instead of the degenerate wide ``{marker}_{L}M``
+    cells. This is what makes the direct build_feats_at_L path read real 6M/12M
+    levels; it stays strictly time-safe (value measured at L). ``corrected=False``
+    (the mainline default) leaves the wide-column behaviour byte-for-byte intact.
+    """
+    landmarks = tuple(sorted(landmarks))
+    corr = _corrected_landmark_values(landmarks) if corrected else None
+    # episode-order index used by _corrected_landmark_values (Treatment_Index asc).
+    if corr is not None:
+        ep_order = (
+            pd.read_csv(STAGE2_LONG, low_memory=False, usecols=["Treatment_Index"])
+            .assign(Treatment_Index=lambda d: pd.to_numeric(d["Treatment_Index"], errors="coerce").astype(int))
+            .drop_duplicates("Treatment_Index", keep="first")
+            .sort_values("Treatment_Index")["Treatment_Index"].astype(int).values
+        )
+        ep_pos = {int(e): i for i, e in enumerate(ep_order)}
     rows = []
     for _, ep in combined.iterrows():
-        for L in LANDMARKS:
+        epi = int(ep["Episode_Index"])
+        for L in landmarks:
             r = {
-                "episode_id": int(ep["Episode_Index"]),
+                "episode_id": epi,
                 "landmark": L,
                 "Split": ep["Split"],
                 "Y_24M_NHRH": int(ep["Y"]),
@@ -229,32 +348,55 @@ def _restack_long(combined: pd.DataFrame) -> pd.DataFrame:
             # Block B: RAI exposure (time-invariant)
             for f in BLOCK_B_EXPOSURE:
                 r[f] = ep[f]
-            # Block C: current dynamic (landmark-conditional)
-            # 0M values from M1 frozen (TSH_0M / FT4_0M); L>0 from stage2
-            r["TSH_current"] = ep[f"TSH_{L}M"]
-            r["FT4_current"] = ep[f"FT4_{L}M"]
-            # Audit columns: retain explicit landmark-specific TSH/FT4 for leakage gate
-            for L_audit in LANDMARKS:
-                r[f"TSH_at_{L_audit}M"] = ep[f"TSH_{L_audit}M"]
-                r[f"FT4_at_{L_audit}M"] = ep[f"FT4_{L_audit}M"]
+            if corr is None:
+                # Block C: current dynamic (landmark-conditional)
+                # 0M values from M1 frozen (TSH_0M / FT4_0M); L>0 from stage2
+                r["TSH_current"] = ep[f"TSH_{L}M"]
+                r["FT4_current"] = ep[f"FT4_{L}M"]
+                # Audit columns: explicit landmark-specific TSH/FT4 for leakage gate
+                for L_audit in landmarks:
+                    r[f"TSH_at_{L_audit}M"] = ep[f"TSH_{L_audit}M"]
+                    r[f"FT4_at_{L_audit}M"] = ep[f"FT4_{L_audit}M"]
+            else:
+                # Corrected source: pull truth from Current_Time-matched rows.
+                i = ep_pos[epi]
+                r["TSH_current"] = corr["TSH"][L][i]
+                r["FT4_current"] = corr["FT4"][L][i]
+                r["FT3_current"] = corr["FT3"][L][i]
+                for L_audit in landmarks:
+                    r[f"TSH_at_{L_audit}M"] = corr["TSH"][L_audit][i]
+                    r[f"FT4_at_{L_audit}M"] = corr["FT4"][L_audit][i]
+                    r[f"FT3_at_{L_audit}M"] = corr["FT3"][L_audit][i]
             rows.append(r)
     out = pd.DataFrame(rows)
     return out
 
 
-def _add_blocks_D_and_E(long_df: pd.DataFrame) -> pd.DataFrame:
+def _add_blocks_D_and_E(long_df: pd.DataFrame, landmarks: Sequence[int] = LANDMARKS) -> pd.DataFrame:
     """Add momentum (Δ/Δt) and time-interaction features.
 
     Velocity uses true rate: (current − previous) / Δt months.
-    L=0M → velocity=0 + velocity_observed=0 (Plan agent M1 fix).
-    Landmark order for previous lookup: 0M→none, 1M→0M, 3M→1M, 6M→3M.
+    First landmark (0M) → velocity=0 + velocity_observed=0 (Plan agent M1 fix).
+    Previous-landmark lookup is the immediate predecessor in the ordered set, so
+    the extended set chains 12M velocity off 6M automatically.
+
+    `landmark_time_centered` keeps the pre-registered fixed offset of 1.5 months
+    regardless of `landmarks`, so the mainline (0,1,3,6) output is unchanged.
     """
-    prev_landmark = {0: None, 1: 0, 3: 1, 6: 3}
+    prev_landmark = _prev_landmark_map(landmarks)
+    nonzero = [L for L in sorted(landmarks) if prev_landmark[L] is not None]
     out = long_df.copy()
+    # FT3 velocity is only built when the corrected source added FT3 current+audit
+    # columns (mainline keeps FT3 out of Block C/D, so this is a no-op there).
+    has_ft3 = "FT3_current" in out.columns and all(
+        f"FT3_at_{L}M" in out.columns for L in sorted(landmarks)
+    )
     out["TSH_velocity"] = 0.0
     out["FT4_velocity"] = 0.0
+    if has_ft3:
+        out["FT3_velocity"] = 0.0
     out["velocity_observed"] = 0
-    for L in (1, 3, 6):
+    for L in nonzero:
         prev_L = prev_landmark[L]
         dt = L - prev_L
         mask = out["landmark"] == L
@@ -264,8 +406,13 @@ def _add_blocks_D_and_E(long_df: pd.DataFrame) -> pd.DataFrame:
         out.loc[mask, "FT4_velocity"] = (
             out.loc[mask, f"FT4_at_{L}M"] - out.loc[mask, f"FT4_at_{prev_L}M"]
         ) / dt
+        if has_ft3:
+            out.loc[mask, "FT3_velocity"] = (
+                out.loc[mask, f"FT3_at_{L}M"] - out.loc[mask, f"FT3_at_{prev_L}M"]
+            ) / dt
         out.loc[mask, "velocity_observed"] = 1
-    # Block E: time + interactions
+    # Block E: time + interactions. Offset 1.5 is a fixed pre-registered constant
+    # (NOT recomputed from `landmarks`) to keep the mainline byte-for-byte stable.
     out["landmark_time_centered"] = out["landmark"].astype(float) - 1.5
     out["is_baseline_landmark"] = (out["landmark"] == 0).astype(int)
     out["lm_x_TSH_current"] = out["landmark_time_centered"] * out["TSH_current"]
@@ -293,30 +440,46 @@ def _impute_simple(df: pd.DataFrame, columns: Sequence[str]) -> pd.DataFrame:
     return out
 
 
-def load_stacked(use_simple_impute: bool = True) -> StackedData:
+def load_stacked(
+    use_simple_impute: bool = True,
+    landmarks: Sequence[int] = LANDMARKS,
+    *,
+    corrected: bool = False,
+) -> StackedData:
     """Build the M2 v2 stacked landmark-row dataset.
 
     Returns
     -------
-    StackedData with `rows` shape ≈ (4012, ~30) and `episode_meta` shape (1003, 3).
+    StackedData with `rows` shape ≈ (1003·len(landmarks), ~30) and `episode_meta`
+    shape (1003, 3).
 
+    `landmarks` defaults to the mainline (0, 1, 3, 6) → 4012 rows, byte-for-byte
+    stable; pass LANDMARKS_X (or call load_stacked_x) for the 5015-row extension.
     Includes all 5 mechanism blocks' features. Calls run_leakage_assertions()
     to verify column conventions match arch.md.
+
+    ``corrected`` (default False — mainline is byte-for-byte unchanged) switches
+    the current/audit hormone columns to the single-source-of-truth corrected pull
+    (``_corrected_landmark_values``) and additionally materialises FT3_current /
+    FT3_velocity, so the direct build_feats_at_L path reads real 6M/12M levels
+    rather than the degenerate wide columns. ``load_stacked_x`` defaults it on.
     """
+    landmarks = tuple(sorted(landmarks))
+    n_lm = len(landmarks)
     # Load M1 frozen baseline matrix + stage2 long landmark data
     m1 = _load_m1_frozen()
-    s2 = _load_stage2_landmark_features()
+    s2 = _load_stage2_landmark_features(landmarks=landmarks)
     # Inner join on Episode_Index to combine baseline burden + landmark dynamics
     combined = m1.merge(s2, on="Episode_Index", how="inner", validate="one_to_one")
     if len(combined) != EXPECTED_EPISODES:
         raise RuntimeError(
             f"Combined episode count {len(combined)} != expected {EXPECTED_EPISODES}"
         )
-    # Reshape wide → long (4 landmark-rows per episode)
-    long_df = _restack_long(combined)
-    if len(long_df) != EXPECTED_EPISODES * len(LANDMARKS):
+    # Reshape wide → long (n_lm landmark-rows per episode)
+    long_df = _restack_long(combined, landmarks=landmarks, corrected=corrected)
+    if len(long_df) != EXPECTED_EPISODES * n_lm:
         raise RuntimeError(
-            f"Stacked row count {len(long_df)} != {EXPECTED_EPISODES}×{len(LANDMARKS)}"
+            f"Stacked row count {len(long_df)} != {EXPECTED_EPISODES}×{n_lm}"
         )
     # Run leakage assertions on raw stacked data BEFORE any imputation.
     # The assertions check lookup correctness (audit_TSH == TSH_current) and
@@ -329,16 +492,39 @@ def load_stacked(use_simple_impute: bool = True) -> StackedData:
     if len(ep_meta) != EXPECTED_EPISODES:
         raise RuntimeError("Episode meta count mismatch")
     sd_raw = StackedData(rows=long_df, episode_meta=ep_meta)
-    run_leakage_assertions(sd_raw)
+    run_leakage_assertions(sd_raw, landmarks=landmarks)
     # Now add momentum + time-interaction features (uses raw audit columns).
-    long_df = _add_blocks_D_and_E(long_df)
+    long_df = _add_blocks_D_and_E(long_df, landmarks=landmarks)
     # Impute (simple train-only median for now); audit columns kept raw.
     if use_simple_impute:
-        long_df = _impute_simple(long_df, ALL_BLOCKS_FEATURES)
+        impute_cols = list(ALL_BLOCKS_FEATURES)
+        if corrected:
+            # FT3 current+velocity were added by the corrected path; impute them
+            # too (dev-median; a constant, not future info) so build_feats_at_L
+            # sees no NaN. Audit *_at_{L}M columns stay raw for the leakage gate.
+            impute_cols += ["FT3_current", "FT3_velocity"]
+        long_df = _impute_simple(long_df, impute_cols)
     sd_final = StackedData(rows=long_df, episode_meta=ep_meta)
     # Re-run with full=True now that Block D/E features exist.
-    run_leakage_assertions(sd_final, full=True)
+    run_leakage_assertions(sd_final, full=True, landmarks=landmarks)
     return sd_final
+
+
+def load_stacked_x(use_simple_impute: bool = True, *, corrected: bool = True) -> StackedData:
+    """Cross-landmark extension of load_stacked over LANDMARKS_X = (0,1,3,6,12).
+
+    Identical logic to load_stacked but stacks 5 landmark-rows per episode
+    (5015 rows total). The 12M FT3/FT4/TSH labs are ~100% covered in
+    stage2_long_table, so the 12M rows are real (not imputed) for those.
+
+    ``corrected`` defaults to **True** here: the extension exists to study the
+    real 6M/12M hormone levels, so the current/audit columns use the corrected
+    single-source-of-truth pull and FT3 current+velocity are materialised. Pass
+    ``corrected=False`` to reproduce the legacy degenerate-wide-column behaviour.
+    """
+    return load_stacked(
+        use_simple_impute=use_simple_impute, landmarks=LANDMARKS_X, corrected=corrected
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -346,33 +532,39 @@ def load_stacked(use_simple_impute: bool = True) -> StackedData:
 # ---------------------------------------------------------------------------
 
 
-def run_leakage_assertions(sd: StackedData, *, full: bool = False) -> None:
+def run_leakage_assertions(
+    sd: StackedData, *, full: bool = False, landmarks: Sequence[int] = LANDMARKS
+) -> None:
     """Pytest-style assertions on stacked data integrity.
 
     Raises RuntimeError on any violation. Pre-registered checks:
-    1. Row count = 4012.
+    1. Row count = 1003 × len(landmarks).
     2. Episode count = 1003.
-    3. Each episode appears exactly 4 times (one per landmark).
+    3. Each episode appears exactly len(landmarks) times (one per landmark).
     4. TSH_current at landmark L equals TSH_at_{L}M for that row.
     5. FT4_current at landmark L equals FT4_at_{L}M for that row.
-    6. (full only) velocity_observed = 0 iff landmark = 0M.
+    6. (full only) velocity_observed = 0 iff landmark = first landmark (0M).
     7. (full only) is_baseline_landmark = 1 iff landmark = 0M.
     8. (full only) landmark_time_centered = landmark − 1.5.
-    9. Y_24M_NHRH constant within each episode (same value across 4 rows).
-    10. Split assignment respects episode boundaries (same Split for all 4 rows of an episode).
+    9. Y_24M_NHRH constant within each episode (same value across all rows).
+    10. Split assignment respects episode boundaries (same Split for all rows of an episode).
 
     Set `full=True` once Block D/E features have been added to also check those.
+    `landmarks` defaults to the mainline (0,1,3,6); row-count and per-episode
+    repeat checks scale to its length.
     """
+    landmarks = tuple(sorted(landmarks))
+    n_lm = len(landmarks)
     rows = sd.rows
-    if len(rows) != EXPECTED_EPISODES * len(LANDMARKS):
-        raise RuntimeError(f"[leak-1] Row count {len(rows)} != {EXPECTED_EPISODES * 4}")
+    if len(rows) != EXPECTED_EPISODES * n_lm:
+        raise RuntimeError(f"[leak-1] Row count {len(rows)} != {EXPECTED_EPISODES * n_lm}")
     n_ep = rows["episode_id"].nunique()
     if n_ep != EXPECTED_EPISODES:
         raise RuntimeError(f"[leak-2] Episode count {n_ep} != {EXPECTED_EPISODES}")
     counts = rows.groupby("episode_id").size()
-    if not (counts == 4).all():
-        bad = counts[counts != 4]
-        raise RuntimeError(f"[leak-3] {len(bad)} episodes have != 4 rows")
+    if not (counts == n_lm).all():
+        bad = counts[counts != n_lm]
+        raise RuntimeError(f"[leak-3] {len(bad)} episodes have != {n_lm} rows")
     # Check lookup correctness on a sample of 50 random episodes (full check
     # expensive). Only meaningful on raw (pre-imputation) data — `full=False`
     # path. After imputation `full=True` skips these because imputed
