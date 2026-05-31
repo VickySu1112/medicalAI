@@ -18,10 +18,9 @@ for _fp in ("/System/Library/Fonts/Supplemental/Arial Unicode.ttf", "/Library/Fo
     if os.path.exists(_fp):
         _fm.fontManager.addfont(_fp); plt.rcParams["font.family"] = "Arial Unicode MS"; break
 plt.rcParams["axes.unicode_minus"] = False
-from interpret.glassbox import ExplainableBoostingClassifier
-from scripts.simple.module2_v2_shared import LANDMARKS, load_stacked, PY_SEED
-from scripts.simple.module2_v2_b4_trab_patch import add_current_velocity
-from scripts.simple.module2_v2_b4_ebm_axes import build_feats_at_L, FEATS
+from scripts.simple.module2_v2_impute_experiment import build_rows_for_method
+from scripts.simple.module2_v2_b4_ebm_oof import ebm_oof_and_temporal
+from scripts.simple.module2_v2_b4_ebm_axes import build_feats_at_L
 
 DISP = {"ThyroidW": "甲状腺重量", "TRAb": "TRAb", "TGAb": "TGAb", "TPOAb": "TPOAb", "Sex": "性别",
         "FT4_0M": "FT4(0M)", "TSH_0M": "TSH(0M)", "log1p_DiseaseDuration_Months_Aug": "病程(log,月)",
@@ -30,29 +29,48 @@ DISP = {"ThyroidW": "甲状腺重量", "TRAb": "TRAb", "TGAb": "TGAb", "TPOAb": 
         "Velocity_load": "FT3,FT4 综合变化速度", "Velocity_balance": "FT3,FT4 速度落差"}
 def disp(t): return DISP.get(t, t)
 
-OUTPNG = ROOT / "results" / "module2_v2_vertical" / "m2v2_ebm_full" / "figures" / "Interaction_demo_0M.png"
 
-sd = load_stacked(); sd = add_current_velocity(sd, "FT3")
-rows = sd.rows
+def _resolve(term, live):
+    """占位名 feature_NNNN → 真名(按 live 列序)。EBM 在 numpy array 上 fit。"""
+    def one(tok):
+        tok = tok.strip()
+        if tok.startswith("feature_"):
+            try:
+                return live[int(tok.split("_")[1])]
+            except (ValueError, IndexError):
+                return tok
+        return tok
+    return " & ".join(one(p) for p in term.split(" & ")) if " & " in term else one(term)
+
+
+# corrected 真值 + LOCF 口径,演示地标 6M(0M 由 M1 承担,不再做 0M EBM)。
+# 选用与旧 0M 例同一特征对「TPOAb × FT3,FT4 落差」——6M 它是首位交互(importance≈0.24),
+# 教学点不变(TPOAb 效应方向随落差翻转 = 2D 查表非外积),口径已更正。
+L = 6
+OUTPNG = ROOT / "results" / "module2_v2_vertical" / "m2v2_ebm_full_locf" / "figures" / "Interaction_demo_6M.png"
+
+rows = build_rows_for_method("locf", (L,))
 y = rows["Y_24M_NHRH"].values; lm = rows["landmark"].values
 is_dev = (rows["Split"] == "Development").values
-L = 0
 devL = is_dev & (lm == L)
+# final dev-fit EBM(OOF + temporal 协议),返回 live 列序用于占位名解析
+_pred, ebm, live = ebm_oof_and_temporal(rows, y, lm, is_dev, L)
 feat = build_feats_at_L(rows, devL)
-live = [c for c in FEATS if feat.loc[devL, c].std() > 1e-9]
 Xtr, ytr = feat.loc[devL, live], y[devL]
-ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(Xtr, ytr)
 g = ebm.explain_global()
 overall = dict(zip(g.data()["names"], g.data()["scores"]))
 
-inter = [(i, n) for i, n in enumerate(ebm.term_names_) if " & " in n]
-print("=== 0M 交互项(按整体重要性排序) ===")
+# 占位名 → 真名,优先选用 TPOAb × T3T4_balance(与旧 0M 例同对);否则退首位 cont×cont 交互
+inter = [(i, n, _resolve(n, live)) for i, n in enumerate(ebm.term_names_) if " & " in n]
 inter = sorted(inter, key=lambda t: -overall.get(t[1], 0))
-for i, n in inter:
-    print(f"  idx={i:2d}  {n:42s}  importance={overall.get(n, 0):.4f}")
+print(f"=== {L}M 交互项(按整体重要性排序,真名) ===")
+for i, n, rn in inter:
+    print(f"  idx={i:2d}  {rn:42s}  importance={overall.get(n, 0):.4f}")
 
-idx, name = inter[0]
-a_n, b_n = name.split(" & ")
+PREF = {"TPOAb & T3T4_balance", "T3T4_balance & TPOAb"}
+chosen = next((t for t in inter if _resolve(t[1], live) in PREF), None)
+idx, name, rname = chosen if chosen is not None else inter[0]
+a_n, b_n = rname.split(" & ")
 d = g.data(idx)
 print(f"\n=== 选用交互项: {name}  ({disp(a_n)} × {disp(b_n)}) ===")
 print("data keys:", sorted(d.keys()))
@@ -81,7 +99,7 @@ Av = Xtr[a_n].values.astype(float); Bv = Xtr[b_n].values.astype(float)
 rho = float(np.corrcoef(Av, Bv)[0, 1])
 H2, _, _ = np.histogram2d(Av, Bv, bins=[ex, ey])
 occ = float((H2 > 0).sum()) / H2.size * 100.0
-print(f"\ncorr(TPOAb, 落差) on dev = {rho:+.3f}  |  网格 occupancy = {occ:.1f}% 格子有≥1样本（共 {H2.size} 格）")
+print(f"\ncorr({disp(a_n)}, {disp(b_n)}) on dev = {rho:+.3f}  |  网格 occupancy = {occ:.1f}% 格子有≥1样本（共 {H2.size} 格）")
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.8, 5.6))
 im1 = ax1.pcolormesh(ex, ey, scores.T, cmap="RdBu_r", vmin=-vmax, vmax=vmax, shading="auto")
@@ -108,7 +126,7 @@ ax2.set_yticks(range(N)); ax2.set_yticklabels(["负", "偏负", "中", "偏正",
 ax2.set_xlabel(f"{disp(a_n)} 5 档 →", fontsize=9); ax2.set_ylabel(f"{disp(b_n)} 5 档 →", fontsize=9)
 ax2.set_title("同表粗化成 5×5(便于读)\n两轴各分 5 档 → 25 个组合各有独立贡献", fontsize=9)
 fig.colorbar(im2, ax=ax2, fraction=0.046, label="log-odds 贡献")
-fig.suptitle(f"0M EBM 交互项 g({disp(a_n)}, {disp(b_n)}) — 2D 查表,非外积(红=升险/蓝=降险)", fontsize=11)
+fig.suptitle(f"{L}M EBM 交互项 g({disp(a_n)}, {disp(b_n)}) — 2D 查表,非外积(红=升险/蓝=降险)", fontsize=11)
 fig.tight_layout()
 fig.savefig(OUTPNG, dpi=150, bbox_inches="tight")
 print("写出:", OUTPNG.name, "| 粗化 5×5 =\n", np.round(C, 3))

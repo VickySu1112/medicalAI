@@ -38,6 +38,23 @@
 ## 节点追加区(自动落盘)
 <!-- 关键节点在此追加:固化验证 / 插值实验 / M1 check / 各 Phase 完成 -->
 
+### [2026-05-31] task9 EBM 教程/交互版同步 corrected+LOCF 新口径 ✅
+**口径**:corrected 真值(`Current_Time` 列)+ LOCF(激素延续,`build_rows_for_method("locf",…)`)+ EBM 逐地标 dev OOF(`ebm_oof_and_temporal`,5fold SGKFold seed13)/ temporal read-out,地标 **1/3/6/12**。全 time-safe。**N=1003 人次**。
+
+**① 交互版重生** `scripts/simple/module2_v2_ebm_interactive.py`(改写)→ `Module2v2_EBM_interactive.html`(7.0 MB,自包含 plotly inline)。改动:数据 `load_stacked()`→`build_rows_for_method("locf")`;EBM in-sample fit→`ebm_oof_and_temporal`(返回 final dev-fit + live 列序);地标 (0,1,3,6)→**(1,3,6,12)**;AUC 报时间外 **0.694/0.791/0.878/0.907**(与 paper 一致)。EBM 在 numpy array 上 fit → explain_global()/term_names_ 返占位名 `feature_NNNN` → 加 `_resolve(term,live)`(按 live 列序映射真名),索引查 shape/交互用占位名、显示用真名。**交互项 2D 探索从 0M 移到 12M**(首项即「FT3,FT4 综合水平 × 综合变化速度」importance 0.368,momentum 在 level 之上的增量);**waterfall 6M + 12M**;导读文字改「当期甲功水平主导后期、动量退居 6M 第三/12M 第五以交互增量出现」。HTML 结构核验:7 个 plotly div(4 browser+1 interaction+2 waterfall)。
+
+**② 讲解改了什么** `Module2v2_EBM_讲解.{md,html}`:
+- **叙事反转(§6.2 招牌发现)**:旧"解剖负荷→当期水平→激素动量(6M 居首)"→**新"静态体积(1M)→当期水平(3M 起主导至 12M),动量为辅"**;§标题区 + §3 + §6.2 共 **3 处 `~~删除线~~`** 标旧"动量主导 6M"(md_to_safe_html `_strike_outside_code` 渲染 `<del>`,核验 3 个 `<del>`、0 残留 `~~`)。
+- **数字换新口径**:6M `~~0.817~~→0.878`、12M `0.908`(新增)、persistence 0.55→0.75 封顶、EBM 高出 0.13–0.16;地标 0/1/3/6→**1/3/6/12**。
+- **§4 2D 交互例重生**:`Interaction_demo_0M.png`(旧口径 load_stacked@0M)→ **`Interaction_demo_6M.png`**(corrected+LOCF@6M,同特征对「TPOAb × FT3,FT4 落差」——6M 首位交互 imp≈0.236);probe 脚本 `module2_v2_ebm_interaction_probe.py` 改 corrected+LOCF@6M + `_resolve` + 优先选 TPOAb×T3T4_balance;新 corr **+0.031**(旧 +0.09)、occupancy **14.8%**(旧 14.9%)、5×5 方向翻转据实重述(上行 +0.07→−0.34、下行 −0.40→+0.40)。
+- **图路径全切** `m2v2_ebm_full/`(退化)→ `m2v2_ebm_full_locf/`:F05_Shape_0M→**F05_Shape_1M**(甲状腺重量 lead)、velocity F32_Shape_6M→**F32_Shape_12M**(当期甲功水平阈值,过零局部 OR≈30)、F41 heatmap、F38_EBM_vs_LR→**F38_EBM_vs_persistence**、F45。§6.3 "EBM vs LR"→"EBM vs persistence/naive"(本版正交基线)。附录 env 改 `.venvs/rai_b4`。
+
+**③ HTML 核验**:
+- 交互版:`grep -Fc 「禁用unique计数」`=**9 但全为 plotly.js 库内偶发数字串**(`ONEMINQUARTER:76896e5`/SVG 字体 `q.「禁用unique计数」-.495`/hash `-2132「禁用unique计数」090`/年份数组/base64),**authored(非 script)HTML 内 「禁用unique计数」=0**、无 `N=「禁用unique计数」`/`「禁用unique计数」 人` 患者计数短语、`N=1003 人次` 在 lead;自包含(plotly inline,0 个 cdn ref);CJK 无 tofu。
+- 讲解:`grep -c data:image`=**6**(base64 自包含)、`grep -Fc 「禁用unique计数」`=**0**(token-scrubber)、6 图全存在(0 dangling)、3 `<del>`、0 `~~`、CJK 无 tofu(直查 F32 12M shape / F41 heatmap / Interaction_demo_6M 三图均正常)、1003 人次 ×2。
+
+**坑**:(1) 交互版 plotly HTML **不走 md_to_safe_html token-scrubber**(自己拼 HTML),故库内偶发 "「禁用unique计数」" 数字串无法 scrub——据实核验均非患者计数(authored 部分 0),与既有 CSV "「禁用unique计数」"=episode_id 同性质,合规。(2) `ebm_oof_and_temporal` 在 numpy fit → 占位名,交互版三处(browser/interaction/waterfall)全需 `_resolve`;Xtr/Xte 列是真名(build_feats_at_L),交互项 term 占位名解析后才能取列。(3) 0M 退出 scope(M1 承担)→ §4 教学例(原 0M)移 6M,选同一 TPOAb×落差对保教学连续性(6M 恰为其首位交互)。(4) probe 默认首位交互@6M 即 TPOAb×T3T4_balance(=旧 0M 例的对),`PREF` 优先选中、零叙事漂移。
+
 ### [2026-05-31] Phase 4(task1 跨地标错例与变迁)+ Phase 5(task5 高价值点子)完成 ✅
 **口径**:corrected 真值(`Current_Time` 行)+ LOCF,地标 **1/3/6/12**,EBM 逐地标 **dev OOF**(5fold SGKFold seed13)/ **temporal read-out**,每地标并列 **naive**(患病率)+ **persistence**(time-safe 今日 TSH L2-LR)。全 time-safe(`assert_no_future_feature`)。**N=1003 人次**;报告/脚本**无 「禁用unique计数」**(HTML token-scrubber 计 0;wide/long CSV 内的 "「禁用unique计数」" 仅 episode_id=「禁用unique计数」 及概率小数位,非患者计数)。**Temporal 仅读出**。
 
