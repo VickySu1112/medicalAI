@@ -43,17 +43,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import (
-    AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier,
+    AdaBoostClassifier, ExtraTreesClassifier, GradientBoostingClassifier,
+    HistGradientBoostingClassifier, RandomForestClassifier,
 )
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
     average_precision_score, brier_score_loss, roc_auc_score,
 )
 from sklearn.model_selection import StratifiedKFold
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
@@ -96,26 +95,26 @@ def estimator(method: str):
     if method == "DecisionTree":
         return DecisionTreeClassifier(max_depth=5, min_samples_leaf=20,
                                       random_state=PY_SEED)
-    if method == "KNN":
-        return KNeighborsClassifier(n_neighbors=25, weights="distance",
-                                    n_jobs=-1)
     if method == "SVM-RBF":
         return SVC(kernel="rbf", C=1.0, gamma="scale",
                    probability=True, random_state=PY_SEED)
-    if method == "GaussianNB":
-        return GaussianNB()
-    if method == "MLP":
-        return MLPClassifier(hidden_layer_sizes=(64, 32), activation="relu",
-                             solver="adam", alpha=1e-3, learning_rate_init=1e-3,
-                             max_iter=400, early_stopping=True,
-                             validation_fraction=0.1, random_state=PY_SEED)
+    if method == "ExtraTrees":
+        return ExtraTreesClassifier(n_estimators=300, max_depth=6,
+                                    min_samples_leaf=10, n_jobs=-1,
+                                    random_state=PY_SEED)
+    if method == "HistGradientBoosting":
+        return HistGradientBoostingClassifier(max_iter=200, max_depth=3,
+                                              learning_rate=0.05,
+                                              random_state=PY_SEED)
+    if method == "LDA":
+        return LinearDiscriminantAnalysis()
     raise ValueError(f"Unknown method: {method}")
 
 
 METHODS_ORDER = [
     "L2-Logistic (ours)",
-    "RandomForest", "GradientBoosting", "AdaBoost", "DecisionTree",
-    "KNN", "SVM-RBF", "GaussianNB", "MLP",
+    "RandomForest", "ExtraTrees", "GradientBoosting", "HistGradientBoosting",
+    "AdaBoost", "DecisionTree", "SVM-RBF", "LDA",
 ]
 
 
