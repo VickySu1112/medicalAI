@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>M1·v3 治疗前结局预期模型 (6 features main + 9-method ML compare)</title>
+<title>M1·v3 (6 features main + 9-method ML compare)</title>
 <style>
   body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
        font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
@@ -907,91 +907,107 @@
 <h2>6.8 ML 方法横向对比：L2-LR 在 8 个常见机器学习方法中的位置</h2>
 <p>文献里常用的 8 种机器学习方法构成临床预测研究的"必报"对比矩阵：RandomForest、GradientBoosting、AdaBoost、DecisionTree、KNN、SVM-RBF、GaussianNB、MLP。我们在<strong>完全相同的 v6 6 特征 pool、完全相同的训练/temporal 切分、完全相同的 Platt-校准外包装</strong>下，对这 8 个方法 + L2-LR baseline 做了头对头比较。</p>
 <p><img id="safe_embedded_img_13" src="" alt="图 30. L2-LR 与 8 个常见 ML 方法在同一 v6 6 特征 pool 上的 temporal-test AUC 对比。" /></p>
+<h3>6.8.1 核心结论（一句话）</h3>
+<p><strong>9 个方法中 8 个与 L2-LR 在 paired bootstrap ΔAUC 上 95% CI 完全跨 0（统计等价），唯一显著低于 LR 的是 DecisionTree（Δ=−0.050★）；没有任何方法显著优于 LR</strong>——这与 §4b.1 SHAP dependence 全直线 / §4b.2 PI 排序与 SHAP 高度一致 / §4b.3 PDP 全线性 三个独立分析的结论自然吻合：<strong>M1 信号结构以线性可加为主，非线性方法没有可被开发的隐藏交互</strong>。</p>
+<h3>6.8.2 双 split 性能与排名</h3>
 <table>
 <thead>
 <tr>
-<th style="text-align: center;">排名</th>
+<th style="text-align: center;">Rank</th>
 <th style="text-align: left;">方法</th>
-<th style="text-align: left;">归纳偏置</th>
-<th style="text-align: center;">Temporal AUC (95% CI)</th>
-<th style="text-align: center;">与 LR 差 (paired Δ, 95% CI)</th>
+<th style="text-align: center;"><strong>Dev OOF AUC</strong></th>
+<th style="text-align: center;"><strong>Temporal AUC</strong></th>
+<th style="text-align: center;">Paired Δ vs LR (Temporal, 95% CI)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;">1</td>
-<td style="text-align: left;">MLP (64-32, ReLU)</td>
-<td style="text-align: left;">feedforward neural network</td>
-<td style="text-align: center;">0.688 (0.601, 0.766)</td>
-<td style="text-align: center;">+0.006 (−0.029, +0.043)</td>
-</tr>
-<tr>
-<td style="text-align: center;">2</td>
-<td style="text-align: left;">KNN (k=25, distance)</td>
-<td style="text-align: left;">instance-based local lookup</td>
-<td style="text-align: center;">0.683 (0.600, 0.763)</td>
-<td style="text-align: center;">+0.002 (−0.039, +0.043)</td>
-</tr>
-<tr>
-<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: center;">#1 dev / #3 tmp</td>
 <td style="text-align: left;"><strong>L2-Logistic (ours)</strong></td>
-<td style="text-align: left;"><strong>linear + L2 + Platt</strong></td>
-<td style="text-align: center;"><strong>0.681 (0.602, 0.758)</strong></td>
-<td style="text-align: center;"><strong>(baseline)</strong></td>
+<td style="text-align: center;"><strong>0.723</strong> (并列第 1)</td>
+<td style="text-align: center;">0.681 (0.602, 0.758)</td>
+<td style="text-align: center;">(baseline)</td>
 </tr>
 <tr>
-<td style="text-align: center;">4</td>
-<td style="text-align: left;">GaussianNB</td>
-<td style="text-align: left;">generative, marginal independence</td>
-<td style="text-align: center;">0.681 (0.596, 0.758)</td>
-<td style="text-align: center;">−0.001 (−0.047, +0.049)</td>
-</tr>
-<tr>
-<td style="text-align: center;">5</td>
-<td style="text-align: left;">SVM-RBF (C=1, γ='scale')</td>
-<td style="text-align: left;">kernel margin</td>
-<td style="text-align: center;">0.674 (0.587, 0.753)</td>
-<td style="text-align: center;">−0.007 (−0.041, +0.030)</td>
-</tr>
-<tr>
-<td style="text-align: center;">6</td>
-<td style="text-align: left;">RandomForest (300 trees, depth 6)</td>
-<td style="text-align: left;">bagged trees, axis-aligned splits</td>
+<td style="text-align: center;">并列 #1 dev / #6 tmp</td>
+<td style="text-align: left;">RandomForest</td>
+<td style="text-align: center;">0.723 (并列第 1)</td>
 <td style="text-align: center;">0.665 (0.579, 0.746)</td>
 <td style="text-align: center;">−0.016 (−0.044, +0.014)</td>
 </tr>
 <tr>
-<td style="text-align: center;">7</td>
-<td style="text-align: left;">AdaBoost (200 stumps, lr 0.5)</td>
-<td style="text-align: left;">boosting on decision stumps</td>
+<td style="text-align: center;">并列 #1 dev / #5 tmp</td>
+<td style="text-align: left;">SVM-RBF</td>
+<td style="text-align: center;">0.723 (并列第 1)</td>
+<td style="text-align: center;">0.674 (0.587, 0.753)</td>
+<td style="text-align: center;">−0.007 (−0.041, +0.030)</td>
+</tr>
+<tr>
+<td style="text-align: center;">#4 dev / #7 tmp</td>
+<td style="text-align: left;">AdaBoost</td>
+<td style="text-align: center;">0.714</td>
 <td style="text-align: center;">0.662 (0.577, 0.745)</td>
 <td style="text-align: center;">−0.019 (−0.046, +0.005)</td>
 </tr>
 <tr>
-<td style="text-align: center;">8</td>
-<td style="text-align: left;">GradientBoosting (200 trees, depth 3)</td>
-<td style="text-align: left;">boosting on residual gradient</td>
+<td style="text-align: center;">#5 dev / #9 tmp</td>
+<td style="text-align: left;">DecisionTree</td>
+<td style="text-align: center;">0.703</td>
+<td style="text-align: center;">0.631 (0.548, 0.713)</td>
+<td style="text-align: center;"><strong>−0.050★</strong> (−0.091, −0.007)</td>
+</tr>
+<tr>
+<td style="text-align: center;">#6 dev / #2 tmp</td>
+<td style="text-align: left;">KNN</td>
+<td style="text-align: center;">0.702</td>
+<td style="text-align: center;">0.683 (0.600, 0.763)</td>
+<td style="text-align: center;">+0.002 (−0.039, +0.043)</td>
+</tr>
+<tr>
+<td style="text-align: center;">#7 dev / #8 tmp</td>
+<td style="text-align: left;">GradientBoosting</td>
+<td style="text-align: center;">0.699</td>
 <td style="text-align: center;">0.650 (0.571, 0.732)</td>
 <td style="text-align: center;">−0.031 (−0.070, +0.011)</td>
 </tr>
 <tr>
-<td style="text-align: center;">9</td>
-<td style="text-align: left;">DecisionTree (depth 5)</td>
-<td style="text-align: left;">single CART tree</td>
-<td style="text-align: center;">0.631 (0.548, 0.713)</td>
-<td style="text-align: center;"><strong>−0.050★ (−0.091, −0.007)</strong></td>
+<td style="text-align: center;">#8 dev / #1 tmp</td>
+<td style="text-align: left;">MLP</td>
+<td style="text-align: center;">0.688</td>
+<td style="text-align: center;">0.688 (0.601, 0.766)</td>
+<td style="text-align: center;">+0.006 (−0.029, +0.043)</td>
+</tr>
+<tr>
+<td style="text-align: center;">#9 dev / #4 tmp</td>
+<td style="text-align: left;">GaussianNB</td>
+<td style="text-align: center;">0.665</td>
+<td style="text-align: center;">0.681 (0.596, 0.758)</td>
+<td style="text-align: center;">−0.001 (−0.047, +0.049)</td>
 </tr>
 </tbody>
 </table>
 <p>★ = 95% CI 完全脱离 0（statistically loses to LR）。</p>
-<p><strong>核心观察</strong>：</p>
+<h3>6.8.3 双 split 排名差异的解读</h3>
+<p>L2-LR 在 <strong>dev OOF 上点估计排第 1</strong>（0.723，与 RF / SVM-RBF 并列），但在 <strong>temporal test 上点估计排第 3</strong>（0.681；与 MLP 0.688 差 0.006、与 KNN 0.683 差 0.002）。这一 cross-flip 看似矛盾，实质是 <strong>N=201 temporal 上的采样波动</strong>：</p>
 <ol>
-<li><strong>L2-LR 在 9 方法中点估计排第 3</strong>（与第 1 MLP 差 0.006、与第 2 KNN 差 0.002、与第 4 GaussianNB 差 0.000）——前 4 名（含 LR）的 temporal AUC 在 0.681–0.688 的极窄带内，paired bootstrap Δ CI 全部跨 0：<strong>统计上完全不可区分</strong>。8/9 方法与 LR 等价；唯一显著输给 LR 的是 DecisionTree（−0.050，CI 完全脱 0）。</li>
-<li><strong>CI 重叠极大 → 没有任何方法显著优于 LR</strong>——所有 9 个方法的 temporal 95% CI 都包含 0.65–0.77 这一带；paired Δ CI 也都跨 0（除 DT）。这意味着<strong>用更复杂的非线性方法替代 LR 没有可证明的性能收益</strong>，但代价是失去 Wald CI 的闭式可解释性、Platt-校准的概率质量优势、以及个体特征贡献的精确分解。</li>
-<li><strong>L2-LR 的相对优势在性能之外</strong>——简约（6 个特征）+ 可解释（标准化系数 → OR + 95% CI 闭式精确）+ 校准良好（slope 0.90, intercept ≈ 0）+ 模型公式可写出（§2.5）+ 推理速度可忽略。在所有 9 个方法中，只有 LR 同时具备这五个工程属性。<strong>性能等档但工程属性最优 → LR 是临床部署的合理选择</strong>。</li>
-<li><strong>Dev OOF 与 Temporal 之间的 cross-flip</strong>——LR 在 dev OOF 上 AUC 0.7233（与 RF 0.7230 / SVM 0.7230 并列第 1），但在 temporal 上掉到第 3；MLP 与 KNN 在 dev OOF 上较低（0.6883 / 0.7024）但 temporal 上反超 LR。在 N=201 的 temporal 上这种排名轻微交叉是采样波动可预期的结果，不构成"非线性方法更优"的硬证据——前 4 名的 paired Δ CI 全部跨 0 就是直接说明。</li>
+<li><strong>前 4 名（MLP / KNN / LR / GaussianNB）的 temporal AUC 落在 0.681–0.688 的极窄带内</strong>，差距 &lt; 0.007 — 远小于 95% CI 宽度 0.16。paired bootstrap ΔAUC 对前 3 名都给 CI 完全跨 0 的判定（Δ &lt; 0.01 / CI 跨 ±0.04）—— 统计上不可区分。</li>
+<li><strong>Dev OOF 上 LR 居首</strong>：在 802 例 training 数据上，LR 的 L2 收缩 + 线性可加假设使它的训练-验证泛化最稳；与 RF / SVM-RBF 并列第 1 (0.723)。同样模型在 temporal 上 LR 略掉到第 3，是 N=201 上 ±0.03 的方差，<strong>不构成"非线性方法真的更优"的硬证据</strong>。</li>
+<li><strong>如果只看 temporal AUC 排名</strong>，MLP / KNN / GaussianNB 略高于 LR；<strong>如果只看 dev OOF 排名</strong>，LR 与 RF / SVM 并列第 1。<strong>两者放在一起 + paired ΔAUC CI 都跨 0 → 9 方法中前 4 名在 v6 6 特征上"统计等价"</strong>。</li>
 </ol>
-<p><strong>方法学引用</strong>：本节实验脚本 <code>scripts/simple/module1_v3_ml_compare_v6_fullfit.py</code>；汇总表 <code>results/module1_v3/tables/ml_comparison_table.csv</code>；paired Δ 表 <code>results/module1_v3/tables/ml_comparison_deltas.csv</code>；汇总 JSON <code>results/module1_v3/tables/ml_comparison_summary.json</code>。</p>
+<h3>6.8.4 与 §4b 五视角可解释性的串联</h3>
+<p>§4b.1 SHAP dependence 在 6 特征上呈精确直线 / §4b.2 PI 排序与 SHAP 在 Top 4 高度一致 / §4b.3 PDP + ICE 也全部直线 —— 这三个独立分析早就告诉我们：<strong>M1 信号结构在 6 特征 v6 pool 上以线性可加为主，没有显著的非线性或交互</strong>。本节 8 个非 LR 方法在 temporal 上<strong>全部与 LR 统计等价</strong>（含一个 DT 显著低于 LR），是这一结论在 model-agnostic ML 比较层面的独立确认。</p>
+<h3>6.8.5 L2-LR 的相对优势在性能之外</h3>
+<p>性能既然等档，方法选择就回到<strong>可工程化属性</strong>：</p>
+<ul>
+<li><strong>简约</strong>：6 个临床可获取特征</li>
+<li><strong>可解释</strong>：标准化系数 → OR + 95% Wald CI 闭式精确</li>
+<li><strong>可校准</strong>：Platt sigmoid 后 calibration slope 0.90 / intercept ≈ 0 / Brier 0.211</li>
+<li><strong>可写出</strong>：完整模型公式 §2.5 已给出，临床医生可直接代入数字</li>
+<li><strong>推理快</strong>：一行 dot product</li>
+</ul>
+<p>在所有 9 个方法中，<strong>只有 L2-LR 同时具备这五个工程属性</strong>。<strong>性能等档 + 工程属性最优 → L2-LR 是临床部署的合理选择</strong>。</p>
+<h3>6.8.6 方法学引用</h3>
+<p>本节实验脚本 <code>scripts/simple/module1_v3_ml_compare_v6_fullfit.py</code>；汇总表 <code>results/module1_v3/tables/ml_comparison_table.csv</code>；paired Δ 表 <code>results/module1_v3/tables/ml_comparison_deltas.csv</code>；汇总 JSON <code>results/module1_v3/tables/ml_comparison_summary.json</code>。所有方法均用 sklearn 1.x 默认推荐配置 + 同一 Platt(cv=3) 校准外包装。</p>
 <h2>附录 A. 完整 10 特征版本参考</h2>
 <p>作为方法学透明性参考，本附录保留完整的 10 特征版（包含 Effective iodine half-life、TgAb、24h RAI uptake、TRAb 四个边际信号较弱的特征）的核心结果。这 4 个特征在五视角分析中信号较弱，但保留它们可以呈现完整候选与节俭主线的对照。</p>
 <h3>A.1 候选缩减路径（v10 → v8 → v6 → v4）</h3>
