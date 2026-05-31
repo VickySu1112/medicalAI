@@ -1,0 +1,246 @@
+{
+  "caliber": "corrected 真值 + LOCF; EBM per-landmark OOF(dev 5fold SGKFold seed13)+ temporal final-fit",
+  "landmarks": [
+    "1M",
+    "3M",
+    "6M",
+    "12M"
+  ],
+  "bins_swept": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "interactions": 5,
+  "n_episodes": 1003,
+  "preregistered_thresholds": {
+    "frac_var_residual_>=": 0.35,
+    "occupancy_pct_>=": 40.0,
+    "support_energy_>=": 0.6
+  },
+  "per_combo": [
+    {
+      "max_interaction_bins": 8,
+      "landmark": "1M",
+      "temporal_AUC": 0.6975,
+      "n_interactions": 5,
+      "mean_occ%": 96.12,
+      "mean_support": 0.92,
+      "n_真2D": 4,
+      "n_对冲伪": 1,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 8,
+      "landmark": "3M",
+      "temporal_AUC": 0.782,
+      "n_interactions": 5,
+      "mean_occ%": 100.0,
+      "mean_support": 1.0,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 8,
+      "landmark": "6M",
+      "temporal_AUC": 0.8758,
+      "n_interactions": 5,
+      "mean_occ%": 95.54,
+      "mean_support": 0.924,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 8,
+      "landmark": "12M",
+      "temporal_AUC": 0.9052,
+      "n_interactions": 5,
+      "mean_occ%": 98.88,
+      "mean_support": 0.986,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 16,
+      "landmark": "1M",
+      "temporal_AUC": 0.698,
+      "n_interactions": 5,
+      "mean_occ%": 85.1,
+      "mean_support": 0.814,
+      "n_真2D": 4,
+      "n_对冲伪": 1,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 16,
+      "landmark": "3M",
+      "temporal_AUC": 0.7924,
+      "n_interactions": 5,
+      "mean_occ%": 90.74,
+      "mean_support": 0.851,
+      "n_真2D": 4,
+      "n_对冲伪": 1,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 16,
+      "landmark": "6M",
+      "temporal_AUC": 0.8809,
+      "n_interactions": 5,
+      "mean_occ%": 88.26,
+      "mean_support": 0.831,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 16,
+      "landmark": "12M",
+      "temporal_AUC": 0.9106,
+      "n_interactions": 5,
+      "mean_occ%": 86.52,
+      "mean_support": 0.803,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 24,
+      "landmark": "1M",
+      "temporal_AUC": 0.6918,
+      "n_interactions": 5,
+      "mean_occ%": 64.82,
+      "mean_support": 0.657,
+      "n_真2D": 4,
+      "n_对冲伪": 0,
+      "n_外推": 1
+    },
+    {
+      "max_interaction_bins": 24,
+      "landmark": "3M",
+      "temporal_AUC": 0.7898,
+      "n_interactions": 5,
+      "mean_occ%": 78.56,
+      "mean_support": 0.784,
+      "n_真2D": 5,
+      "n_对冲伪": 0,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 24,
+      "landmark": "6M",
+      "temporal_AUC": 0.8761,
+      "n_interactions": 5,
+      "mean_occ%": 68.62,
+      "mean_support": 0.671,
+      "n_真2D": 3,
+      "n_对冲伪": 2,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 24,
+      "landmark": "12M",
+      "temporal_AUC": 0.9088,
+      "n_interactions": 5,
+      "mean_occ%": 63.82,
+      "mean_support": 0.553,
+      "n_真2D": 1,
+      "n_对冲伪": 4,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 32,
+      "landmark": "1M",
+      "temporal_AUC": 0.6989,
+      "n_interactions": 5,
+      "mean_occ%": 43.9,
+      "mean_support": 0.444,
+      "n_真2D": 0,
+      "n_对冲伪": 4,
+      "n_外推": 1
+    },
+    {
+      "max_interaction_bins": 32,
+      "landmark": "3M",
+      "temporal_AUC": 0.7836,
+      "n_interactions": 5,
+      "mean_occ%": 58.92,
+      "mean_support": 0.579,
+      "n_真2D": 2,
+      "n_对冲伪": 3,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 32,
+      "landmark": "6M",
+      "temporal_AUC": 0.8816,
+      "n_interactions": 5,
+      "mean_occ%": 48.64,
+      "mean_support": 0.467,
+      "n_真2D": 0,
+      "n_对冲伪": 5,
+      "n_外推": 0
+    },
+    {
+      "max_interaction_bins": 32,
+      "landmark": "12M",
+      "temporal_AUC": 0.9084,
+      "n_interactions": 5,
+      "mean_occ%": 43.76,
+      "mean_support": 0.384,
+      "n_真2D": 0,
+      "n_对冲伪": 3,
+      "n_外推": 2
+    }
+  ],
+  "pooled_by_bin": [
+    {
+      "max_interaction_bins": 8,
+      "mean_temporal_AUC": 0.8151,
+      "mean_occ%": 97.64,
+      "mean_support": 0.958,
+      "n_interactions_total": 20,
+      "n_真2D_total": 19,
+      "n_对冲伪_total": 1,
+      "n_外推_total": 0,
+      "pct_真2D": 95.0
+    },
+    {
+      "max_interaction_bins": 16,
+      "mean_temporal_AUC": 0.8205,
+      "mean_occ%": 87.65,
+      "mean_support": 0.825,
+      "n_interactions_total": 20,
+      "n_真2D_total": 18,
+      "n_对冲伪_total": 2,
+      "n_外推_total": 0,
+      "pct_真2D": 90.0
+    },
+    {
+      "max_interaction_bins": 24,
+      "mean_temporal_AUC": 0.8166,
+      "mean_occ%": 68.95,
+      "mean_support": 0.666,
+      "n_interactions_total": 20,
+      "n_真2D_total": 13,
+      "n_对冲伪_total": 6,
+      "n_外推_total": 1,
+      "pct_真2D": 65.0
+    },
+    {
+      "max_interaction_bins": 32,
+      "mean_temporal_AUC": 0.8181,
+      "mean_occ%": 48.8,
+      "mean_support": 0.469,
+      "n_interactions_total": 20,
+      "n_真2D_total": 2,
+      "n_对冲伪_total": 15,
+      "n_外推_total": 3,
+      "pct_真2D": 10.0
+    }
+  ]
+}

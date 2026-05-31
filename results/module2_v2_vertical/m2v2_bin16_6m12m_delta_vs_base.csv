@@ -1,0 +1,5 @@
+landmark,comparison,dAUC_mean,dAUC_CI_low,dAUC_CI_high,CI_excludes_0,direction
+6M,EBM - persistence,0.1259,0.0765,0.1817,True,EBM better
+6M,EBM - naive,0.3811,0.3284,0.427,True,EBM better
+12M,EBM - persistence,0.1586,0.1007,0.2129,True,EBM better
+12M,EBM - naive,0.4113,0.3683,0.4496,True,EBM better

@@ -38,6 +38,35 @@
 ## 节点追加区(自动落盘)
 <!-- 关键节点在此追加:固化验证 / 插值实验 / M1 check / 各 Phase 完成 -->
 
+### [2026-05-31] 交互 bin 扫描(max_interaction_bins sweep)✅ 确认默认 62-bin 过细
+**动机**:Phase 3 对冲诊断在默认 `max_interaction_bins`(本数据连续轴 = **62×62**)下,**20/20 交互项全判「外推不可信」**(1/3/6/12M mean_occ% 仅 13.7/18.0/16.1/14.0、support 0.121–0.162)。怀疑:62×62 网格对 1003 人次小样本过细 → 每格 ≤1 样本 → g 能量落在空白格(正则外推)→ 诊断必然全判外推,而非交互本身"伪"。验证:扫 `max_interaction_bins ∈ {8,16,24,32}`(interactions=5),逐地标看 occupancy / verdict / temporal AUC。
+
+**口径**:corrected 真值 + LOCF(`build_rows_for_method("locf",(L,))` 逐地标)+ 正交轴特征(`build_feats_at_L`/`FEATS`)+ EBM 逐地标 **dev OOF**(5 折 StratifiedGroupKFold seed13)/ **temporal read-out**,地标 **1/3/6/12**。occ/support/residual/verdict 复用 Phase 3 `diagnose_interaction`(口径完全一致,预注册阈值 residual≥0.35 且 occ≥40% 且 support≥0.6 → 真2D)。全 time-safe(沿用 `assert_no_future_feature`)。**N=1003 人次**。
+
+**新脚本** `scripts/simple/module2_v2_ebm_bins_sweep.py`(并行):本地重写 `ebm_oof_temporal_bins` 复制 `ebm_oof_and_temporal` 的 split 逻辑、额外传 `max_interaction_bins=B`(原函数硬编码 interactions=5、无该参数 → **不改 ebm_oof.py**)。16 个 (bin, landmark) 组合用 `ProcessPoolExecutor`(8 workers)并行,每进程 `OMP/MKL/OPENBLAS/NUMEXPR/VECLIB=1`(进程级并行 + 单线程 BLAS)。
+
+**对比表(temporal_AUC / mean_occ% / mean_support / 真2D-对冲伪-外推,逐 bin×地标)**:
+
+| bin | 1M AUC | 1M occ% | 1M 判定 | 3M AUC | 3M occ% | 3M 判定 | 6M AUC | 6M occ% | 6M 判定 | 12M AUC | 12M occ% | 12M 判定 |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| **8**  | 0.6975 | 96.1 | 4/1/0 | 0.7820 | 100.0 | 5/0/0 | 0.8758 | 95.5 | 5/0/0 | 0.9052 | 98.9 | 5/0/0 |
+| **16** | 0.6980 | 85.1 | 4/1/0 | 0.7924 | 90.7 | 4/1/0 | 0.8809 | 88.3 | 5/0/0 | 0.9106 | 86.5 | 5/0/0 |
+| **24** | 0.6918 | 64.8 | 4/0/1 | 0.7898 | 78.6 | 5/0/0 | 0.8761 | 68.6 | 3/2/0 | 0.9088 | 63.8 | 1/4/0 |
+| **32** | 0.6989 | 43.9 | 0/4/1 | 0.7836 | 58.9 | 2/3/0 | 0.8816 | 48.6 | 0/5/0 | 0.9084 | 43.8 | 0/3/2 |
+| **62(Phase3 默认)** | — | 13.7 | 0/0/5 | — | 18.0 | 0/0/5 | — | 16.1 | 0/0/5 | — | 14.0 | 0/0/5 |
+
+**pooled(逐 bin 跨 4 地标)**:bin 8 → mean_occ 97.6% / support 0.958 / 真2D 19/20(95%);bin 16 → 87.7% / 0.825 / 18/20(90%);bin 24 → 69.0% / 0.666 / 13/20(65%);bin 32 → 48.8% / 0.469 / 2/20(10%);62 → ~15% / ~0.14 / 0/20(0%)。**mean_temporal_AUC 全程 0.815–0.821(极差 0.005)**。
+
+**4 条结论**:
+1. **occupancy 随 bin 单调升**:62→14–18% → 32→44–59% → 24→64–79% → 16→85–91% → 8→96–100%。证实默认 62×62 对 1003 人次过细,绝大多数格 0 样本,g 能量在外推区。
+2. **verdict 区分度被 bin 主导**:62-bin **0/20 真2D(全外推)**纯属网格过细的人为产物;降到 8-bin 即 **19/20 真2D**。"全判外推"不是交互本身的性质,而是 bin 太多 → 占用塌陷。**bin 是 occ/support/verdict 的支配旋钮**(residual 也随 bin 降而升:粗格上 g 更难被两条 1D 边际相加表示)。
+3. **temporal AUC 随 bin 基本平**:pooled 0.815→0.821→0.817→0.818(极差 0.005);逐地标各 bin 差异在 episode-cluster bootstrap 噪声内(Phase 3 已证 int5−int0 交互增益 4/4 地标 CI 跨 0)。**减交互 bin 不损判别力 → 印证"交互本无判别增益"**,bin 只改变 g 的网格分辨率/可视外观,不改预测。
+4. **推荐交互 bin = 16**(若保留 GA2M 作可视/教学):occupancy 已 85–91%(g 落在有数据区)、support 0.80–0.85、真2D 18/20,而 temporal AUC 仍最高档(pooled 0.8205,4 地标均 ≥ 默认);8-bin 占用更满但分辨率偏粗(3 档左右),16-bin 在"占用够 + 仍有结构"间最平衡。**但更稳妥的结论仍是 Phase 3 的 prune**(交互判别增益 CI 跨 0,去交互不损,GAM 仍非线性)——bin 扫描进一步说明:即便要展示交互,也须用 ≤16 的粗格,默认 62-bin 的"真 2D 查表"叙事在本样本量下不可信。
+
+**产物**:`results/module2_v2_vertical/m2v2_ebm_xland/tables/bins_sweep.csv`(主表)+ `bins_sweep_interactions.csv`(逐交互项明细)+ `bins_sweep_summary.json`(含 pooled)。脚本 `scripts/simple/module2_v2_ebm_bins_sweep.py`。
+
+**坑**:(1) `ebm_oof_and_temporal` 硬编码 interactions=5、**无 `max_interaction_bins` 参数** → 本地复制 split 逻辑加该参数(勿改 ebm_oof.py);split 严格对齐(StratifiedGroupKFold n=5 seed=CV_SEED=13 groups=episode_id、final dev-fit、live 列同算),仅 EBM 多 `max_interaction_bins=B`。(2) **`max_interaction_bins` 控的是交互的边数,主效应另有 `max_bins`(默认 256)不受影响** → 减交互 bin 不动 1D 形状,故 temporal AUC 几乎只随交互而 ~平,符合预期。(3) 并行须**在 import numpy/interpret 之前**设 `OMP/MKL/OPENBLAS/NUMEXPR/VECLIB=1`,且子进程内再设一遍(spawn/fork 继承不保证);`build_rows_for_method` 各进程独立 re-read long 表(I/O 但无共享缓存冲突)。(4) 单地标 `build_rows_for_method("locf",(L,))` 即正确(skeleton 始终含全 LANDMARKS_X 行,landmarks 仅缩 per-landmark imputer fit 范围)。(5) `max_interaction_bins` 是 interpret EBM 参数,本环境 interpret 0.7.8 支持。
+
 ### [2026-05-31] task9 EBM 教程/交互版同步 corrected+LOCF 新口径 ✅
 **口径**:corrected 真值(`Current_Time` 列)+ LOCF(激素延续,`build_rows_for_method("locf",…)`)+ EBM 逐地标 dev OOF(`ebm_oof_and_temporal`,5fold SGKFold seed13)/ temporal read-out,地标 **1/3/6/12**。全 time-safe。**N=1003 人次**。
 

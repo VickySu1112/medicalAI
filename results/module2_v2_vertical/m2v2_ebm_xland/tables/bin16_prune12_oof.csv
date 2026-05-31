@@ -1,0 +1,5 @@
+landmark,full_OOF_AUC,pruned_OOF_AUC,full_n_terms,full_n_mains,full_n_inters,pruned_n_terms,pruned_n_mains,pruned_n_inters
+1M,0.7366,0.7451,21,16,5,11,8,3
+3M,0.8277,0.8379,21,16,5,11,8,3
+6M,0.9043,0.9013,21,16,5,11,8,3
+12M,0.9191,0.9174,21,16,5,11,8,3

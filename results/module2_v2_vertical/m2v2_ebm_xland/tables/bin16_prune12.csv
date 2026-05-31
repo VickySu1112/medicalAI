@@ -1,0 +1,5 @@
+landmark,full_temporal_AUC,pruned_temporal_AUC,full_n_terms,pruned_n_terms,dAUC_mean,dAUC_CI_low,dAUC_CI_high,CI_contains_0,no_loss
+1M,0.698,0.7061,21,11,0.008,-0.0118,0.0275,True,True
+3M,0.7924,0.7933,21,11,0.001,-0.014,0.0156,True,True
+6M,0.8809,0.8791,21,11,-0.0014,-0.0167,0.0157,True,True
+12M,0.9106,0.8934,21,11,-0.0174,-0.0388,0.0017,True,True

@@ -2,12 +2,12 @@
   {
     "n": 1,
     "file": "F01_ROC_1M.png",
-    "caption": "1M EBM 时间外 ROC,AUC 0.694(虚线=persistence 当前功能态基线 0.551)"
+    "caption": "1M EBM 时间外 ROC,AUC 0.698(虚线=persistence 当前功能态基线 0.551)"
   },
   {
     "n": 2,
     "file": "F02_PR_1M.png",
-    "caption": "1M EBM 时间外精确率-召回率,AP 0.602(基线=0.41)"
+    "caption": "1M EBM 时间外精确率-召回率,AP 0.630(基线=0.41)"
   },
   {
     "n": 3,
@@ -42,17 +42,17 @@
   {
     "n": 9,
     "file": "F09_Confusion_1M.png",
-    "caption": "1M EBM 混淆矩阵(OOF dev Youden 阈值 0.35)"
+    "caption": "1M EBM 混淆矩阵(OOF dev Youden 阈值 0.41)"
   },
   {
     "n": 10,
     "file": "F10_ROC_3M.png",
-    "caption": "3M EBM 时间外 ROC,AUC 0.791(虚线=persistence 当前功能态基线 0.684)"
+    "caption": "3M EBM 时间外 ROC,AUC 0.792(虚线=persistence 当前功能态基线 0.684)"
   },
   {
     "n": 11,
     "file": "F11_PR_3M.png",
-    "caption": "3M EBM 时间外精确率-召回率,AP 0.727(基线=0.41)"
+    "caption": "3M EBM 时间外精确率-召回率,AP 0.740(基线=0.41)"
   },
   {
     "n": 12,
@@ -92,12 +92,12 @@
   {
     "n": 19,
     "file": "F19_ROC_6M.png",
-    "caption": "6M EBM 时间外 ROC,AUC 0.878(虚线=persistence 当前功能态基线 0.755)"
+    "caption": "6M EBM 时间外 ROC,AUC 0.881(虚线=persistence 当前功能态基线 0.755)"
   },
   {
     "n": 20,
     "file": "F20_PR_6M.png",
-    "caption": "6M EBM 时间外精确率-召回率,AP 0.839(基线=0.41)"
+    "caption": "6M EBM 时间外精确率-召回率,AP 0.836(基线=0.41)"
   },
   {
     "n": 21,
@@ -132,12 +132,12 @@
   {
     "n": 27,
     "file": "F27_Confusion_6M.png",
-    "caption": "6M EBM 混淆矩阵(OOF dev Youden 阈值 0.36)"
+    "caption": "6M EBM 混淆矩阵(OOF dev Youden 阈值 0.37)"
   },
   {
     "n": 28,
     "file": "F28_ROC_12M.png",
-    "caption": "12M EBM 时间外 ROC,AUC 0.907(虚线=persistence 当前功能态基线 0.751)"
+    "caption": "12M EBM 时间外 ROC,AUC 0.911(虚线=persistence 当前功能态基线 0.751)"
   },
   {
     "n": 29,
@@ -177,7 +177,7 @@
   {
     "n": 36,
     "file": "F36_Confusion_12M.png",
-    "caption": "12M EBM 混淆矩阵(OOF dev Youden 阈值 0.34)"
+    "caption": "12M EBM 混淆矩阵(OOF dev Youden 阈值 0.30)"
   },
   {
     "n": 37,

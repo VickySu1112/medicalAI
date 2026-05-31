@@ -220,7 +220,7 @@ def _roc(y, p) -> float:
 
 
 def ebm_oof_and_temporal(rows, y, lm, is_dev, L, feats=FEATS, seed: int = PY_SEED,
-                         interactions: int = 5):
+                         interactions: int = 5, max_interaction_bins: int = 16):
     """Per-landmark EBM: dev OOF probabilities + temporal read-out from final fit.
 
     Parameters
@@ -236,6 +236,10 @@ def ebm_oof_and_temporal(rows, y, lm, is_dev, L, feats=FEATS, seed: int = PY_SEE
         reduced configuration — used by the interaction ablation in
         module2_v2_ebm_interaction_diag.py to quantify the discrimination gain of
         interaction terms vs the no-interaction GAM).
+    max_interaction_bins : interaction 网格分箱数 (default 16). 全项目已统一迁移到
+        bin16:默认 (~62×62) 交互网格对 1003 人次过细 → 多数格无人落入 → 交互 2D 查表
+        近乎全外推;降到 16×16 后网格 occupancy ~85–90%,每格有真实病人支撑、查表可信。
+        单变量形状函数与判别 AUC 基本不受影响 (见 bins sweep)。
 
     Returns
     -------
@@ -267,11 +271,13 @@ def ebm_oof_and_temporal(rows, y, lm, is_dev, L, feats=FEATS, seed: int = PY_SEE
     dev_idx = np.where(devL)[0]
     skf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=CV_SEED)
     for tr, va in skf.split(Xd, yd, groups=epd):
-        ebm = ExplainableBoostingClassifier(random_state=seed, interactions=interactions)
+        ebm = ExplainableBoostingClassifier(random_state=seed, interactions=interactions,
+                                            max_interaction_bins=max_interaction_bins)
         ebm.fit(Xd[tr], yd[tr])
         pred[dev_idx[va]] = ebm.predict_proba(Xd[va])[:, 1]
 
-    final_ebm = ExplainableBoostingClassifier(random_state=seed, interactions=interactions)
+    final_ebm = ExplainableBoostingClassifier(random_state=seed, interactions=interactions,
+                                              max_interaction_bins=max_interaction_bins)
     final_ebm.fit(Xd, yd)
     if tstL.any():
         pred[tstL] = final_ebm.predict_proba(feat_live.loc[tstL].values)[:, 1]

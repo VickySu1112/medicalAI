@@ -1,0 +1,365 @@
+{
+  "口径": "corrected真值+LOCF; EBM interactions=5 max_interaction_bins=16(bin16); dev 5-fold StratifiedGroupKFold OOF 选阈/分析, temporal 仅最终报告; time-safe",
+  "analysis_unit": "treatment-episode(疗程/人次)",
+  "n_episodes": 1003,
+  "landmarks": [
+    "1M",
+    "3M",
+    "6M",
+    "12M"
+  ],
+  "youden_thr": {
+    "1M": 0.415,
+    "3M": 0.33,
+    "6M": 0.37,
+    "12M": 0.3
+  },
+  "auc": {
+    "1M": {
+      "ebm_oof": 0.7366236905721192,
+      "ebm_temporal": 0.6979913916786227,
+      "persist_oof": 0.5168815471394037,
+      "persist_temporal": 0.5509325681492109,
+      "naive_oof": 0.5,
+      "naive_temporal": 0.5,
+      "n_dev": 802,
+      "n_temporal": 201,
+      "prevalence_dev": 0.3640897755610973
+    },
+    "3M": {
+      "ebm_oof": 0.8276994359387588,
+      "ebm_temporal": 0.792375486780078,
+      "persist_oof": 0.6915390813859791,
+      "persist_temporal": 0.6836954293912687,
+      "naive_oof": 0.5,
+      "naive_temporal": 0.5,
+      "n_dev": 802,
+      "n_temporal": 201,
+      "prevalence_dev": 0.3640897755610973
+    },
+    "6M": {
+      "ebm_oof": 0.9042841794251947,
+      "ebm_temporal": 0.8809182209469153,
+      "persist_oof": 0.7376980929358045,
+      "persist_temporal": 0.7545091207214594,
+      "naive_oof": 0.5,
+      "naive_temporal": 0.5,
+      "n_dev": 802,
+      "n_temporal": 201,
+      "prevalence_dev": 0.3640897755610973
+    },
+    "12M": {
+      "ebm_oof": 0.9190572119258663,
+      "ebm_temporal": 0.910637425701988,
+      "persist_oof": 0.7732171635777599,
+      "persist_temporal": 0.7512297601967616,
+      "naive_oof": 0.5,
+      "naive_temporal": 0.5,
+      "n_dev": 802,
+      "n_temporal": 201,
+      "prevalence_dev": 0.3640897755610973
+    }
+  },
+  "confusion_youden_dev": [
+    {
+      "split": "Dev(OOF)",
+      "Landmark": "1M",
+      "cut": "Youden@OOF",
+      "thr": 0.415,
+      "TP": 172,
+      "FP": 102,
+      "TN": 408,
+      "FN": 120,
+      "N": 802,
+      "FN_rate": 0.411,
+      "FP_rate": 0.2,
+      "Sens": 0.589,
+      "Spec": 0.8,
+      "PPV": 0.6277,
+      "NPV": 0.7727,
+      "Acc": 0.7232
+    },
+    {
+      "split": "Dev(OOF)",
+      "Landmark": "3M",
+      "cut": "Youden@OOF",
+      "thr": 0.33,
+      "TP": 232,
+      "FP": 124,
+      "TN": 386,
+      "FN": 60,
+      "N": 802,
+      "FN_rate": 0.2055,
+      "FP_rate": 0.2431,
+      "Sens": 0.7945,
+      "Spec": 0.7569,
+      "PPV": 0.6517,
+      "NPV": 0.8655,
+      "Acc": 0.7706
+    },
+    {
+      "split": "Dev(OOF)",
+      "Landmark": "6M",
+      "cut": "Youden@OOF",
+      "thr": 0.37,
+      "TP": 233,
+      "FP": 67,
+      "TN": 443,
+      "FN": 59,
+      "N": 802,
+      "FN_rate": 0.2021,
+      "FP_rate": 0.1314,
+      "Sens": 0.7979,
+      "Spec": 0.8686,
+      "PPV": 0.7767,
+      "NPV": 0.8825,
+      "Acc": 0.8429
+    },
+    {
+      "split": "Dev(OOF)",
+      "Landmark": "12M",
+      "cut": "Youden@OOF",
+      "thr": 0.3,
+      "TP": 256,
+      "FP": 69,
+      "TN": 441,
+      "FN": 36,
+      "N": 802,
+      "FN_rate": 0.1233,
+      "FP_rate": 0.1353,
+      "Sens": 0.8767,
+      "Spec": 0.8647,
+      "PPV": 0.7877,
+      "NPV": 0.9245,
+      "Acc": 0.8691
+    }
+  ],
+  "confusion_youden_temporal": [
+    {
+      "split": "Temporal",
+      "Landmark": "1M",
+      "cut": "Youden@OOF",
+      "thr": 0.415,
+      "TP": 44,
+      "FP": 32,
+      "TN": 87,
+      "FN": 38,
+      "N": 201,
+      "FN_rate": 0.4634,
+      "FP_rate": 0.2689,
+      "Sens": 0.5366,
+      "Spec": 0.7311,
+      "PPV": 0.5789,
+      "NPV": 0.696,
+      "Acc": 0.6517
+    },
+    {
+      "split": "Temporal",
+      "Landmark": "3M",
+      "cut": "Youden@OOF",
+      "thr": 0.33,
+      "TP": 63,
+      "FP": 39,
+      "TN": 80,
+      "FN": 19,
+      "N": 201,
+      "FN_rate": 0.2317,
+      "FP_rate": 0.3277,
+      "Sens": 0.7683,
+      "Spec": 0.6723,
+      "PPV": 0.6176,
+      "NPV": 0.8081,
+      "Acc": 0.7114
+    },
+    {
+      "split": "Temporal",
+      "Landmark": "6M",
+      "cut": "Youden@OOF",
+      "thr": 0.37,
+      "TP": 64,
+      "FP": 17,
+      "TN": 102,
+      "FN": 18,
+      "N": 201,
+      "FN_rate": 0.2195,
+      "FP_rate": 0.1429,
+      "Sens": 0.7805,
+      "Spec": 0.8571,
+      "PPV": 0.7901,
+      "NPV": 0.85,
+      "Acc": 0.8259
+    },
+    {
+      "split": "Temporal",
+      "Landmark": "12M",
+      "cut": "Youden@OOF",
+      "thr": 0.3,
+      "TP": 66,
+      "FP": 18,
+      "TN": 101,
+      "FN": 16,
+      "N": 201,
+      "FN_rate": 0.1951,
+      "FP_rate": 0.1513,
+      "Sens": 0.8049,
+      "Spec": 0.8487,
+      "PPV": 0.7857,
+      "NPV": 0.8632,
+      "Acc": 0.8308
+    }
+  ],
+  "separability_verdict": {
+    "1M": {
+      "best_k": 4,
+      "best_silhouette": 0.1598,
+      "sil_FN_vs_FP_label": 0.0536,
+      "n_err": 222,
+      "characterizable": false
+    },
+    "3M": {
+      "best_k": 2,
+      "best_silhouette": 0.1761,
+      "sil_FN_vs_FP_label": 0.0651,
+      "n_err": 184,
+      "characterizable": false
+    },
+    "6M": {
+      "best_k": 2,
+      "best_silhouette": 0.1608,
+      "sil_FN_vs_FP_label": 0.0225,
+      "n_err": 126,
+      "characterizable": false
+    },
+    "12M": {
+      "best_k": 3,
+      "best_silhouette": 0.2057,
+      "sil_FN_vs_FP_label": 0.0014,
+      "n_err": 105,
+      "characterizable": false
+    }
+  },
+  "trajectory_trend": {
+    "correct_rate_by_landmark": {
+      "1M": 0.7232,
+      "3M": 0.7706,
+      "6M": 0.8429,
+      "12M": 0.8691
+    },
+    "abs_err_by_landmark": {
+      "1M": 0.3817,
+      "3M": 0.3086,
+      "6M": 0.2213,
+      "12M": 0.1959
+    },
+    "delta_correct_last_minus_first": 0.1459,
+    "delta_abs_err_last_minus_first": -0.1858,
+    "mean_abs_err_slope_per_month": -0.01602,
+    "frac_episodes_improving": 0.8304,
+    "frac_episodes_worsening": 0.1696,
+    "n_episodes_tracked": 802,
+    "pattern_counts": {
+      "persistent-correct": 457,
+      "turned-correct": 167,
+      "turned-wrong": 50,
+      "mixed": 108,
+      "persistent-wrong": 20
+    },
+    "overall_direction": "更对(随地标正确率上升)"
+  },
+  "trajectory_patterns": [
+    {
+      "pattern": "persistent-correct",
+      "n": 457,
+      "share": 0.5698,
+      "Y_relapse_rate": 0.295,
+      "当期TSH": 0.944,
+      "当期FT4": 20.913,
+      "当期FT3": 9.654,
+      "TSH动量": 0.889,
+      "FT4动量": -8.651,
+      "TRAb": 18.403,
+      "甲状腺重量": 33.244,
+      "24h摄取率": 0.993,
+      "有效半衰期": 5.372,
+      "病程(log)": 2.895
+    },
+    {
+      "pattern": "persistent-wrong",
+      "n": 20,
+      "share": 0.0249,
+      "Y_relapse_rate": 0.2,
+      "当期TSH": 0.004,
+      "当期FT4": 27.765,
+      "当期FT3": 14.498,
+      "TSH动量": 0.0,
+      "FT4动量": -7.52,
+      "TRAb": 21.024,
+      "甲状腺重量": 45.125,
+      "24h摄取率": 0.714,
+      "有效半衰期": 5.186,
+      "病程(log)": 3.495
+    },
+    {
+      "pattern": "turned-correct",
+      "n": 167,
+      "share": 0.2082,
+      "Y_relapse_rate": 0.569,
+      "当期TSH": 0.164,
+      "当期FT4": 22.667,
+      "当期FT3": 10.577,
+      "TSH动量": -3.903,
+      "FT4动量": -6.964,
+      "TRAb": 17.407,
+      "甲状腺重量": 33.907,
+      "24h摄取率": 0.954,
+      "有效半衰期": 5.268,
+      "病程(log)": 2.973
+    },
+    {
+      "pattern": "turned-wrong",
+      "n": 50,
+      "share": 0.0623,
+      "Y_relapse_rate": 0.22,
+      "当期TSH": 0.013,
+      "当期FT4": 24.033,
+      "当期FT3": 11.648,
+      "TSH动量": -0.0,
+      "FT4动量": -9.206,
+      "TRAb": 16.447,
+      "甲状腺重量": 28.496,
+      "24h摄取率": 0.682,
+      "有效半衰期": 5.529,
+      "病程(log)": 2.94
+    },
+    {
+      "pattern": "mixed",
+      "n": 108,
+      "share": 0.1347,
+      "Y_relapse_rate": 0.435,
+      "当期TSH": 0.198,
+      "当期FT4": 21.795,
+      "当期FT3": 10.222,
+      "TSH动量": -0.45,
+      "FT4动量": -5.8,
+      "TRAb": 17.825,
+      "甲状腺重量": 36.866,
+      "24h摄取率": 2.131,
+      "有效半衰期": 5.464,
+      "病程(log)": 3.365
+    }
+  ],
+  "fn_signature_corr": {
+    "mean_pairwise_corr": 0.8225,
+    "min_pairwise_corr": 0.6791,
+    "stable": true
+  },
+  "error_churn": {
+    "mean_offdiag_jaccard": 0.2945,
+    "n_always_wrong": 20,
+    "n_ever_wrong": 345,
+    "frac_always_of_ever": 0.058
+  },
+  "boundary": {
+    "mean_frac_wrong_near_boundary": 0.2913
+  }
+}

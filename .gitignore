@@ -110,3 +110,4 @@ artifacts_rerun_*/
 # 过程性 draft 与已从正文中移除的早期方法学总览图
 draft/
 methodology.png
+.claude/

@@ -1,0 +1,10 @@
+feature,axis_group,1M,1M_rank,3M,3M_rank,6M,6M_rank,12M,12M_rank
+Hormone_load,当期水平(load),0.212,2,0.5407,1,1.0713,1,1.0787,1
+ThyroidW,腺体重(Goiter),0.5013,1,0.3773,2,0.3347,4,0.3423,3
+TSH_current,当期水平(load),0.0231,,0.2675,3,0.5367,2,0.6145,2
+Velocity_load,动量(velocity),0.0745,,0.1509,5,0.412,3,0.3316,5
+TSH_velocity,动量(velocity),0.0351,,0.1833,4,0.283,5,0.1606,
+TPOAb,抗体,0.108,4,0.1136,,0.1678,,0.059,
+log1p_DiseaseDuration_Months_Aug,基线/慢性,0.1215,3,0.0918,,0.0746,,0.0903,
+TSH_current & Hormone_load (×),当期水平(load),,,,,,,0.3416,4
+TPOAb & Velocity_load (×),抗体,0.1029,5,,,,,,
