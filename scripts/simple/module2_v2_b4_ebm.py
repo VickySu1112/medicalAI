@@ -87,7 +87,7 @@ def main() -> None:
         lr_auc = _roc(yte, lr.predict_proba(Xte)[:, 1])
 
         # EBM
-        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5)
+        ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16)
         ebm.fit(Xtr, ytr)
         base = ebm.predict_proba(Xte)[:, 1]
         ebm_auc = _roc(yte, base)

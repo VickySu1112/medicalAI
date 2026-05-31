@@ -149,7 +149,7 @@ def main() -> None:
     devL = rows_dev & (rows_lm == 6); tstL = (~rows_dev) & (rows_lm == 6)
     feat = build_feats_at_L(rows, devL)
     live = [c for c in FEATS if feat.loc[devL, c].std() > 1e-9]
-    ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5).fit(
+    ebm = ExplainableBoostingClassifier(random_state=PY_SEED, interactions=5, max_interaction_bins=16).fit(
         feat.loc[devL, live], rows["Y_24M_NHRH"].values[devL])
     p_ebm_dev = ebm.predict_proba(feat.loc[devL, live])[:, 1]
     p_ebm_tst = ebm.predict_proba(feat.loc[tstL, live])[:, 1]

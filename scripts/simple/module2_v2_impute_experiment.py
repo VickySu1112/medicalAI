@@ -376,10 +376,10 @@ def _ebm_oof_temporal_frame(feat_all, y, ep, lm, is_dev, L, seed=PY_SEED):
     dev_idx = np.where(devL)[0]
     skf = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=CV_SEED)
     for tr, va in skf.split(Xd, yd, groups=epd):
-        ebm = ExplainableBoostingClassifier(random_state=seed, interactions=5)
+        ebm = ExplainableBoostingClassifier(random_state=seed, interactions=5, max_interaction_bins=16)
         ebm.fit(Xd[tr], yd[tr])
         pred[dev_idx[va]] = ebm.predict_proba(Xd[va])[:, 1]
-    final = ExplainableBoostingClassifier(random_state=seed, interactions=5)
+    final = ExplainableBoostingClassifier(random_state=seed, interactions=5, max_interaction_bins=16)
     final.fit(Xd, yd)
     if tstL.any():
         pred[tstL] = final.predict_proba(feat_live.loc[tstL].values)[:, 1]

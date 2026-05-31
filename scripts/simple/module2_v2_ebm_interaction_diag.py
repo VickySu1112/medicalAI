@@ -639,7 +639,7 @@ def main():
     per_lm_diags = {}
     for L in landmarks:
         devL = is_dev & (lm == L)
-        pred, ebm, live = ebm_oof_and_temporal(rows, y, lm, is_dev, L, interactions=5)
+        pred, ebm, live = ebm_oof_and_temporal(rows, y, lm, is_dev, L, interactions=5, max_interaction_bins=16)
         g = ebm.explain_global()
         overall = dict(zip(g.data()["names"], g.data()["scores"]))
         feat_all = build_feats_at_L(rows, devL)
