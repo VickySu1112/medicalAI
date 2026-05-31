@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>M2·v2 补充材料 S1 — FT3,FT4 z 反算表</title>
+<style>
+  body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
+       font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
+  h1{font-size:1.9em;border-bottom:3px solid #1d4e89;padding-bottom:.3em;color:#0f2d54;}
+  h2{font-size:1.4em;margin-top:1.8em;border-left:5px solid #1d4e89;padding-left:.5em;color:#143a63;}
+  h3{font-size:1.15em;color:#143a63;}
+  img{max-width:100%;height:auto;display:block;margin:1em auto;border:1px solid #e2e8f0;border-radius:4px;}
+  table{border-collapse:collapse;margin:1.2em 0;font-size:.92em;width:100%;}
+  th,td{border:1px solid #cbd5e1;padding:5px 9px;text-align:right;}
+  th{background:#eef2f7;} td:first-child,th:first-child{text-align:left;}
+  blockquote{background:#f6f8fb;border-left:4px solid #8d99ae;margin:1em 0;padding:.6em 1em;color:#334;}
+  code{background:#f1f5f9;padding:1px 5px;border-radius:3px;}
+</style>
+</head>
+<body>
+<h1>补充材料 S1 · EBM「FT3,FT4 综合水平」z 值 → 临床实际反算表</h1>
+<blockquote>
+<p><strong>为什么需要这份补充材料</strong>:EBM 形状函数(F15/F23 等)横轴是<strong>dev 集 z-score 标准化</strong>后的「FT3,FT4 综合水平」,<strong>"0"是各 landmark 自己 dev 集的均值,不是健康人的临床正常</strong>。如果读者把模型零点误读为"健康临界值",<strong>完全会读反临床意义</strong>(尤其 1M 时,样本均值本身就是"轻度甲亢残留")。本附录给精确反算表 + 临床意义标注。</p>
+</blockquote>
+<h2>1. 大白话版(适合非统计读者)</h2>
+<p>EBM 横轴的「FT3,FT4 综合水平 z」 = "<strong>这个病人在该 landmark 时点的 FT3、FT4 综合水平,比开发集(802 例)同时点平均值高/低多少个标准差</strong>"。</p>
+<ul>
+<li><code>z = 0</code> 不是健康人的"正常值",是 <strong>dev 集那一时点的平均水平</strong></li>
+<li><code>z &gt; 0</code> = 比平均高 / <code>z &lt; 0</code> = 比平均低</li>
+<li><strong>不同 landmark 的 z=0 对应不同临床状态</strong>(下表): 1M 平均还在残留甲亢、3M/6M/12M 平均已落回正常区</li>
+</ul>
+<p>健康人临床正常区(xlsx 表头给的):<strong>FT3 2.43–6.01,FT4 9.01–19.05 pmol/L</strong>。</p>
+<h2>2. 各 landmark dev 集实测分布</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Landmark</th>
+<th style="text-align: center;">n(FT3)</th>
+<th style="text-align: center;">FT3 均值 ± std</th>
+<th style="text-align: center;">FT3 中位</th>
+<th style="text-align: center;">n(FT4)</th>
+<th style="text-align: center;">FT4 均值 ± std</th>
+<th style="text-align: center;">FT4 中位</th>
+<th style="text-align: left;">平均临床状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1M</td>
+<td style="text-align: center;">718</td>
+<td style="text-align: center;"><strong>9.10 ± 6.96</strong></td>
+<td style="text-align: center;">6.54</td>
+<td style="text-align: center;">717</td>
+<td style="text-align: center;"><strong>20.61 ± 11.18</strong></td>
+<td style="text-align: center;">17.62</td>
+<td style="text-align: left;"><strong>轻度甲亢残留</strong>(均值超 FT4 正常上限)</td>
+</tr>
+<tr>
+<td style="text-align: center;">3M</td>
+<td style="text-align: center;">666</td>
+<td style="text-align: center;">6.75 ± 6.45</td>
+<td style="text-align: center;">4.40</td>
+<td style="text-align: center;">668</td>
+<td style="text-align: center;">14.72 ± 10.52</td>
+<td style="text-align: center;">11.59</td>
+<td style="text-align: left;"><strong>正常 FT4 范围</strong>(均值在正常区中段)</td>
+</tr>
+<tr>
+<td style="text-align: center;">6M</td>
+<td style="text-align: center;">613</td>
+<td style="text-align: center;">6.23 ± 4.80</td>
+<td style="text-align: center;">4.76</td>
+<td style="text-align: center;">617</td>
+<td style="text-align: center;">14.89 ± 6.72</td>
+<td style="text-align: center;">13.80</td>
+<td style="text-align: left;"><strong>正常 FT4 范围</strong></td>
+</tr>
+<tr>
+<td style="text-align: center;">12M</td>
+<td style="text-align: center;">502</td>
+<td style="text-align: center;">5.62 ± 4.14</td>
+<td style="text-align: center;">4.46</td>
+<td style="text-align: center;">499</td>
+<td style="text-align: center;">14.51 ± 5.42</td>
+<td style="text-align: center;">13.55</td>
+<td style="text-align: left;"><strong>正常 FT4 范围</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>关键观察</strong>:
+- <strong>1M 时样本均值 = 治疗反应慢/残留甲亢</strong>(FT3 9.1 远超正常上限 6.0,FT4 20.6 略超正常上限 19.05);
+- <strong>3M 起样本均值已落回正常区</strong>,反映多数人在 3 个月内对 RAI 已起反应;
+- <strong>6M 与 12M 均值几乎重合</strong>,说明 6 个月后病情已分流到三态(甲亢残留 / 正常 / 甲减),整体均值稳定;
+- <strong>每个 landmark 的 z=0 含义不同</strong>,所以<strong>直接比较两个 landmark 的 z 值是错的</strong>(只能各自 landmark 内部比较)。</p>
+<h2>3. 反算表(逐 landmark)</h2>
+<p>公式:<code>Hormone_load = (zFT3 + zFT4) / √2</code>;对称假设 <code>zFT3 ≈ zFT4 = z/√2</code>,则
+<code>FT3 实际值 = μ(FT3) + (z/√2)·σ(FT3)</code>,FT4 同。</p>
+<h3>3.1 1M 反算</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Hormone_load z</th>
+<th style="text-align: center;">FT3 实际</th>
+<th style="text-align: center;">FT4 实际</th>
+<th style="text-align: left;">临床意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>−2.0</strong></td>
+<td style="text-align: center;">&lt;1(超低)</td>
+<td style="text-align: center;">4.8</td>
+<td style="text-align: left;"><strong>甲减区</strong>(治疗反应过强)</td>
+</tr>
+<tr>
+<td style="text-align: center;">−1.0</td>
+<td style="text-align: center;">4.2</td>
+<td style="text-align: center;">12.7</td>
+<td style="text-align: left;">正常 FT4 范围</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>−0.7</strong>(★F15 模型参考点)</td>
+<td style="text-align: center;"><strong>5.7</strong></td>
+<td style="text-align: center;"><strong>15.1</strong></td>
+<td style="text-align: left;"><strong>接近 FT4 正常上限</strong>(模型"贡献最小")</td>
+</tr>
+<tr>
+<td style="text-align: center;">−0.5</td>
+<td style="text-align: center;">6.6</td>
+<td style="text-align: center;">16.7</td>
+<td style="text-align: left;">正常 FT4 范围</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>0.0</strong>(★样本均值)</td>
+<td style="text-align: center;"><strong>9.1</strong></td>
+<td style="text-align: center;"><strong>20.6</strong></td>
+<td style="text-align: left;"><strong>轻度甲亢残留</strong>(超 FT4 正常上限)</td>
+</tr>
+<tr>
+<td style="text-align: center;">+1.0</td>
+<td style="text-align: center;">14.0</td>
+<td style="text-align: center;">28.5</td>
+<td style="text-align: left;">轻度甲亢残留</td>
+</tr>
+<tr>
+<td style="text-align: center;">+3.0</td>
+<td style="text-align: center;">23.9</td>
+<td style="text-align: center;">44.3</td>
+<td style="text-align: left;">重度甲亢残留</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 3M 反算</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">z</th>
+<th style="text-align: center;">FT3 实际</th>
+<th style="text-align: center;">FT4 实际</th>
+<th style="text-align: left;">临床意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">−2.0</td>
+<td style="text-align: center;">&lt;1</td>
+<td style="text-align: center;">&lt;1</td>
+<td style="text-align: left;">甲减区</td>
+</tr>
+<tr>
+<td style="text-align: center;">−1.0</td>
+<td style="text-align: center;">2.2</td>
+<td style="text-align: center;">7.3</td>
+<td style="text-align: left;">临床甲减</td>
+</tr>
+<tr>
+<td style="text-align: center;">−0.7</td>
+<td style="text-align: center;">3.6</td>
+<td style="text-align: center;">9.5</td>
+<td style="text-align: left;">临床正常下限附近</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>0.0</strong></td>
+<td style="text-align: center;"><strong>6.8</strong></td>
+<td style="text-align: center;"><strong>14.7</strong></td>
+<td style="text-align: left;"><strong>临床正常中段</strong>(样本均值已在正常区)</td>
+</tr>
+<tr>
+<td style="text-align: center;">+0.5</td>
+<td style="text-align: center;">9.0</td>
+<td style="text-align: center;">18.4</td>
+<td style="text-align: left;">接近正常上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">+1.0</td>
+<td style="text-align: center;">11.3</td>
+<td style="text-align: center;">22.2</td>
+<td style="text-align: left;">轻度甲亢残留</td>
+</tr>
+<tr>
+<td style="text-align: center;">+3.0</td>
+<td style="text-align: center;">20.4</td>
+<td style="text-align: center;">37.0</td>
+<td style="text-align: left;">重度甲亢残留</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 6M 反算</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">z</th>
+<th style="text-align: center;">FT3 实际</th>
+<th style="text-align: center;">FT4 实际</th>
+<th style="text-align: left;">临床意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">−2.0</td>
+<td style="text-align: center;">&lt;1</td>
+<td style="text-align: center;">5.4</td>
+<td style="text-align: left;">甲减区</td>
+</tr>
+<tr>
+<td style="text-align: center;">−1.0</td>
+<td style="text-align: center;">2.8</td>
+<td style="text-align: center;">10.1</td>
+<td style="text-align: left;">临床正常下端</td>
+</tr>
+<tr>
+<td style="text-align: center;">−0.7</td>
+<td style="text-align: center;">3.9</td>
+<td style="text-align: center;">11.6</td>
+<td style="text-align: left;">正常 FT4 范围</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>0.0</strong></td>
+<td style="text-align: center;"><strong>6.2</strong></td>
+<td style="text-align: center;"><strong>14.9</strong></td>
+<td style="text-align: left;"><strong>临床正常中段</strong>(样本均值)</td>
+</tr>
+<tr>
+<td style="text-align: center;">+0.5</td>
+<td style="text-align: center;">7.9</td>
+<td style="text-align: center;">17.3</td>
+<td style="text-align: left;">接近正常上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">+1.0</td>
+<td style="text-align: center;">9.6</td>
+<td style="text-align: center;">19.6</td>
+<td style="text-align: left;">轻度甲亢残留</td>
+</tr>
+<tr>
+<td style="text-align: center;">+3.0</td>
+<td style="text-align: center;">16.4</td>
+<td style="text-align: center;">29.1</td>
+<td style="text-align: left;">轻度甲亢残留</td>
+</tr>
+</tbody>
+</table>
+<h3>3.4 12M 反算</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">z</th>
+<th style="text-align: center;">FT3 实际</th>
+<th style="text-align: center;">FT4 实际</th>
+<th style="text-align: left;">临床意义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">−2.0</td>
+<td style="text-align: center;">&lt;1</td>
+<td style="text-align: center;">6.8</td>
+<td style="text-align: left;">临床甲减</td>
+</tr>
+<tr>
+<td style="text-align: center;">−1.0</td>
+<td style="text-align: center;">2.7</td>
+<td style="text-align: center;">10.7</td>
+<td style="text-align: left;">临床正常下端</td>
+</tr>
+<tr>
+<td style="text-align: center;">−0.7</td>
+<td style="text-align: center;">3.6</td>
+<td style="text-align: center;">11.8</td>
+<td style="text-align: left;">正常 FT4 范围</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>0.0</strong></td>
+<td style="text-align: center;"><strong>5.6</strong></td>
+<td style="text-align: center;"><strong>14.5</strong></td>
+<td style="text-align: left;"><strong>临床正常中段</strong>(样本均值)</td>
+</tr>
+<tr>
+<td style="text-align: center;">+0.5</td>
+<td style="text-align: center;">7.1</td>
+<td style="text-align: center;">16.4</td>
+<td style="text-align: left;">临床正常上半段</td>
+</tr>
+<tr>
+<td style="text-align: center;">+1.0</td>
+<td style="text-align: center;">8.5</td>
+<td style="text-align: center;">18.3</td>
+<td style="text-align: left;">接近正常上限</td>
+</tr>
+<tr>
+<td style="text-align: center;">+3.0</td>
+<td style="text-align: center;">14.4</td>
+<td style="text-align: center;">26.0</td>
+<td style="text-align: left;">轻度甲亢残留</td>
+</tr>
+</tbody>
+</table>
+<h2>4. 临床转化要点(避免误读)</h2>
+<ol>
+<li><strong>"FT3,FT4 综合水平 z = 0"不是"健康正常"</strong>,是"该时点 dev 群体平均水平"。1M 时这个平均水平本身就是甲亢残留(治疗刚开始一个月,多数人还在恢复期)。</li>
+<li><strong>形状函数曲线的"零点参考"(F15 在 z ≈ −0.7)</strong>:不是临床安全阈值,是 EBM cyclic boosting 内部选的 baseline。临床转化<strong>看相对趋势</strong>(单调上升 = 激素越高越危险)+ <strong>决策曲线(DCA)给的工作阈值</strong>,而非把形状函数零点当成安全/危险分界。</li>
+<li><strong>跨 landmark 的 z 不可直接比</strong>:每个时点用自己的 dev μ/σ 标准化;1M 的 z = 0 ≈ FT4 20.6,6M 的 z = 0 ≈ FT4 14.9 — 实际值差 5.7 pmol/L,但都是各自时点的"平均水平"。</li>
+<li><strong>如要外部验证或临床部署</strong>:必须<strong>冻结 dev μ/σ</strong>(已在 atlas 脚本里实现),新病人按这个 μ/σ 算 z 才能套用 EBM 形状函数。</li>
+</ol>
+<h2>5. 代码与可复现</h2>
+<p>反算表由本文件同目录的脚本片段产出(<code>module2_v2_ebm_atlas.py</code> 中 <code>_zfit()</code> 与 <code>build_feats_at_L()</code> 是构造源;反算公式 <code>μ + (z/√2)·σ</code> 直接由公式逆推)。</p>
+<pre><code class="language-python"># 复现这张表 — 任意 landmark L:
+import pandas as pd, numpy as np
+m1 = pd.read_csv(&quot;results/module1_baseline_ml_benchmark/tables/module1_frozen_feature_matrix.csv&quot;)
+dev_ids = m1[m1[&quot;Split&quot;]==&quot;Development&quot;][&quot;Episode_Index&quot;].values
+s2 = pd.read_csv(&quot;results/stage2_mh_h6h12_cjk/tables/stage2_long_table.csv&quot;, low_memory=False)
+s2_dev = s2[s2[&quot;Treatment_Index&quot;].isin(dev_ids)]
+for L in (1, 3, 6, 12):
+    ft3 = pd.to_numeric(s2_dev[f&quot;FT3_{L}M&quot;], errors=&quot;coerce&quot;).dropna()
+    ft4 = pd.to_numeric(s2_dev[f&quot;FT4_{L}M&quot;], errors=&quot;coerce&quot;).dropna()
+    print(f&quot;{L}M  μ_FT3={ft3.mean():.2f} σ_FT3={ft3.std():.2f}  μ_FT4={ft4.mean():.2f} σ_FT4={ft4.std():.2f}&quot;)
+    for z in (-2, -1, -0.7, 0, 0.5, 1, 3):
+        z_each = z / np.sqrt(2)
+        print(f&quot;  z={z:+.1f}  FT3≈{ft3.mean() + z_each*ft3.std():.1f}  FT4≈{ft4.mean() + z_each*ft4.std():.1f}&quot;)
+</code></pre>
+
+</body>
+</html>
