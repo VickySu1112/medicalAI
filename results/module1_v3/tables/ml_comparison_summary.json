@@ -1,0 +1,18 @@
+{
+  "feature_pool": "v6_6_features",
+  "features": [
+    "Sex",
+    "ThyroidW",
+    "TPOAb",
+    "FT4_0M",
+    "TSH_0M",
+    "log1p_DiseaseDuration_Months_Aug"
+  ],
+  "n_methods_compared": 9,
+  "n_methods_beating_LR_temporal_significantly": 0,
+  "n_methods_losing_to_LR_temporal_significantly": 1,
+  "n_methods_tied_with_LR_temporal": 7,
+  "LR_Tmp_AUC": 0.6810981683546309,
+  "best_Tmp_AUC": 0.687458696655549,
+  "best_method": "MLP"
+}
