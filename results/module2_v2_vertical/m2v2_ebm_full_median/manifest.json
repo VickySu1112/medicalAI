@@ -1,0 +1,237 @@
+[
+  {
+    "n": 1,
+    "file": "F01_ROC_1M.png",
+    "caption": "1M EBM 时间外 ROC,AUC 0.704(虚线=persistence 当前功能态基线 0.547)"
+  },
+  {
+    "n": 2,
+    "file": "F02_PR_1M.png",
+    "caption": "1M EBM 时间外精确率-召回率,AP 0.628(基线=0.41)"
+  },
+  {
+    "n": 3,
+    "file": "F03_Calib_1M.png",
+    "caption": "1M EBM 时间外校准可靠性"
+  },
+  {
+    "n": 4,
+    "file": "F04_Importance_1M.png",
+    "caption": "1M EBM 原生重要性 top-6"
+  },
+  {
+    "n": 5,
+    "file": "F05_Shape_1M_r1.png",
+    "caption": "1M EBM 形状函数 #1:Thyroid weight"
+  },
+  {
+    "n": 6,
+    "file": "F06_Shape_1M_r2.png",
+    "caption": "1M EBM 形状函数 #2:FT3,FT4 level"
+  },
+  {
+    "n": 7,
+    "file": "F07_DCA_1M.png",
+    "caption": "1M EBM 时间外决策曲线(DCA)"
+  },
+  {
+    "n": 8,
+    "file": "F08_RiskTier_1M.png",
+    "caption": "1M EBM 风险三档(OOF dev 三分位)时间外事件率"
+  },
+  {
+    "n": 9,
+    "file": "F09_Confusion_1M.png",
+    "caption": "1M EBM 混淆矩阵(OOF dev Youden 阈值 0.37)"
+  },
+  {
+    "n": 10,
+    "file": "F10_ROC_3M.png",
+    "caption": "3M EBM 时间外 ROC,AUC 0.799(虚线=persistence 当前功能态基线 0.721)"
+  },
+  {
+    "n": 11,
+    "file": "F11_PR_3M.png",
+    "caption": "3M EBM 时间外精确率-召回率,AP 0.723(基线=0.41)"
+  },
+  {
+    "n": 12,
+    "file": "F12_Calib_3M.png",
+    "caption": "3M EBM 时间外校准可靠性"
+  },
+  {
+    "n": 13,
+    "file": "F13_Importance_3M.png",
+    "caption": "3M EBM 原生重要性 top-6"
+  },
+  {
+    "n": 14,
+    "file": "F14_Shape_3M_r1.png",
+    "caption": "3M EBM 形状函数 #1:FT3,FT4 level"
+  },
+  {
+    "n": 15,
+    "file": "F15_Shape_3M_r2.png",
+    "caption": "3M EBM 形状函数 #2:Thyroid weight"
+  },
+  {
+    "n": 16,
+    "file": "F16_DCA_3M.png",
+    "caption": "3M EBM 时间外决策曲线(DCA)"
+  },
+  {
+    "n": 17,
+    "file": "F17_RiskTier_3M.png",
+    "caption": "3M EBM 风险三档(OOF dev 三分位)时间外事件率"
+  },
+  {
+    "n": 18,
+    "file": "F18_Confusion_3M.png",
+    "caption": "3M EBM 混淆矩阵(OOF dev Youden 阈值 0.31)"
+  },
+  {
+    "n": 19,
+    "file": "F19_ROC_6M.png",
+    "caption": "6M EBM 时间外 ROC,AUC 0.858(虚线=persistence 当前功能态基线 0.775)"
+  },
+  {
+    "n": 20,
+    "file": "F20_PR_6M.png",
+    "caption": "6M EBM 时间外精确率-召回率,AP 0.828(基线=0.41)"
+  },
+  {
+    "n": 21,
+    "file": "F21_Calib_6M.png",
+    "caption": "6M EBM 时间外校准可靠性"
+  },
+  {
+    "n": 22,
+    "file": "F22_Importance_6M.png",
+    "caption": "6M EBM 原生重要性 top-6"
+  },
+  {
+    "n": 23,
+    "file": "F23_Shape_6M_r1.png",
+    "caption": "6M EBM 形状函数 #1:FT3,FT4 level"
+  },
+  {
+    "n": 24,
+    "file": "F24_Shape_6M_r2.png",
+    "caption": "6M EBM 形状函数 #2:TSH (current)"
+  },
+  {
+    "n": 25,
+    "file": "F25_DCA_6M.png",
+    "caption": "6M EBM 时间外决策曲线(DCA)"
+  },
+  {
+    "n": 26,
+    "file": "F26_RiskTier_6M.png",
+    "caption": "6M EBM 风险三档(OOF dev 三分位)时间外事件率"
+  },
+  {
+    "n": 27,
+    "file": "F27_Confusion_6M.png",
+    "caption": "6M EBM 混淆矩阵(OOF dev Youden 阈值 0.43)"
+  },
+  {
+    "n": 28,
+    "file": "F28_ROC_12M.png",
+    "caption": "12M EBM 时间外 ROC,AUC 0.795(虚线=persistence 当前功能态基线 0.642)"
+  },
+  {
+    "n": 29,
+    "file": "F29_PR_12M.png",
+    "caption": "12M EBM 时间外精确率-召回率,AP 0.761(基线=0.41)"
+  },
+  {
+    "n": 30,
+    "file": "F30_Calib_12M.png",
+    "caption": "12M EBM 时间外校准可靠性"
+  },
+  {
+    "n": 31,
+    "file": "F31_Importance_12M.png",
+    "caption": "12M EBM 原生重要性 top-6"
+  },
+  {
+    "n": 32,
+    "file": "F32_Shape_12M_r1.png",
+    "caption": "12M EBM 形状函数 #1:FT3,FT4 level"
+  },
+  {
+    "n": 33,
+    "file": "F33_Shape_12M_r2.png",
+    "caption": "12M EBM 形状函数 #2:Thyroid weight"
+  },
+  {
+    "n": 34,
+    "file": "F34_DCA_12M.png",
+    "caption": "12M EBM 时间外决策曲线(DCA)"
+  },
+  {
+    "n": 35,
+    "file": "F35_RiskTier_12M.png",
+    "caption": "12M EBM 风险三档(OOF dev 三分位)时间外事件率"
+  },
+  {
+    "n": 36,
+    "file": "F36_Confusion_12M.png",
+    "caption": "12M EBM 混淆矩阵(OOF dev Youden 阈值 0.43)"
+  },
+  {
+    "n": 37,
+    "file": "F37_Metrics_over_time.png",
+    "caption": "EBM ROC/PR/Brier 随地标(1/3/6/12M,时间外)"
+  },
+  {
+    "n": 38,
+    "file": "F38_EBM_vs_persistence.png",
+    "caption": "EBM vs persistence(当前功能态)+ naive(prevalence)逐地标 AUC"
+  },
+  {
+    "n": 39,
+    "file": "F39_ROC_all.png",
+    "caption": "EBM 全地标 ROC(1/3/6/12M 时间外)"
+  },
+  {
+    "n": 40,
+    "file": "F40_MultiSeed_stability.png",
+    "caption": "EBM 多 seed(5)temporal AUC 稳定性(1/3/6/12M)"
+  },
+  {
+    "n": 41,
+    "file": "F41_GroupImportance_heatmap.png",
+    "caption": "EBM 原生重要性 组×地标 漂移热力图(1/3/6/12M)"
+  },
+  {
+    "n": 42,
+    "file": "F42_Calib_summary.png",
+    "caption": "EBM 校准截距/斜率汇总(1/3/6/12M)"
+  },
+  {
+    "n": 43,
+    "file": "F43_Collinearity.png",
+    "caption": "FT3-FT4 同向 vs TSH 反向 相关性(轴构造依据,1/3/6/12M)"
+  },
+  {
+    "n": 44,
+    "file": "F44_Lead_shapes_panel.png",
+    "caption": "EBM 各地标主导特征形状函数面板(1/3/6/12M)"
+  },
+  {
+    "n": 45,
+    "file": "F45_Selective_prediction.png",
+    "caption": "EBM 选择性弃权 风险-覆盖(pooled,1/3/6/12M)"
+  },
+  {
+    "n": 46,
+    "file": "F46_OperatingPoint.png",
+    "caption": "EBM 各地标工作点 敏感度/特异度/PPV/NPV(1/3/6/12M)"
+  },
+  {
+    "n": 47,
+    "file": "F47_Calib_pooled.png",
+    "caption": "EBM pooled 校准可靠性(全地标合并,1/3/6/12M)"
+  }
+]
