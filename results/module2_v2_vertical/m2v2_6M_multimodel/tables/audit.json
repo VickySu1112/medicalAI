@@ -1,0 +1,199 @@
+{
+  "口径": "corrected truth (Current_Time) + median impute (time-safe), landmark=6M",
+  "lock": {
+    "EBM_target_AUC": 0.8582,
+    "EBM_observed_AUC": 0.8562,
+    "tolerance": 0.003,
+    "match": true,
+    "ebm_via": "ebm_oof_and_temporal(L=6, interactions=5, max_interaction_bins=16, seed=PY_SEED=2025)"
+  },
+  "data": {
+    "rows_shape": [
+      5015,
+      42
+    ],
+    "dev_at_6M": 802,
+    "temporal_at_6M": 201,
+    "features_total": 16,
+    "features_live": 16,
+    "X_dev_shape": [
+      802,
+      16
+    ],
+    "X_te_shape": [
+      201,
+      16
+    ],
+    "y_dev_event_rate": 0.3641,
+    "y_te_event_rate": 0.408,
+    "rows_hash": "33afd43c79ed8ac6",
+    "X_hash": "7fabd72833344103",
+    "fold_signature": "02de078557c81f5d"
+  },
+  "seeds": {
+    "PY_SEED": 2025,
+    "CV_SEED": 13,
+    "BOOTSTRAP_SEED": 7
+  },
+  "bootstrap_n": 1000,
+  "methods": [
+    "EBM",
+    "L2-Logistic",
+    "Elastic-Net",
+    "k-NN(15)",
+    "Gaussian NB",
+    "SVM-RBF",
+    "RandomForest",
+    "HistGB",
+    "XGBoost"
+  ],
+  "perf_summary": [
+    {
+      "method": "RandomForest",
+      "ROC_AUC": 0.861,
+      "AUC_CI_low": 0.8078,
+      "AUC_CI_high": 0.9082,
+      "PR_AUC": 0.8278,
+      "Brier": 0.1475,
+      "fit_sec": 2.323
+    },
+    {
+      "method": "EBM",
+      "ROC_AUC": 0.8562,
+      "AUC_CI_low": 0.8015,
+      "AUC_CI_high": 0.9051,
+      "PR_AUC": 0.8269,
+      "Brier": 0.1475,
+      "fit_sec": 4.101
+    },
+    {
+      "method": "Elastic-Net",
+      "ROC_AUC": 0.8485,
+      "AUC_CI_low": 0.794,
+      "AUC_CI_high": 0.9009,
+      "PR_AUC": 0.8301,
+      "Brier": 0.1506,
+      "fit_sec": 0.0802
+    },
+    {
+      "method": "L2-Logistic",
+      "ROC_AUC": 0.8474,
+      "AUC_CI_low": 0.7937,
+      "AUC_CI_high": 0.9002,
+      "PR_AUC": 0.8288,
+      "Brier": 0.1511,
+      "fit_sec": 0.0084
+    },
+    {
+      "method": "SVM-RBF",
+      "ROC_AUC": 0.8431,
+      "AUC_CI_low": 0.7847,
+      "AUC_CI_high": 0.894,
+      "PR_AUC": 0.8071,
+      "Brier": 0.1579,
+      "fit_sec": 0.1301
+    },
+    {
+      "method": "HistGB",
+      "ROC_AUC": 0.8387,
+      "AUC_CI_low": 0.7836,
+      "AUC_CI_high": 0.8876,
+      "PR_AUC": 0.7832,
+      "Brier": 0.1831,
+      "fit_sec": 1.4697
+    },
+    {
+      "method": "XGBoost",
+      "ROC_AUC": 0.836,
+      "AUC_CI_low": 0.7798,
+      "AUC_CI_high": 0.8863,
+      "PR_AUC": 0.7765,
+      "Brier": 0.1771,
+      "fit_sec": 0.4458
+    },
+    {
+      "method": "Gaussian NB",
+      "ROC_AUC": 0.8208,
+      "AUC_CI_low": 0.757,
+      "AUC_CI_high": 0.8793,
+      "PR_AUC": 0.7956,
+      "Brier": 0.2156,
+      "fit_sec": 0.0035
+    },
+    {
+      "method": "k-NN(15)",
+      "ROC_AUC": 0.7229,
+      "AUC_CI_low": 0.6508,
+      "AUC_CI_high": 0.7906,
+      "PR_AUC": 0.6947,
+      "Brier": 0.2036,
+      "fit_sec": 0.0188
+    }
+  ],
+  "delta_summary": [
+    {
+      "method": "RandomForest",
+      "delta_AUC_mean": 0.0042,
+      "delta_CI_low": -0.0198,
+      "delta_CI_high": 0.0269,
+      "p_two_sided": 0.718,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "Elastic-Net",
+      "delta_AUC_mean": -0.0076,
+      "delta_CI_low": -0.0384,
+      "delta_CI_high": 0.0208,
+      "p_two_sided": 0.62,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "L2-Logistic",
+      "delta_AUC_mean": -0.0087,
+      "delta_CI_low": -0.0399,
+      "delta_CI_high": 0.02,
+      "p_two_sided": 0.562,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "SVM-RBF",
+      "delta_AUC_mean": -0.0134,
+      "delta_CI_low": -0.042,
+      "delta_CI_high": 0.0151,
+      "p_two_sided": 0.374,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "HistGB",
+      "delta_AUC_mean": -0.0178,
+      "delta_CI_low": -0.0505,
+      "delta_CI_high": 0.011,
+      "p_two_sided": 0.222,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "XGBoost",
+      "delta_AUC_mean": -0.0199,
+      "delta_CI_low": -0.0481,
+      "delta_CI_high": 0.0038,
+      "p_two_sided": 0.108,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "Gaussian NB",
+      "delta_AUC_mean": -0.0359,
+      "delta_CI_low": -0.0823,
+      "delta_CI_high": 0.0029,
+      "p_two_sided": 0.074,
+      "significant_vs_EBM": false
+    },
+    {
+      "method": "k-NN(15)",
+      "delta_AUC_mean": -0.1331,
+      "delta_CI_low": -0.2002,
+      "delta_CI_high": -0.075,
+      "p_two_sided": 0.0,
+      "significant_vs_EBM": true
+    }
+  ]
+}

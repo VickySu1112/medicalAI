@@ -1,0 +1,9 @@
+method,delta_AUC_mean,delta_CI_low,delta_CI_high,p_two_sided,significant_vs_EBM
+RandomForest,0.0042,-0.0198,0.0269,0.718,False
+Elastic-Net,-0.0076,-0.0384,0.0208,0.62,False
+L2-Logistic,-0.0087,-0.0399,0.02,0.562,False
+SVM-RBF,-0.0134,-0.042,0.0151,0.374,False
+HistGB,-0.0178,-0.0505,0.011,0.222,False
+XGBoost,-0.0199,-0.0481,0.0038,0.108,False
+Gaussian NB,-0.0359,-0.0823,0.0029,0.074,False
+k-NN(15),-0.1331,-0.2002,-0.075,0.0,True
