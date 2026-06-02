@@ -1,0 +1,46 @@
+{
+  "口径": "corrected truth + median impute (time-safe), landmarks 1/3/6/12",
+  "config": {
+    "interactions": 20,
+    "max_interaction_bins": 16,
+    "seed": 2025
+  },
+  "targets": [
+    {
+      "slug": "ThyroidW_x_HalfLife",
+      "disp": "Thyroid weight (g) × Iodine HalfLife (d)",
+      "tier": "★★★",
+      "feats": [
+        "ThyroidW",
+        "HalfLife"
+      ]
+    },
+    {
+      "slug": "TRAb_x_Duration",
+      "disp": "TRAb (IU/L) × log Duration (mo)",
+      "tier": "★★★",
+      "feats": [
+        "TRAb",
+        "log1p_DiseaseDuration_Months_Aug"
+      ]
+    },
+    {
+      "slug": "TPOAb_x_Velocity_load",
+      "disp": "TPOAb × FT3,FT4 velocity (z, aggregated)",
+      "tier": "★★",
+      "feats": [
+        "TPOAb",
+        "Velocity_load"
+      ]
+    }
+  ],
+  "outputs": {
+    "A_heatmaps_dir": "figures/",
+    "B_cf_dir": "figures/",
+    "C_consistency_csv": "tables/C_landmark_consistency.csv",
+    "C_all_inter_csv": "tables/C_top_interactions_per_landmark.csv",
+    "A_summary_csv": "tables/A_target_interaction_summary.csv",
+    "B_summary_csv": "tables/B_counterfactual_summary.csv",
+    "D_paper_md": "D_paper_section_3_6_x.md"
+  }
+}

@@ -1,0 +1,4 @@
+slug,display,tier,found_at,importance
+ThyroidW_x_HalfLife,Thyroid weight (g) × Iodine HalfLife (d),★★★,6M,0.1773
+TRAb_x_Duration,TRAb (IU/L) × log Duration (mo),★★★,1M,0.0221
+TPOAb_x_Velocity_load,"TPOAb × FT3,FT4 velocity (z, aggregated)",★★,1M,0.0624

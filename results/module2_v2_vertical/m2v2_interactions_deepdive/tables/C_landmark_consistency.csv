@@ -1,0 +1,4 @@
+target_pair,tier,1M_rank_2d,1M_imp,3M_rank_2d,3M_imp,6M_rank_2d,6M_imp,12M_rank_2d,12M_imp,n_landmarks_seen,best_rank_2d
+Thyroid weight (g) × Iodine HalfLife (d),★★★,9,0.0286,8.0,0.0448,3.0,0.1773,4.0,0.1599,4,3
+TRAb (IU/L) × log Duration (mo),★★★,16,0.0221,,,,,,,1,16
+"TPOAb × FT3,FT4 velocity (z, aggregated)",★★,1,0.0624,,,,,,,1,1

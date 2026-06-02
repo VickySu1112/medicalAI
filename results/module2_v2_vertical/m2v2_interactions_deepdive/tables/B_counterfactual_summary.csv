@@ -1,0 +1,10 @@
+tag,interaction,patient_id,orig_p,Y,actual_a,actual_b,p_grid_min,p_grid_max,p_range
+Low,Thyroid weight (g) × Iodine HalfLife (d),327,0.0075,0,13.4,6.6,0.0067,0.1233,0.1165
+Low,TRAb (IU/L) × log Duration (mo),327,0.0075,0,3.34,1.946,0.0043,0.0139,0.0096
+Low,"TPOAb × FT3,FT4 velocity (z, aggregated)",327,0.0075,0,259.0,0.419,0.0039,0.0367,0.0329
+Mid,Thyroid weight (g) × Iodine HalfLife (d),273,0.2387,0,61.73,5.4,0.032,0.4084,0.3765
+Mid,TRAb (IU/L) × log Duration (mo),273,0.2387,0,7.03,1.946,0.1814,0.3335,0.1521
+Mid,"TPOAb × FT3,FT4 velocity (z, aggregated)",273,0.2387,0,1000.0,0.159,0.215,0.4776,0.2626
+High,Thyroid weight (g) × Iodine HalfLife (d),606,0.9656,1,72.0,3.9,0.6647,0.9854,0.3207
+High,TRAb (IU/L) × log Duration (mo),606,0.9656,1,40.0,4.443,0.9376,0.9774,0.0397
+High,"TPOAb × FT3,FT4 velocity (z, aggregated)",606,0.9656,1,803.541,-5.923,0.705,0.9253,0.2203
