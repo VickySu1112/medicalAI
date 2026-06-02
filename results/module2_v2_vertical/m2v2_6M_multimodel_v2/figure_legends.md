@@ -53,12 +53,18 @@
 
 ![PR overlay](./figures/Compare_PR_6M.png)
 
+> **本图 v2.1 修订**:legend 从原 axes 内"lower left"位置移到 axes 外底部,
+> 4 列横向布局 — 此前 AdaBoost 橙色虚线在 recall ≈ 0.05 处的下沉曲线被
+> "lower left" 的图例遮挡,修订后所有曲线在 0 ≤ recall ≤ 1 全程清晰可见。
+
 **怎么读** — 横轴 recall,纵轴 precision(= PPV)。水平虚线 = 阳性率 0.41
 基线。曲线下面积 = PR-AUC。本图相比 v1 暴露出 PR 维度的真正差异:**EBM / RF /
 L2-LR / LDA / ExtraTrees** 五条挤在上方区(PR-AUC 0.81-0.83);**GradientBoosting
 / HistGB / AdaBoost / DecisionTree** 四条明显回落(PR-AUC 0.76-0.79)。LDA 虽然
 ROC-AUC 排末位 (0.830),PR-AUC 却进入 top 5 — 说明它在 ranking 上还行,只是绝对
-概率值偏移,这跟它假设正态共方差有关。
+概率值偏移,这跟它假设正态共方差有关。AdaBoost 橙色虚线在低 recall 区(0.05
+左右)出现明显下沉到 0.5 — 它在最自信样本上的 precision 反而比中等阈值更差,
+**这是 boosting 过度自信 + 校准失真的典型表现**(校准 Brier 0.196 也最差)。
 
 **临床读法** — 在 recall=0.70 工作点:EBM 的 PPV ≈ 0.78,意味着模型说"24 月内会
 复发"的患者里 78% 真的会;HGB/AdaBoost 在同一工作点 PPV 只有 0.65-0.70,即四分之
@@ -101,9 +107,20 @@ LDA 排末位 0.830 与 RF 0.861 差 3‰,各自 CI 完全互相覆盖。**这�
 
 ![paired delta AUC forest](./figures/Compare_paired_dAUC.png)
 
-**怎么读** — 9 条横线 = 9 个 baseline 减 EBM 的 paired bootstrap 差异分布(每次
+> **本图 v2.1 修订**:此前 axes 左下角放了一行灰色"读图指南"文字
+> ("right of 0 = beats EBM left of 0 = worse than EBM"),由于 LDA 因 ΔAUC
+> 最劣(−0.026)被排在森林图最末行(y 轴底部),与该灰字位置 (0.02, 0.04)
+> 视觉重叠 — 容易被误读为"LDA 的标注"。修订后该读图指南删除,改为:
+> (a) **顶部双向箭头**(绿色 "worse than EBM ←" / 红色 "→ better than EBM"),
+> (b) **x 轴 label 嵌入方向**(`← worse than EBM | better than EBM →`)。
+> 顶部箭头颜色与森林图数据点颜色规则一致 — 红色 = 显著优 EBM(CI 完全在
+> 0 右侧),绿色 = 显著劣 EBM(CI 完全在 0 左侧),蓝色 = CI 跨 0 无显著差异。
+
+**怎么读** — 9 条横线 = 9 个方法减 EBM 的 paired bootstrap 差异分布(每次
 bootstrap 9 方法在同一 draw 上算,做差消除 cohort 不确定性,只剩方法本身差异)。
-点 = 均值,横线 = 95% CI。垂直黑线 = 0。
+点 = 均值,横线 = 95% CI。垂直黑线 = 0。**点颜色编码**:蓝色 = CI 跨 0(与 EBM
+无显著差异,本图 8 条);绿色 = CI 完全在 0 左侧(显著劣 EBM,本图唯一 AdaBoost);
+红色 = CI 完全在 0 右侧(显著优 EBM,本图无)。
 
 **临床读法** — **这是本次实验最关键的图**。结论:
 - **没有任何方法显著优 EBM**(包括名义第一的 RandomForest,Δ=+0.004 CI 跨 0)

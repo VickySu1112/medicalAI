@@ -386,8 +386,9 @@ def main() -> None:
     fig.savefig(OUT / "figures" / "Compare_ROC_6M.png", dpi=160)
     plt.close(fig)
 
-    # F2 · PR overlay
-    fig, ax = plt.subplots(figsize=(6.4, 5.2))
+    # F2 · PR overlay — legend 移到 axes 外底部 4 列,完全不挡曲线(避开 AdaBoost 等
+    # 在 recall 0.6-0.9 区间的下沉曲线)
+    fig, ax = plt.subplots(figsize=(7.2, 6.0))
     for m in methods:
         pr, rc, _ = precision_recall_curve(y_te, preds_te[m])
         ap = average_precision_score(y_te, preds_te[m])
@@ -401,10 +402,14 @@ def main() -> None:
                  fontsize=10)
     ax.set_xlabel("recall", fontsize=9)
     ax.set_ylabel("precision", fontsize=9)
-    ax.legend(loc="lower left", fontsize=7, frameon=False)
+    ax.set_ylim(0.35, 1.0)
+    # legend 外置:axes 下方居中,4 列布局
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.10),
+              ncol=4, fontsize=7, frameon=False,
+              columnspacing=1.2, handlelength=2.0)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.08, 1, 1))   # 给底部 legend 留空间
     fig.savefig(OUT / "figures" / "Compare_PR_6M.png", dpi=160)
     plt.close(fig)
 
@@ -464,8 +469,9 @@ def main() -> None:
     fig.savefig(OUT / "figures" / "Compare_AUC_bar.png", dpi=160)
     plt.close(fig)
 
-    # F5 · paired Δ forest
-    fig, ax = plt.subplots(figsize=(7.2, 5.0))
+    # F5 · paired Δ forest — 删 axes 内"读图指南"灰字(会和末尾 LDA 标签视觉重叠,误读
+    # 为 LDA 注解);改放到 x 轴 label + axes 顶部双向箭头
+    fig, ax = plt.subplots(figsize=(7.6, 5.4))
     y_pos = np.arange(len(delta))[::-1]
     errs = np.array([
         delta["delta_AUC_mean"].values - delta["delta_CI_low"].values,
@@ -485,11 +491,30 @@ def main() -> None:
     ax.axvline(0, color="#333", lw=0.8)
     ax.set_yticks(y_pos)
     ax.set_yticklabels(delta["method"].values)
-    ax.set_xlabel("Δ AUC = method - EBM (paired bootstrap × 1000, 95% CI)",
-                  fontsize=8)
+    # 把"读图方向指南"嵌入到 x 轴 label,不再在 axes 内放灰字
+    ax.set_xlabel(
+        "Δ AUC = method - EBM   "
+        "(← worse than EBM    |    better than EBM →)\n"
+        "paired bootstrap × 1000, 95% CI",
+        fontsize=8,
+    )
     ax.set_title("6M paired ΔAUC vs EBM — forest plot (v2)", fontsize=10)
-    ax.text(0.02, 0.04, "right of 0 = beats EBM   left of 0 = worse than EBM",
-            transform=ax.transAxes, fontsize=7, color="#666")
+    # 在 0 线两侧 axes 顶部加方向箭头注解(放在数据点上方,远离 method 标签)
+    xlim = ax.get_xlim()
+    y_top = max(y_pos) + 0.7
+    ax.annotate(
+        "", xy=(xlim[1] * 0.85, y_top), xytext=(0.002, y_top),
+        arrowprops=dict(arrowstyle="->", color="#cc4444", lw=1.2, alpha=0.6),
+    )
+    ax.text(xlim[1] * 0.5, y_top + 0.15, "better than EBM",
+            fontsize=7, color="#cc4444", ha="center", va="bottom", alpha=0.8)
+    ax.annotate(
+        "", xy=(xlim[0] * 0.85, y_top), xytext=(-0.002, y_top),
+        arrowprops=dict(arrowstyle="->", color="#2a7f5f", lw=1.2, alpha=0.6),
+    )
+    ax.text(xlim[0] * 0.5, y_top + 0.15, "worse than EBM",
+            fontsize=7, color="#2a7f5f", ha="center", va="bottom", alpha=0.8)
+    ax.set_ylim(-0.7, y_top + 0.7)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     fig.tight_layout()
