@@ -57,16 +57,16 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p>判别力随随访累积而单调上升(见 §3.5 图 F37 / F39),6M / 12M 显著高于早期;每地标稳定高出 persistence(当前功能态)0.07–0.16(F38)。下面按时点逐图呈现 ROC / PR / 校准 / 原生重要性 / 形状函数 / 决策曲线 / 风险三档 / 混淆矩阵,每图配解读。所有 ROC / PR / 校准 / 决策 / 三档 / 混淆均在<strong>时间外测试集</strong>评估;三档阈值与 Youden 工作点取自 <strong>OOF 开发集</strong>(不偷看测试)。</p>
 <h3>3.1 早期 1M — 甲状腺重量为锚、甲功起步(9 图)</h3>
 <p><strong>图 F01 · 1M EBM ROC(AUC 0.702)</strong></p>
-<p>凸向左上,AUC 0.702,中等;紫色点划线为 persistence(只看当期 TSH,AUC 0.55)——1M 单看一次 TSH 几近无信息,EBM 借甲状腺重量 + 起步甲功把判别力抬到 0.69。</p>
+<p>凸向左上,AUC 0.702,中等;紫色点划线为 persistence(只看当期 TSH,AUC 0.547)——1M 单看一次 TSH 几近瞎猜(AUC 0.547 离 0.5 只差 0.05),EBM 借甲状腺重量 + 起步甲功把判别力抬到 0.70。</p>
 <p><img id="safe_embedded_img_0" src="" alt="F01" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:1M 的 AUC≈0.69 仅略好于瞎猜,意味着<strong>仅凭 1M 一次复诊化验无法可靠分层 24M 预后</strong>。但 ROC 在低 FPR 区(&lt;0.2)已能爬到 0.4 灵敏度——即模型最有把握的高危那部分(约 20% 假阳代价)能筛出约 40% 的真复发者。临床操作:把 1M 当<strong>初筛</strong>而非确诊,只对「模型 + 大腺体 + 高 TPOAb」三项叠加的极高危亚组做加强监测。</p>
 </blockquote>
-<p><strong>图 F02 · 1M EBM 精确率-召回率(AP 0.602)</strong></p>
-<p>AP 0.602,高于基线约 0.41;精确率在低召回区即达约 0.8 后随召回上升单调回落基线——高召回以精确率为代价,1M 仅对少数高把握病例可靠。</p>
+<p><strong>图 F02 · 1M EBM 精确率-召回率(AP 0.628)</strong></p>
+<p>AP 0.628,高于基线患病率约 0.41;精确率在低召回区即达约 0.8 后随召回上升单调回落基线——高召回以精确率为代价,1M 仅对少数高把握病例可靠。</p>
 <p><img id="safe_embedded_img_1" src="" alt="F02" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:PR-AUC 0.60 高于基线患病率 0.41——模型对<strong>高风险人群</strong>的精确率仍可达 0.75–0.85(召回 &lt; 0.3 时)。临床意义:<strong>1M 模型不适合作漏诊筛查</strong>(高召回区精确率快速回落到基线);适合作<strong>小量精准追加监测</strong>(只对极高分人群加强随访,准 8-9 成)。</p>
+<p><strong>临床读法</strong>:PR-AUC 0.63 高于基线患病率 0.41——模型对<strong>高风险人群</strong>的精确率仍可达 0.75–0.85(召回 &lt; 0.3 时)。临床意义:<strong>1M 模型不适合作漏诊筛查</strong>(高召回区精确率快速回落到基线);适合作<strong>小量精准追加监测</strong>(只对极高分人群加强随访,准 8-9 成)。</p>
 </blockquote>
 <p><strong>图 F03 · 1M EBM 校准</strong></p>
 <p>整体位于对角线下方(系统偏高、过度自信),中段分箱观测率有平台,小样本(N=201)分箱噪声可见——早期概率偏乐观,部署前需重校准。</p>
@@ -75,7 +75,7 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:整体落在对角线下方=模型<strong>过度自信</strong>(slope &lt; 1,预测概率系统性偏高)。临床上若直接拿 EBM 输出概率告知患者「24M 复发风险 30%」,实际可能只有 20%——会引起不必要焦虑。<strong>部署前必须 Platt 或等渗重校准</strong>;校准后再用于患者风险沟通。</p>
 </blockquote>
 <p><strong>图 F04 · 1M EBM 原生重要性 top-6</strong></p>
-<p>甲状腺重量约 0.50 绝对主导(约为第二名「FT3,FT4 综合水平」0.21 的两倍余),其后病程(log)、<code>TPOAb × FT3,FT4 速度</code>交互、TPOAb、TRAb——1M 是"甲状腺重量为锚、甲功起步"的过渡时点,解剖负荷主导。</p>
+<p>甲状腺重量 0.466 绝对主导(约为第二名「FT3,FT4 综合水平」0.174 的 <strong>2.7 倍</strong>),其后「TPOAb × FT3,FT4 综合变化速度」交互 0.138、病程(log)0.108、「甲状腺重量 × TSH 变化速度」交互 0.096、FT3,FT4 综合变化速度 0.096——1M 是"甲状腺重量为锚、甲功起步"的过渡时点,解剖负荷主导,<strong>交互项已开始出现</strong>(top-6 中有 2 项是交互)。</p>
 <p><img id="safe_embedded_img_3" src="" alt="F04" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:1M 离 RAI 仅 1 个月,甲状腺破坏过程刚启动、激素水平尚在剧烈波动期——化验快照信息量不足以分辨预后。<strong>真正稳定的预后信号此时是 0M 已确定的「靶器官大小(甲状腺重量)」</strong>:大腺体=需要破坏的功能性组织多=单次 RAI 剂量相对不足风险高(对应 Marinelli 公式 D∝μCi/g×重量/[摄取率×半衰期])。<strong>临床含义</strong>:1M 复诊不要急着根据当期 TSH/FT4 下结论;该重点看 0M 影像评估的腺体大小 + 病程(长病程=自身免疫慢性化、更难一击根除)。</p>
@@ -99,20 +99,20 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:在临床合理阈值(20%–60% 风险)区间,EBM 净获益高于「全治」或「全不治」两条参考线——意味着即使 1M 模型 AUC 不高,<strong>用它做风险分层仍优于无差别处理</strong>。但治疗决策阈值 &lt; 20% 时(对应「宁错召不漏诊」低阈值策略),DCA 优势消失——此时盲目治疗反而损失更大。</p>
 </blockquote>
 <p><strong>图 F08 · 1M 风险三档事件率</strong></p>
-<p>单调上行:low / mid / high 事件率拉开梯度(高低相差约 2–3×),外部时间集能分出风险层次;但最高档绝对风险有限,1M 分离幅度仅中等。</p>
+<p>单调上行但分离很弱:low 0.27 / mid 0.30 / high 0.59,高低相差约 2.2×;mid 几乎贴 low、只有 high 档明显抬升,1M 实质上<strong>只能区分"高危"vs"非高危"两档</strong>,不能做精细 3 档分层。</p>
 <p><img id="safe_embedded_img_7" src="" alt="F08" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:1M 三档事件率梯度仅约 2.7×(low 0.21 / mid 0.38 / high 0.57),区分度有限。<strong>high 档 0.57</strong> 意味着模型判为高危者仍有约 43% 不会真复发;<strong>low 档 0.21</strong> 也不够低以支持 rule-out(理想 NPV ≥ 0.90 需 low 档事件率 ≤ 0.10)。<strong>1M 不是临床分层的最佳时点</strong>——3M 起才进入可分层的实用区。</p>
+<p><strong>临床读法</strong>:1M 三档事件率梯度约 2.2×(low 0.27 / mid 0.30 / high 0.59),区分度弱;尤其 <strong>mid 0.30 ≈ low 0.27</strong>——模型在中低危区几乎无分辨力。<strong>high 档 0.59</strong> 意味着模型判为高危者仍有约 41% 不会真复发;<strong>low 档 0.27</strong> 也远不够低以支持 rule-out(理想 NPV ≥ 0.90 需 low 档事件率 ≤ 0.10)。<strong>1M 不是临床分层的最佳时点</strong>——3M 起才进入可分层的实用区。</p>
 </blockquote>
 <p><strong>图 F09 · 1M 混淆矩阵(OOF Youden 阈值)</strong></p>
-<p>该阈值偏低换高灵敏:多数复发被检出、代价是约半数未复发者被判阳——契合复发筛查"宁错召不漏诊",但 1M 假阳偏多。</p>
+<p>阈值约 0.37:TP=53 / FN=29(灵敏度 65%)、TN=78 / FP=41(特异度 66%)——灵敏度与特异度大致均衡但都仅中等,1M 时点单一阈值已无法兼顾。</p>
 <p><img id="safe_embedded_img_8" src="" alt="F09" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:Youden 阈值下假阳率约 51%——即「半数未复发者被误判为复发风险」,这在 1M 时点临床上<strong>不可接受</strong>作为正式风险报告。临床操作建议:1M 时不要硬给患者一个「复发风险概率」,而是说<strong>早期监测建议复诊频率</strong>,到 3M / 6M 再做正式预后讨论。</p>
+<p><strong>临床读法</strong>:Youden 阈值下灵敏度仅 65%、特异度 66%、假阳率约 34%——即「约 1/3 未复发者被误判为复发风险 + 1/3 真复发被漏」,这在 1M 时点临床上<strong>不适合</strong>作为正式风险报告。临床操作建议:1M 时不要硬给患者一个「复发风险概率」,而是说<strong>早期监测建议复诊频率</strong>,到 3M / 6M 再做正式预后讨论。</p>
 </blockquote>
 <h3>3.2 中期 3M — 当期甲功水平接管(9 图)</h3>
 <p><strong>图 F10 · 3M EBM ROC(AUC 0.799)</strong></p>
-<p>AUC 0.799,较 1M 跃升;低假阳性区即升至 0.6–0.7 灵敏度,判别力已较强;persistence(0.68)亦随当期 TSH 信息增多而抬升,但仍低 EBM 约 0.11。阶梯状属小样本(N=201)正常表现。</p>
+<p>AUC 0.799,较 1M 跃升;低假阳性区即升至 0.6–0.7 灵敏度,判别力已较强;persistence(0.721)亦随当期 TSH 信息增多而大幅抬升,但仍低 EBM 约 0.078——<strong>单看 3M TSH 已能拿到 0.72,EBM 多看 14 特征 + 5 交互再加 0.08</strong>,3M 是 TSH 信号最强、EBM 净增量最小的拐点之一。阶梯状属小样本(N=201)正常表现。</p>
 <p><img id="safe_embedded_img_9" src="" alt="F10" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:3M ROC 在低 FPR 区(&lt;0.3)爬到 0.65 灵敏度——意味着<strong>3M 模型可作有把握的早期高危识别工具</strong>:按高特异度工作点筛出的高危人群有 65% 命中率。这正好是 RAI 后第一个有临床价值的预后判定时点。</p>
@@ -130,7 +130,7 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:3M 校准较 1M 大幅改善(slope ≈ 0.76 接近 1),五点基本单调贴对角线——<strong>3M 起 EBM 输出概率可直接用于患者沟通</strong>(轻度 Platt 校准后)。例如「3M 模型估计您 24M 复发风险 40%」在临床上是有意义的告知。</p>
 </blockquote>
 <p><strong>图 F13 · 3M EBM 原生重要性 top-6</strong></p>
-<p>「FT3,FT4 综合水平」约 0.54 居首,甲状腺重量 0.38 退居第二,当期 TSH 0.27 第三,其后 TSH 速度 / FT3,FT4 速度——<strong>当期甲功水平接管首位主导</strong>,体现"当前状态"对近期复发的强预测;修复真值后此接管较旧口径更早、更彻底。</p>
+<p>「FT3,FT4 综合水平」<strong>0.500 居首</strong>,甲状腺重量 0.367 退居第二,当期 TSH 0.298 第三,TSH 变化速度 0.181 第四,T3T4 落差 0.130 第五,TRAb 0.126 第六——<strong>当期甲功水平接管首位主导</strong>,体现"当前状态"对近期复发的强预测;修复真值后此接管较旧口径更早、更彻底。</p>
 <p><img id="safe_embedded_img_12" src="" alt="F13" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:3M 是关键转折——RAI 一次性放射性破坏的急性期已过,<strong>残余甲状腺功能开始稳定</strong>,此时的「当期 FT3/FT4 水平」开始有真预后意义。甲状腺重量退居第二并非「不重要」,而是「它已经通过 3M 甲功间接反映出来」——大腺体 → 3M FT3/FT4 仍高 → EBM 直接通过当期水平捕获。<strong>临床含义</strong>:3M 是 RAI 后第一个「复发预警」窗口——若此时甲功仍明显升高(超出正常上限 ≥ 2 倍),应警惕需早期再治疗。</p>
@@ -154,29 +154,29 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:3M DCA 在 10%–60% 临床合理阈值区间净获益持续高于 treat-all/treat-none——<strong>3M 模型适合用于「是否需 ATD 补充 / 是否需早期 2 次 RAI」的临床决策</strong>。treat-all 在 40% 阈值后转负(全部 RAI 二次治疗代价过大),EBM 此时优势最明显。</p>
 </blockquote>
 <p><strong>图 F17 · 3M 风险三档事件率</strong></p>
-<p>单调:low / mid / high 事件率高低相差约 6–7×,外部时间窗内有效区分梯度,可支撑分层随访;较 1M 分离明显加大。</p>
+<p>单调:low 0.09 / mid 0.32 / high 0.69 高低相差约 <strong>7.7×</strong>,外部时间窗内有效区分梯度,可支撑分层随访;较 1M(2.2×)分离大幅加大。</p>
 <p><img id="safe_embedded_img_16" src="" alt="F17" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:3M 三档事件率梯度约 6.7×(low 0.10 / mid 0.32 / high 0.69),开始呈现临床可分层的清晰梯度。<strong>low 档 NPV ≈ 0.90</strong> 已接近 rule-out 标准——<strong>3M 模型概率 &lt; 三分位下限者可降级随访</strong>(临床操作化:3 月一次复诊改为 6 月一次)。</p>
+<p><strong>临床读法</strong>:3M 三档事件率梯度约 7.7×(low 0.09 / mid 0.32 / high 0.69),开始呈现临床可分层的清晰梯度。<strong>low 档 NPV ≈ 0.91</strong> 已达 rule-out 标准——<strong>3M 模型概率 &lt; 三分位下限者可降级随访</strong>(临床操作化:3 月一次复诊改为 6 月一次)。</p>
 </blockquote>
 <p><strong>图 F18 · 3M 混淆矩阵(OOF Youden 阈值)</strong></p>
 <p>偏高灵敏(多些假阳换更少漏诊),契合复发筛查;较 1M 特异度回升,假阳减少——3M 起进入更可用区间。</p>
 <p><img id="safe_embedded_img_17" src="" alt="F18" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:3M Sens 0.79 / Spec 0.64——比 1M 大幅改善但仍偏高敏低特(假阳率 36%)。<strong>适合作高敏筛查阈值</strong>:不漏诊 79% 的复发者,但代价是约 1/3 的未复发者被误判。<strong>临床操作</strong>:对 3M 模型判阳的患者,先加强 1-2 个月监测,<strong>到 6M 再正式分层</strong>——可避免 36% 误报带来的过度焦虑。</p>
+<p><strong>临床读法</strong>:3M Sens 0.76 / Spec 0.68——比 1M 大幅改善,灵敏度与特异度趋均衡(假阳率约 32%)。<strong>适合作复发筛查</strong>:可不漏诊 76% 的复发者,但代价是约 1/3 的未复发者被误判。<strong>临床操作</strong>:对 3M 模型判阳的患者,先加强 1-2 个月监测,<strong>到 6M 再正式分层</strong>——可避免 32% 误报带来的过度焦虑。</p>
 </blockquote>
 <h3>3.3 后期 6M — 当期甲功主导(corrected 后水平接管动量,9 图)</h3>
 <blockquote>
-<p>口径变更提示:旧退化口径下 6M ROC ~~0.817~~、且<strong>由「FT3,FT4 综合变化速度(动量)」主导</strong>;<strong>corrected 真值 + median 主线 后 6M ROC=0.858,首位主导切换为「FT3,FT4 综合水平」(当期甲功),激素动量退居第三</strong>(详见 F22 / §4)。</p>
+<p>口径变更提示:旧退化口径下 6M ROC ~~0.817~~、且<strong>由「FT3,FT4 综合变化速度(动量)」主导</strong>;<strong>corrected 真值 + median 主线后 6M ROC=0.858,首位主导切换为「FT3,FT4 综合水平」(当期甲功)0.766,激素动量「FT3,FT4 综合变化速度」退到第 5 位(0.225)</strong>(详见 F22 / §4)。</p>
 </blockquote>
 <p><strong>图 F19 · 6M EBM ROC(median 主线 AUC 0.858 / LOCF 对照 0.881)</strong></p>
-<p>AUC 0.858(median 主线)——较旧退化口径(0.817)大幅提升,低假阳性区即升至约 0.6–0.7 灵敏度、凸形良好;persistence(0.78)亦较高,但 EBM 仍稳定高出约 0.08——后期"当期真实甲功 + 恢复趋势"信号使模型在控误报下捕获多数复发。<strong>6M 是性能峰,12M(0.795)开始回落——符合 lead-time 物理直觉</strong>。LOCF 对照 0.881 跟 median 接近(此时大多数患者仍随访,LOCF 借力效应小;真正大借力在 12M)。</p>
+<p>AUC 0.858(median 主线)——较旧退化口径(0.817)大幅提升,低假阳性区即升至约 0.6–0.7 灵敏度、凸形良好;persistence(0.775)亦较高,但 EBM 仍稳定高出约 0.083——后期"当期真实甲功 + 恢复趋势"信号使模型在控误报下捕获多数复发。<strong>6M 是性能峰,12M(0.795)开始回落——符合 lead-time 物理直觉</strong>。LOCF 对照 0.881 跟 median 接近(此时大多数患者仍随访,LOCF 借力效应小;真正大借力在 12M)。</p>
 <p><img id="safe_embedded_img_18" src="" alt="F19" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:6M ROC 显著凸向左上角,1−spec≈0.5 已达灵敏度 0.85——意味着<strong>容忍约 50% 假阳率可捕获 85% 真复发</strong>。临床上这对应「6M 复诊愿意给一半未复发者额外焦虑,以确保几乎不漏诊」的高敏策略;若更重 specificity(避免误报),也可上调阈值取 spec 0.85 灵敏度 0.60 的平衡点。</p>
 </blockquote>
-<p><strong>图 F20 · 6M EBM 精确率-召回率(AP 0.839)</strong></p>
-<p>AP 0.839,远高于基线;精确率在中高召回区稳定约 0.8–0.9,召回&gt;0.8 才明显下滑——保留高查全时仍维持较好查准,较 3M 进一步抬升。</p>
+<p><strong>图 F20 · 6M EBM 精确率-召回率(AP 0.828)</strong></p>
+<p>AP 0.828,远高于基线;精确率在中高召回区稳定约 0.8–0.9,召回&gt;0.8 才明显下滑——保留高查全时仍维持较好查准,较 3M(0.723)进一步抬升 +0.105。</p>
 <p><img id="safe_embedded_img_19" src="" alt="F20" /></p>
 <blockquote>
 <p><strong>临床读法</strong>:6M PR-AUC ≈ 0.84,中召回区精确率达 0.85——意味着「模型说复发」的患者 85% 真会在 24M 复发。<strong>临床操作</strong>:6M 模型判阳者<strong>强烈建议进入「密切随访 + 提前评估 2 次 RAI」通道</strong>——其预测可靠性已可作临床决策依据。</p>
@@ -188,10 +188,10 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:6M 校准基本贴对角线(slope 0.75–0.83 接近理想)——<strong>EBM 输出概率可直接告知患者</strong>(例如「6M 模型估算您 24M 复发风险 65%」)。临床沟通时不需要再做 calibration 转换,可直接用模型概率讲解。</p>
 </blockquote>
 <p><strong>图 F22 · 6M EBM 原生重要性 top-6(口径变更核心图)</strong></p>
-<p>「FT3,FT4 综合水平」约 1.07 绝对居首、「当期 TSH」0.54 次之、「FT3,FT4 综合变化速度」0.41 第三,其后甲状腺重量 / TSH 速度。~~旧退化口径:动量(速度)居首~~ → <strong>corrected 真值后当期水平接管首位,激素动量退居第三</strong>——修复"读错当期化验列"后,当期真实甲功的强信号回归,印证当期状态在 6M 的主导地位。</p>
+<p>「FT3,FT4 综合水平」<strong>0.766 绝对居首</strong>、「当期 TSH」0.541 次之、甲状腺重量 0.365 第三、TSH 变化速度 0.310 第四、「FT3,FT4 综合变化速度」<strong>0.225 第五</strong>、「当期 TSH × FT3,FT4 落差」交互 0.179 第六。~~旧退化口径:动量(速度)居首~~ → <strong>corrected 真值 + median 主线后当期水平绝对接管首位</strong>(0.766 是第二名 0.541 的 1.4×),激素动量速度退到 #5(0.225)——修复"读错当期化验列"后,当期真实甲功的强信号回归,印证当期状态在 6M 的主导地位。</p>
 <p><img id="safe_embedded_img_21" src="" alt="F22" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:6M 是 RAI 后<strong>长期判定的核心时点</strong>——甲状腺组织破坏与免疫反应均已接近稳态。「FT3,FT4 综合水平」+「当期 TSH」+ 甲状腺重量三者贡献 ≈ 1.78,占总重要性的绝对多数——「现在状态如何」基本决定了 24M 结局。<strong>临床含义</strong>:6M 是 RAI 后<strong>最关键的复诊节点</strong>:若此时甲功完全正常 + TSH 已回升 + 腺体明显缩小 → 长期治愈概率高;反之「6M 仍有明显甲功异常」者建议<strong>密切随访 1 年 / 提前与患者沟通可能需 2 次 RAI</strong>。</p>
+<p><strong>临床读法</strong>:6M 是 RAI 后<strong>长期判定的核心时点</strong>——甲状腺组织破坏与免疫反应均已接近稳态。「FT3,FT4 综合水平」+「当期 TSH」+ 甲状腺重量三者贡献 ≈ <strong>1.67</strong>(0.766+0.541+0.365),占总重要性的绝对多数——「现在状态如何」基本决定了 24M 结局。<strong>临床含义</strong>:6M 是 RAI 后<strong>最关键的复诊节点</strong>:若此时甲功完全正常 + TSH 已回升 + 腺体明显缩小 → 长期治愈概率高;反之「6M 仍有明显甲功异常」者建议<strong>密切随访 1 年 / 提前与患者沟通可能需 2 次 RAI</strong>。动量类(速度)虽退到第 5,但仍以「FT3/FT4 综合变化速度」(0.225)和与 TSH 落差的交互(0.179)贡献边际增量。</p>
 </blockquote>
 <p><strong>图 F23 · 6M 形状函数 #1:FT3,FT4 综合水平</strong></p>
 <p>单调递增强非线性,均值附近骤升穿零、高值端饱和平台(约 +2)——当期甲功越高、复发风险贡献越大且高值饱和;阶梯跳变源自 EBM 分箱,线性 LR 需手工逼近。</p>
@@ -206,16 +206,16 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:6M 当期 TSH 形状单调递减(TSH 极低 / 受抑时正贡献,TSH 回升后转负)——临床上「6M TSH 已回到正常下限」是治愈的强信号(贡献 ≈ −0.5);「6M TSH 仍 &lt; 0.01 mIU/L 受抑」则提示甲状腺仍在过度产激素,复发风险高。<strong>临床决策</strong>:6M 评估「TSH 是否摆脱抑制」是预后判断的关键观察项,比单看 FT4 更敏感(垂体反馈延迟反映稳态)。</p>
 </blockquote>
 <p><strong>图 F25 · 6M 决策曲线</strong></p>
-<p>全临床阈值区间(约 0.05–0.6)EBM 净获益持续高于两条参考线(treat-all 约 0.42 后转负),阈值 0.6 处仍为正——临床合理阈值内均有正向净获益,幅度大于早期。</p>
+<p>低-中阈值区间(约 0.05–0.4)EBM 净获益持续高于两条参考线(treat-all 约 0.42 后转负);<strong>阈值约 0.4 后 EBM 也开始下行</strong>,约 0.5 后回到接近 treat-none 的零线——<strong>6M 决策有效区间约 0.05–0.4</strong>,远高于早期但<strong>非"全阈值区间制胜"</strong>。</p>
 <p><img id="safe_embedded_img_24" src="" alt="F25" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:6M DCA 在全临床合理阈值(0.1–0.6)均高于参考线——<strong>6M 模型在所有合理决策阈值下都有净获益</strong>。这是 M2 唯一在所有 rule-out 与 rule-in 阈值下都赢的时点,印证 6M 作为<strong>核心临床决策窗口</strong>的价值。</p>
+<p><strong>临床读法</strong>:6M DCA 在临床主流决策阈值(10%–40% 风险)区间显著高于参考线——<strong>6M 模型对「中危以下要不要追加干预」决策最有用</strong>;阈值 &gt; 40%(即仅对极高危患者考虑提前 2 次 RAI)时,EBM 净获益逐渐接近 treat-none(因为高把握高危例数较少,模型增量有限)。<strong>临床操作含义</strong>:用 6M 模型概率做「&lt;10% 可降级随访 / 10–40% 需密切监测 / &gt;40% 提前与患者讨论 2 次 RAI」三档分层,DCA 净获益最大。</p>
 </blockquote>
 <p><strong>图 F26 · 6M 风险三档事件率</strong></p>
-<p>强单调:low 0.10 / mid 0.25 / high 0.82(高低相差约 8×),分层区分度好——最高档绝对风险已达 0.82,可直接支撑"高危加密随访 / 低危降级"。</p>
+<p>强单调:low 0.09 / mid 0.25 / high 0.73(高低相差约 <strong>8×</strong>),分层区分度好——最高档绝对风险已达 0.73,可直接支撑"高危加密随访 / 低危降级"。</p>
 <p><img id="safe_embedded_img_25" src="" alt="F26" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:6M 模型按 dev 三分位切分的「低/中/高危」三档在 temporal 上事件率呈约 8 倍单调梯度。<strong>low 档(~9%)的低事件率</strong>意味着 6M EBM 概率 &lt; 三分位下限者<strong>长期复发风险已很低,可降级随访</strong>(从 3 月一次延长到 6-12 月一次);<strong>high 档(~74%)</strong>则提示「6M 仍属高危信号」,建议<strong>保持密切随访 / 提前评估 2 次 RAI 必要性</strong>。这正是 6M 作为「rule-out 决策窗口」的临床操作化呈现。</p>
+<p><strong>临床读法</strong>:6M 模型按 dev 三分位切分的「低/中/高危」三档在 temporal 上事件率呈约 8 倍单调梯度(0.09 / 0.25 / 0.73)。<strong>low 档(9%)的低事件率</strong>意味着 6M EBM 概率 &lt; 三分位下限者<strong>长期复发风险已很低,可降级随访</strong>(从 3 月一次延长到 6-12 月一次);<strong>high 档(73%)</strong>则提示「6M 仍属高危信号」,建议<strong>保持密切随访 / 提前评估 2 次 RAI 必要性</strong>。这正是 6M 作为「rule-out 决策窗口」的临床操作化呈现。</p>
 </blockquote>
 <p><strong>图 F27 · 6M 混淆矩阵(OOF Youden 阈值)</strong></p>
 <p>灵敏度与特异度较均衡;假阴例数下降——该阈值下漏检比例较早期减少,更重查全可下调阈值。</p>
@@ -246,10 +246,10 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:12M 校准 slope ≈ 0.87(最接近 1)——<strong>12M 模型概率最可信,可直接用于患者风险沟通</strong>。临床上「12M 模型估计您 24M 复发风险 50%」是较精确的告知,与实际比例接近。</p>
 </blockquote>
 <p><strong>图 F31 · 12M EBM 原生重要性 top-6</strong></p>
-<p>「FT3,FT4 综合水平」约 1.08 绝对居首、「当期 TSH」0.61 次之、<strong>第三为交互项「FT3,FT4 综合水平 × FT3,FT4 综合变化速度」(约 0.37)</strong>,其后甲状腺重量 / FT3,FT4 速度。当期水平在 12M 持续主导(与 6M 一脉相承);<strong>EBM 自动发现"当前甲功水平 × 其变化速度"的二阶交互</strong>——"高水平且仍在上升"较"高水平但已回落"风险更高,这正是 momentum 在 level 之上的增量。</p>
+<p>「FT3,FT4 综合水平」<strong>0.542 居首</strong>、甲状腺重量 <strong>0.474 第二</strong>、当期 TSH 0.379 第三、TSH 变化速度 0.362 第四、<strong>第五为交互项「FT3,FT4 综合水平 × FT3,FT4 落差」(0.268)</strong>、FT3,FT4 落差 0.233 第六。当期水平在 12M 持续主导(与 6M 一脉相承);<strong>甲状腺重量在 12M 重回第二</strong>(6M 第三 → 12M 第二),表明远端时点解剖负荷对预后仍举足轻重;EBM 自动发现「水平 × 落差」二阶交互,刻画"高水平 + FT3/FT4 失衡"是更高危的联合象限。</p>
 <p><img id="safe_embedded_img_30" src="" alt="F31" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:12M 重要性结构与 6M 类似(当期水平 + TSH + 甲状腺重量),但<strong>单纯当期 TSH 上升到 0.61</strong>——12M 已进入「稳态判定」阶段,垂体反馈轴恢复情况(TSH 是否回升到正常)成为关键指标。12M 还出现「当期 TSH × 当期水平」交互(top-4),意味着「水平 + 反馈状态联合判定」已超越任何单一特征——这是临床医生综合判断的统计指纹。<strong>注</strong>:12M 真值人次 605/1003(40% 脱落),数字反映剩下来复查的患者,有 survivor bias。</p>
+<p><strong>临床读法</strong>:12M 重要性结构相比 6M 有两点关键变化:① <strong>甲状腺重量回升至第 2</strong>(0.474,6M 仅第 3 位 0.365)——远端时点单看当期甲功不够,腺体大小作为"恒定预后锚"再次显形,提醒临床医生 12M 评估时要回看 0M 影像数据;② <strong>TSH 速度上升到第 4</strong>(0.362),反映 HPT 反馈轴恢复速率成为关键判定项——「TSH 回升正常多快」预测 24M 最终结局。<strong>注</strong>:12M 真值人次 605/1003(40% 脱落,median 用 dev 中位代入)。</p>
 </blockquote>
 <p><strong>图 F32 · 12M 形状函数 #1:FT3,FT4 综合水平(核心图)</strong></p>
 <p>单调递增强非线性:零点附近从约 −1.4 陡升到 +2.0 log-odds(过零局部 OR ≈ exp(3.4) ≈ 30),高值端饱和平台(约 +2.2)——当期甲功是 12M 最强复发驱动,"低于均值保护、高于均值急升"的阈值效应明确;线性模型无法刻画此拐折。</p>
@@ -270,10 +270,10 @@ GA2M (EBM):  logit(p) = β0 + Σ_j f_j(x_j) + Σ_{j&lt;k} f_{jk}(x_j, x_k)
 <p><strong>临床读法</strong>:12M DCA 在全阈值区间均显著高于参考线——但临床价值小于 6M,因为<strong>12M 时距 24M 仅 1 年,即使模型预测高危,可介入手段已有限</strong>(2 次 RAI 仍需 3-6 个月生效)。<strong>实操</strong>:12M 用于患者风险沟通与心理准备,6M 才是「主动干预决策时点」。</p>
 </blockquote>
 <p><strong>图 F35 · 12M 风险三档事件率</strong></p>
-<p>强单调,高低档事件率差距四地标最大——远期分层最干净,最高档绝对风险高、最低档接近零,适合"高危确证 + 低危安心降级"。</p>
+<p>强单调:low 0.11 / mid 0.33 / high 0.68,高低相差约 <strong>6.2×</strong>——比 6M(8×)略低、比 3M(7.7×)略低,median 主线下 12M 分层仍清晰但<strong>幅度不及 6M</strong>(再次符合"6M 才是真正的核心决策窗口"叙事)。</p>
 <p><img id="safe_embedded_img_34" src="" alt="F35" /></p>
 <blockquote>
-<p><strong>临床读法</strong>:12M 三档分层(LOCF 下高/低 ≈ 11×)——比 6M 更陡梯度,但仍含 LOCF 借力。<strong>low 档接近 0</strong> 意味着 12M 时 EBM 概率 &lt; 阈值者<strong>几乎不可能在 24M 内复发</strong>——<strong>临床操作</strong>:12M 低危档患者可正式宣告治愈并降级随访(从 6 月一次延长到 12 月一次)。</p>
+<p><strong>临床读法</strong>:12M median 主线下三档分层 0.11 / 0.33 / 0.68(LOCF 对照下高/低梯度可达 11×,但其增益主要来自 12M 脱落者借 6M 力)。<strong>low 档 0.11</strong> 意味着 12M EBM 概率 &lt; 三分位下限者 24M 内复发风险约 11%——<strong>临床操作</strong>:12M 低危档患者可宣告"接近治愈",但仍建议保留 24M 复诊作终点确认;<strong>high 档 68%</strong> 意味着 12M 高危患者<strong>几乎确定需要 2 次 RAI</strong>,应立即与患者讨论。注:相较 6M(low 9% / high 73%),12M 分层略不如 6M 干净——这跟"6M 是最佳早期介入窗口"的主线叙事一致。</p>
 </blockquote>
 <p><strong>图 F36 · 12M 混淆矩阵(OOF Youden 阈值)</strong></p>
 <p>灵敏度与特异度均较高、假阴/假阳同时偏低——12M 工作点四地标最优,漏诊与误报都较少,贴合远期"判定是否需再治疗"的双向需求。</p>
