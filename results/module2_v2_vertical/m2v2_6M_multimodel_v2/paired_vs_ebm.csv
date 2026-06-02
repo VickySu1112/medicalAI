@@ -1,0 +1,10 @@
+method,delta_AUC_mean,delta_CI_low,delta_CI_high,p_two_sided,significant_vs_EBM
+RandomForest,0.0042,-0.0198,0.0269,0.718,False
+L2-Logistic,-0.0087,-0.0399,0.02,0.562,False
+ExtraTrees,-0.0092,-0.0366,0.017,0.496,False
+SVM-RBF,-0.0134,-0.042,0.0151,0.374,False
+GradientBoosting,-0.0158,-0.0373,0.004,0.136,False
+HistGB,-0.0178,-0.0505,0.011,0.222,False
+AdaBoost,-0.0181,-0.0353,-0.0026,0.028,True
+DecisionTree,-0.0192,-0.0538,0.0124,0.256,False
+LDA,-0.0262,-0.0678,0.0163,0.238,False
