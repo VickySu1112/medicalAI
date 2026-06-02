@@ -186,9 +186,13 @@ FEATS = (BLOCK_A_BURDEN + BLOCK_B_EXPOSURE +
 def main() -> None:
     (OUT / "figures").mkdir(parents=True, exist_ok=True)
     (OUT / "tables").mkdir(parents=True, exist_ok=True)
-    print("Loading 12M-extended stacked dataset…", flush=True)
-    rows = load_stacked_12m()
-    print(f"  rows: {len(rows)} (expect 1003 × 4 = 4012)", flush=True)
+    # CORRECTED 主线:load_stacked_x(corrected=True) 拿真值 + median 插补,滤到 (1,3,6,12)
+    # 旧版自定义 load_stacked_12m() 用退化宽列已废弃
+    print("Loading 12M-extended stacked via load_stacked_x(corrected=True) …", flush=True)
+    from scripts.simple.module2_v2_shared import load_stacked_x
+    sd = load_stacked_x(corrected=True)
+    rows = sd.rows[sd.rows["landmark"].isin(LANDMARKS_EXT)].reset_index(drop=True)
+    print(f"  rows: {len(rows)} (expect 1003 × 4 = 4012); cols: {rows.shape[1]}", flush=True)
     y = rows["Y_24M_NHRH"].values
     lm = rows["landmark"].values
     is_dev = (rows["Split"] == "Development").values

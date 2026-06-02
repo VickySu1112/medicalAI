@@ -1,28 +1,28 @@
 tag,term,log_odds_contribution,OR_factor
-Low,TSH velocity,-0.9242,0.397
-Low,"FT3,FT4 velocity",-0.5373,0.584
-Low,Thyroid weight (g),-0.3605,0.697
-Low,log Duration (mo),-0.1355,0.873
-Low,TRAb,-0.117,0.89
-Low,Thyroid weight (g) × TPOAb,0.1162,1.123
-Low,"TGAb × FT3,FT4 velocity",-0.1149,0.891
-Low,"TPOAb × FT3,FT4 velocity",0.0455,1.047
-Low,intercept,-0.7069,0.493
-Mid,Thyroid weight (g),-0.4143,0.661
-Mid,TSH velocity,0.2514,1.286
-Mid,"FT3,FT4 vel gap",-0.2076,0.813
-Mid,TRAb,-0.1217,0.885
-Mid,"FT3,FT4 velocity",-0.1187,0.888
-Mid,log Duration (mo),0.1021,1.108
-Mid,Thyroid weight (g) × TPOAb,0.0935,1.098
-Mid,Iodine half-life,-0.0545,0.947
-Mid,intercept,-0.7069,0.493
-High,"FT3,FT4 velocity",1.5399,4.664
-High,"TPOAb × FT3,FT4 velocity",0.5483,1.73
-High,TSH velocity,0.3554,1.427
-High,"FT4 baseline × FT3,FT4 velocity",-0.1143,0.892
-High,"TGAb × FT3,FT4 velocity",0.1055,1.111
-High,log Duration (mo),0.0919,1.096
-High,Thyroid weight (g) × TPOAb,0.0821,1.086
-High,TPOAb,0.0716,1.074
-High,intercept,-0.7069,0.493
+Low,"TSH velocity × FT3,FT4 level",-0.7755,0.46
+Low,TSH velocity,-0.6896,0.502
+Low,"FT3,FT4 level",-0.4883,0.614
+Low,Thyroid weight (g),-0.3544,0.702
+Low,TPOAb,-0.2974,0.743
+Low,"TSH (current) × FT3,FT4 vel gap",-0.2793,0.756
+Low,TSH (current),-0.1791,0.836
+Low,"FT3,FT4 level × FT3,FT4 velocity",-0.1745,0.84
+Low,intercept,-0.9915,0.371
+Mid,TSH (current),0.4793,1.615
+Mid,TPOAb,-0.2974,0.743
+Mid,"FT3,FT4 velocity",-0.2287,0.796
+Mid,Thyroid weight (g),-0.2135,0.808
+Mid,"FT3,FT4 gap",-0.1919,0.825
+Mid,"TSH (current) × FT3,FT4 vel gap",0.1633,1.177
+Mid,TSH velocity,0.1558,1.169
+Mid,"TSH velocity × FT3,FT4 level",0.1137,1.12
+Mid,intercept,-0.9915,0.371
+High,"FT3,FT4 level",2.15,8.585
+High,TSH (current),0.4725,1.604
+High,"TSH velocity × FT3,FT4 level",0.457,1.579
+High,"FT3,FT4 level × FT3,FT4 velocity",0.2015,1.223
+High,Thyroid weight (g),0.196,1.217
+High,TSH velocity,0.1552,1.168
+High,"FT3,FT4 vel gap",0.1507,1.163
+High,"TSH (current) × FT3,FT4 vel gap",-0.1504,0.86
+High,intercept,-0.9915,0.371

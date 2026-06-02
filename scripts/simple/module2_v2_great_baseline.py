@@ -141,7 +141,7 @@ def main() -> None:
     p_m1v6 = lr_v6.predict_proba(Xv6)[:, 1]
 
     # ---- M2 EBM @ 6M (re-fit, predict temporal) — collapse to episode-level via 6M row ----
-    sd = load_stacked(); sd = add_current_velocity(sd, "FT3")
+    sd = load_stacked(corrected=True); sd = add_current_velocity(sd, "FT3")
     rows = sd.rows
     rows_lm = rows["landmark"].values
     rows_ep = rows["episode_id"].values

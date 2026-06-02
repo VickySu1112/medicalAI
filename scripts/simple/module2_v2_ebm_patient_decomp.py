@@ -87,7 +87,7 @@ def main() -> None:
     (OUT / "figures").mkdir(parents=True, exist_ok=True)
     (OUT / "tables").mkdir(parents=True, exist_ok=True)
     print("Loading stacked + 6M EBM …", flush=True)
-    sd = load_stacked(); sd = add_current_velocity(sd, "FT3")
+    sd = load_stacked(corrected=True); sd = add_current_velocity(sd, "FT3")
     rows = sd.rows
     y = rows["Y_24M_NHRH"].values
     lm = rows["landmark"].values

@@ -35,33 +35,33 @@
     },
     {
       "method": "M2 EBM @ 6M (best)",
-      "ROC_AUC": 0.8467,
-      "CI_low": 0.79,
-      "CI_high": 0.8988,
-      "calib_intercept": -0.048,
-      "calib_slope": 0.708
+      "ROC_AUC": 0.8413,
+      "CI_low": 0.7832,
+      "CI_high": 0.8956,
+      "calib_intercept": -0.049,
+      "calib_slope": 0.637
     }
   ],
   "paired_delta_vs_EBM": [
     {
       "method_vs": "GREAT-3 (Vos thresholds)",
-      "delta_AUC_vs_EBM_6M": 0.2257,
-      "CI_low": 0.1398,
-      "CI_high": 0.3154,
+      "delta_AUC_vs_EBM_6M": 0.2201,
+      "CI_low": 0.1323,
+      "CI_high": 0.3103,
       "EBM_wins": true
     },
     {
       "method_vs": "GREAT-cont (refit)",
-      "delta_AUC_vs_EBM_6M": 0.1699,
-      "CI_low": 0.0836,
-      "CI_high": 0.2566,
+      "delta_AUC_vs_EBM_6M": 0.1644,
+      "CI_low": 0.0751,
+      "CI_high": 0.2502,
       "EBM_wins": true
     },
     {
       "method_vs": "M1 v6 LR (6 features)",
-      "delta_AUC_vs_EBM_6M": 0.1653,
-      "CI_low": 0.0801,
-      "CI_high": 0.2464,
+      "delta_AUC_vs_EBM_6M": 0.1598,
+      "CI_low": 0.076,
+      "CI_high": 0.2424,
       "EBM_wins": true
     }
   ],
