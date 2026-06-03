@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="utf-8" />
-<title>M2·v2 §3.6.x · EBM 3 个非 FT3,FT4 交互项深挖</title>
+<title>M2·v2 §3.6.x · EBM 3 个非 FT3,FT4 交互项深挖(rank 口径已澄清)</title>
 <style>
   body{max-width:880px;margin:2.5em auto;padding:0 1.2em;line-height:1.75;
        font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1a1a1a;}
@@ -22,30 +22,34 @@
 <p>默认 EBM(<code>interactions=5</code>)在 corrected + median 主线下,top-6 重要性几乎全被 FT3,FT4 综合水平/速度/平衡 + TSH 当期/速度占据 — 这是 RAI 残留腺体功能强信号的直接证据,但同时<strong>遮挡了几个机制上极有意义的小重要性交互项</strong>。</p>
 <p>本段把 <code>interactions</code> 放宽到 <strong>20</strong>(<code>max_interaction_bins=16</code>),让 EBM 在每个 landmark 各自发掘 top-20 二阶项;然后聚焦 3 个在临床机制和文献上有 ★★ 以上证据的非 FT3,FT4 对,做 2D shape function 热图、跨 landmark 一致性表、3 个代表病人的 2D counterfactual 沙盒。</p>
 <h2>C · 跨 landmark 一致性</h2>
+<blockquote>
+<p>⚠️ <strong>Ranking 口径说明</strong>:本表的 rank 是 <em>仅 2D 交互项内部的相对排名</em>(rank_2D),而不是 <em>univariate + 2D 全局混排</em> 的整体排名(rank_global)。Atlas 主线图(<code>m2v2_ebm_full_median/F04_Importance_6M.png</code>)显示的是 <strong>全局 top-6</strong>(其中 univariate 占据 #1-#4,2D 只挤进 1 个);所以这里排 2D #3 的 ThyroidW × HalfLife (0.177),在全局排名中其实是 <strong>#8</strong> — 进不去 atlas top-6。</p>
+<p>简言之:<strong>0.177 ≈ atlas 6M top-6 第 6 名的 0.179</strong> 同一档,但 atlas 用 <code>interactions=5</code> 时根本没学这一对;我们 <code>interactions=20</code> 才把它发掘出来。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
 <th style="text-align: left;">交互对</th>
 <th style="text-align: center;">可信度</th>
-<th style="text-align: center;">1M rank/imp</th>
-<th style="text-align: center;">3M rank/imp</th>
-<th style="text-align: center;">6M rank/imp</th>
-<th style="text-align: center;">12M rank/imp</th>
+<th style="text-align: center;">1M 2D rank/imp</th>
+<th style="text-align: center;">3M 2D rank/imp</th>
+<th style="text-align: center;">6M 2D rank/imp</th>
+<th style="text-align: center;">12M 2D rank/imp</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;">Thyroid weight (g) × Iodine HalfLife (d)</td>
 <td style="text-align: center;">★★★</td>
-<td style="text-align: center;">#9 / 0.029</td>
-<td style="text-align: center;">#8 / 0.045</td>
-<td style="text-align: center;">#3 / 0.177</td>
-<td style="text-align: center;">#4 / 0.160</td>
+<td style="text-align: center;">2D #9 / 0.029</td>
+<td style="text-align: center;">2D #8 / 0.045</td>
+<td style="text-align: center;"><strong>2D #3 / 0.177</strong></td>
+<td style="text-align: center;"><strong>2D #4 / 0.160</strong></td>
 </tr>
 <tr>
 <td style="text-align: left;">TRAb (IU/L) × log Duration (mo)</td>
 <td style="text-align: center;">★★★</td>
-<td style="text-align: center;">#16 / 0.022</td>
+<td style="text-align: center;">2D #16 / 0.022</td>
 <td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
@@ -53,14 +57,28 @@
 <tr>
 <td style="text-align: left;">TPOAb × FT3,FT4 velocity (z, aggregated)</td>
 <td style="text-align: center;">★★</td>
-<td style="text-align: center;">#1 / 0.062</td>
+<td style="text-align: center;"><strong>2D #1 / 0.062</strong></td>
 <td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 <td style="text-align: center;">—</td>
 </tr>
 </tbody>
 </table>
-<p><em>rank</em> = 该 landmark 上 EBM 自动选出的所有 2D 交互项中按 importance 排第几;<em>imp</em> = mean |contribution|(原生 importance)。缺失(—)= EBM 在该 landmark 没有把这一对选入 top-20。</p>
+<p><strong>2D rank</strong> = 该 landmark 上 EBM 学到的<strong>所有 2D 交互项中</strong>按 importance 排第几;<em>imp</em> = mean |contribution|(原生 importance)。缺失(—)= EBM 在该 landmark 没有把这一对选入 top-20 候选。</p>
+<p><strong>全局 rank(含 univariate)对照参考</strong>(6M EBM <code>interactions=20</code>):</p>
+<pre><code>global  importance  term
+  #1     0.766       Hormone_load (univariate)
+  #2     0.542       TSH_current  (univariate)
+  #3     0.365       ThyroidW     (univariate)
+  #4     0.310       TSH_velocity (univariate)
+  #5     0.243       TGAb × FT4_0M       (2D #1)
+  #6     0.225       Velocity_load (univariate)
+  #7     0.178       FT4_0M × Hormone_load  (2D #2)
+  #8     0.177       ThyroidW × HalfLife (2D #3) ★ 本研究焦点
+  #9     0.177       Hormone_load × T3T4_balance (2D #4)
+ #10     0.137       TSH_velocity × Velocity_load (2D #5)
+</code></pre>
+<p>→ atlas 主图(<code>interactions=5</code>)只显示 top-6,所以 ThyroidW × HalfLife 的全局 #8 进不去。这恰恰是本节深挖的意义 — <strong>把被 top-6 视图遮挡的高机制可信度交互项重新拿出来看</strong>。</p>
 <h2>A · 3 张 2D shape function 热图(机制图)</h2>
 <h3>A.1 · Thyroid weight (g) × Iodine HalfLife (d)  (★★★)</h3>
 <p><img id="safe_embedded_img_0" src="" alt="A ThyroidW_x_HalfLife" /></p>

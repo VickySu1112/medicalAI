@@ -4,13 +4,36 @@
 本段把 `interactions` 放宽到 **20**(`max_interaction_bins=16`),让 EBM 在每个 landmark 各自发掘 top-20 二阶项;然后聚焦 3 个在临床机制和文献上有 ★★ 以上证据的非 FT3,FT4 对,做 2D shape function 热图、跨 landmark 一致性表、3 个代表病人的 2D counterfactual 沙盒。
 
 ## C · 跨 landmark 一致性
-| 交互对 | 可信度 | 1M rank/imp | 3M rank/imp | 6M rank/imp | 12M rank/imp |
-|:--|:--:|:--:|:--:|:--:|:--:|
-| Thyroid weight (g) × Iodine HalfLife (d) | ★★★ | #9 / 0.029 | #8 / 0.045 | #3 / 0.177 | #4 / 0.160 |
-| TRAb (IU/L) × log Duration (mo) | ★★★ | #16 / 0.022 | — | — | — |
-| TPOAb × FT3,FT4 velocity (z, aggregated) | ★★ | #1 / 0.062 | — | — | — |
 
-*rank* = 该 landmark 上 EBM 自动选出的所有 2D 交互项中按 importance 排第几;*imp* = mean |contribution|(原生 importance)。缺失(—)= EBM 在该 landmark 没有把这一对选入 top-20。
+> ⚠️ **Ranking 口径说明**:本表的 rank 是 *仅 2D 交互项内部的相对排名*(rank_2D),而不是 *univariate + 2D 全局混排* 的整体排名(rank_global)。Atlas 主线图(`m2v2_ebm_full_median/F04_Importance_6M.png`)显示的是 **全局 top-6**(其中 univariate 占据 #1-#4,2D 只挤进 1 个);所以这里排 2D #3 的 ThyroidW × HalfLife (0.177),在全局排名中其实是 **#8** — 进不去 atlas top-6。
+>
+> 简言之:**0.177 ≈ atlas 6M top-6 第 6 名的 0.179** 同一档,但 atlas 用 `interactions=5` 时根本没学这一对;我们 `interactions=20` 才把它发掘出来。
+
+| 交互对 | 可信度 | 1M 2D rank/imp | 3M 2D rank/imp | 6M 2D rank/imp | 12M 2D rank/imp |
+|:--|:--:|:--:|:--:|:--:|:--:|
+| Thyroid weight (g) × Iodine HalfLife (d) | ★★★ | 2D #9 / 0.029 | 2D #8 / 0.045 | **2D #3 / 0.177** | **2D #4 / 0.160** |
+| TRAb (IU/L) × log Duration (mo) | ★★★ | 2D #16 / 0.022 | — | — | — |
+| TPOAb × FT3,FT4 velocity (z, aggregated) | ★★ | **2D #1 / 0.062** | — | — | — |
+
+**2D rank** = 该 landmark 上 EBM 学到的**所有 2D 交互项中**按 importance 排第几;*imp* = mean |contribution|(原生 importance)。缺失(—)= EBM 在该 landmark 没有把这一对选入 top-20 候选。
+
+**全局 rank(含 univariate)对照参考**(6M EBM `interactions=20`):
+
+```
+global  importance  term
+  #1     0.766       Hormone_load (univariate)
+  #2     0.542       TSH_current  (univariate)
+  #3     0.365       ThyroidW     (univariate)
+  #4     0.310       TSH_velocity (univariate)
+  #5     0.243       TGAb × FT4_0M       (2D #1)
+  #6     0.225       Velocity_load (univariate)
+  #7     0.178       FT4_0M × Hormone_load  (2D #2)
+  #8     0.177       ThyroidW × HalfLife (2D #3) ★ 本研究焦点
+  #9     0.177       Hormone_load × T3T4_balance (2D #4)
+ #10     0.137       TSH_velocity × Velocity_load (2D #5)
+```
+
+→ atlas 主图(`interactions=5`)只显示 top-6,所以 ThyroidW × HalfLife 的全局 #8 进不去。这恰恰是本节深挖的意义 — **把被 top-6 视图遮挡的高机制可信度交互项重新拿出来看**。
 
 ## A · 3 张 2D shape function 热图(机制图)
 

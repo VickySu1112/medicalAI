@@ -452,7 +452,19 @@ def main() -> None:
 
     md_lines.append("\n## C · 跨 landmark 一致性\n")
     md_lines.append(
-        "| 交互对 | 可信度 | 1M rank/imp | 3M rank/imp | 6M rank/imp | 12M rank/imp |\n"
+        "> ⚠️ **Ranking 口径说明**:本表的 rank 是 *仅 2D 交互项内部的相对排名*"
+        "(rank_2D),而不是 *univariate + 2D 全局混排* 的整体排名(rank_global)。"
+        "Atlas 主线图(`m2v2_ebm_full_median/F04_Importance_6M.png`)显示的是 "
+        "**全局 top-6**(其中 univariate 占据 #1-#4,2D 只挤进 1 个);所以这里"
+        "排 2D #3 的 ThyroidW × HalfLife (0.177),在全局排名中其实是 #8 — 进不去"
+        "atlas top-6。\n"
+        "> \n"
+        "> 简言之:**0.177 ≈ 6M atlas top-6 第 6 名的 0.179** 同一档,但 atlas "
+        "用 `interactions=5` 时根本没学这一对;我们 `interactions=20` 才把它"
+        "发掘出来。\n\n"
+    )
+    md_lines.append(
+        "| 交互对 | 可信度 | 1M 2D rank/imp | 3M 2D rank/imp | 6M 2D rank/imp | 12M 2D rank/imp |\n"
     )
     md_lines.append("|:--|:--:|:--:|:--:|:--:|:--:|\n")
     for _, r in cons_df.iterrows():
@@ -461,16 +473,28 @@ def main() -> None:
             imp = r.get(f"{L}M_imp")
             if pd.isna(rank) or rank is None:
                 return "—"
-            return f"#{int(rank)} / {imp:.3f}"
+            return f"2D #{int(rank)} / {imp:.3f}"
         md_lines.append(
             f"| {r['target_pair']} | {r['tier']} | "
             f"{cell(1)} | {cell(3)} | {cell(6)} | {cell(12)} |\n"
         )
     md_lines.append(
-        "\n*rank* = 该 landmark 上 EBM 自动选出的所有 2D 交互项中按 importance "
+        "\n**2D rank** = 该 landmark 上 EBM 学到的**所有 2D 交互项中**按 importance "
         "排第几;*imp* = mean |contribution|(原生 importance)。"
         "缺失(—)= EBM 在该 landmark 没有把这一对选入 top-"
-        f"{N_INTERACTIONS}。\n"
+        f"{N_INTERACTIONS} 候选。\n"
+        "\n**全局 rank(含 univariate)对照参考**(6M EBM `interactions=20`):\n"
+        "```\n"
+        "global  importance  term\n"
+        "  #1     0.766       Hormone_load (univariate)\n"
+        "  #2     0.542       TSH_current  (univariate)\n"
+        "  #3     0.365       ThyroidW     (univariate)\n"
+        "  #4     0.310       TSH_velocity (univariate)\n"
+        "  #5     0.243       TGAb × FT4_0M       (2D #1)\n"
+        "  #6     0.225       Velocity_load (univariate)\n"
+        "  #7     0.178       FT4_0M × Hormone_load  (2D #2)\n"
+        "  #8     0.177       **ThyroidW × HalfLife** (2D #3) ★ 本研究焦点\n"
+        "```\n"
     )
 
     md_lines.append("\n## A · 3 张 2D shape function 热图(机制图)\n")
