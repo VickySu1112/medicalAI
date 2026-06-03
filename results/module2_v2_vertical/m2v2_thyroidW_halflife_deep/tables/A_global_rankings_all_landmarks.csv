@@ -1,0 +1,145 @@
+landmark,global_rank,term,type,importance,is_target
+1M,1,ThyroidW,univariate,0.4658,False
+1M,2,Hormone_load,univariate,0.1743,False
+1M,3,log1p_DiseaseDuration_Months_Aug,univariate,0.1075,False
+1M,4,Velocity_load,univariate,0.0956,False
+1M,5,TRAb,univariate,0.089,False
+1M,6,TPOAb,univariate,0.0739,False
+1M,7,T3T4_balance,univariate,0.073,False
+1M,8,Velocity_balance,univariate,0.0644,False
+1M,9,TPOAb × Velocity_load,2D,0.0624,False
+1M,10,TSH_0M,univariate,0.0562,False
+1M,11,FT4_0M,univariate,0.0492,False
+1M,12,TGAb × FT4_0M,2D,0.0415,False
+1M,13,Uptake24h,univariate,0.0393,False
+1M,14,TGAb × Velocity_load,2D,0.0383,False
+1M,15,log1p_DiseaseDuration_Months_Aug × Hormone_load,2D,0.0382,False
+1M,16,HalfLife,univariate,0.0378,False
+1M,17,TPOAb × FT4_0M,2D,0.0377,False
+1M,18,Sex,univariate,0.0377,False
+1M,19,log1p_DiseaseDuration_Months_Aug × Velocity_balance,2D,0.0315,False
+1M,20,TRAb × Hormone_load,2D,0.0301,False
+1M,21,ThyroidW × Hormone_load,2D,0.03,False
+1M,22,ThyroidW × HalfLife,2D,0.0286,True
+1M,23,ThyroidW × TSH_velocity,2D,0.0284,False
+1M,24,TGAb × Velocity_balance,2D,0.0282,False
+1M,25,ThyroidW × TSH_0M,2D,0.0275,False
+1M,26,FT4_0M × HalfLife,2D,0.0269,False
+1M,27,TGAb,univariate,0.0262,False
+1M,28,ThyroidW × Velocity_load,2D,0.0261,False
+1M,29,ThyroidW × TSH_current,2D,0.0259,False
+1M,30,TSH_velocity,univariate,0.0257,False
+1M,31,TSH_current,univariate,0.0255,False
+1M,32,TRAb × log1p_DiseaseDuration_Months_Aug,2D,0.0221,False
+1M,33,FT4_0M × TSH_0M,2D,0.0204,False
+1M,34,log1p_DiseaseDuration_Months_Aug × HalfLife,2D,0.0196,False
+1M,35,TSH_0M × TSH_current,2D,0.0192,False
+1M,36,TSH_0M × Hormone_load,2D,0.0187,False
+3M,1,Hormone_load,univariate,0.5003,False
+3M,2,ThyroidW,univariate,0.3669,False
+3M,3,TSH_current,univariate,0.2976,False
+3M,4,TSH_velocity,univariate,0.1806,False
+3M,5,T3T4_balance,univariate,0.1297,False
+3M,6,TRAb,univariate,0.126,False
+3M,7,Velocity_load,univariate,0.1014,False
+3M,8,TPOAb,univariate,0.096,False
+3M,9,log1p_DiseaseDuration_Months_Aug,univariate,0.0822,False
+3M,10,TPOAb × Hormone_load,2D,0.0656,False
+3M,11,TSH_0M,univariate,0.0633,False
+3M,12,TRAb × TSH_current,2D,0.063,False
+3M,13,log1p_DiseaseDuration_Months_Aug × Velocity_load,2D,0.0609,False
+3M,14,ThyroidW × TPOAb,2D,0.0591,False
+3M,15,ThyroidW × Hormone_load,2D,0.0564,False
+3M,16,FT4_0M × Hormone_load,2D,0.049,False
+3M,17,Velocity_balance,univariate,0.0462,False
+3M,18,TRAb × HalfLife,2D,0.0455,False
+3M,19,Uptake24h,univariate,0.045,False
+3M,20,ThyroidW × HalfLife,2D,0.0448,True
+3M,21,Hormone_load × Velocity_balance,2D,0.0399,False
+3M,22,ThyroidW × T3T4_balance,2D,0.0385,False
+3M,23,HalfLife,univariate,0.0338,False
+3M,24,FT4_0M × T3T4_balance,2D,0.033,False
+3M,25,log1p_DiseaseDuration_Months_Aug × Uptake24h,2D,0.0307,False
+3M,26,TSH_0M × TSH_velocity,2D,0.0306,False
+3M,27,FT4_0M,univariate,0.0293,False
+3M,28,ThyroidW × log1p_DiseaseDuration_Months_Aug,2D,0.029,False
+3M,29,Uptake24h × Velocity_load,2D,0.028,False
+3M,30,TRAb × T3T4_balance,2D,0.0278,False
+3M,31,FT4_0M × TSH_0M,2D,0.0269,False
+3M,32,Uptake24h × Hormone_load,2D,0.0255,False
+3M,33,Uptake24h × TSH_velocity,2D,0.0246,False
+3M,34,TRAb × Hormone_load,2D,0.0242,False
+3M,35,TGAb,univariate,0.0151,False
+3M,36,Sex,univariate,0.0101,False
+6M,1,Hormone_load,univariate,0.7658,False
+6M,2,TSH_current,univariate,0.5415,False
+6M,3,ThyroidW,univariate,0.3645,False
+6M,4,TSH_velocity,univariate,0.3101,False
+6M,5,TGAb × FT4_0M,2D,0.2428,False
+6M,6,Velocity_load,univariate,0.225,False
+6M,7,FT4_0M × Hormone_load,2D,0.1779,False
+6M,8,ThyroidW × HalfLife,2D,0.1773,True
+6M,9,Hormone_load × T3T4_balance,2D,0.1771,False
+6M,10,TSH_velocity × Velocity_load,2D,0.1369,False
+6M,11,TPOAb × Hormone_load,2D,0.1326,False
+6M,12,T3T4_balance,univariate,0.1287,False
+6M,13,TPOAb × T3T4_balance,2D,0.1224,False
+6M,14,TRAb × TSH_current,2D,0.1214,False
+6M,15,TSH_velocity × Hormone_load,2D,0.1185,False
+6M,16,FT4_0M × TSH_current,2D,0.1048,False
+6M,17,TRAb,univariate,0.1037,False
+6M,18,ThyroidW × TRAb,2D,0.0886,False
+6M,19,FT4_0M,univariate,0.0839,False
+6M,20,Hormone_load × Velocity_load,2D,0.08,False
+6M,21,TSH_current × TSH_velocity,2D,0.0784,False
+6M,22,log1p_DiseaseDuration_Months_Aug,univariate,0.0759,False
+6M,23,TSH_current × Velocity_load,2D,0.0758,False
+6M,24,TSH_current × Velocity_balance,2D,0.0755,False
+6M,25,Velocity_balance,univariate,0.0719,False
+6M,26,Uptake24h × Velocity_load,2D,0.0661,False
+6M,27,TSH_0M,univariate,0.0616,False
+6M,28,TGAb,univariate,0.0613,False
+6M,29,TPOAb,univariate,0.0606,False
+6M,30,FT4_0M × Velocity_load,2D,0.0557,False
+6M,31,TSH_0M × TSH_current,2D,0.051,False
+6M,32,TSH_0M × Hormone_load,2D,0.0486,False
+6M,33,Uptake24h,univariate,0.0408,False
+6M,34,TSH_0M × Velocity_load,2D,0.0351,False
+6M,35,Sex,univariate,0.0342,False
+6M,36,HalfLife,univariate,0.025,False
+12M,1,Hormone_load,univariate,0.5422,False
+12M,2,ThyroidW,univariate,0.4735,False
+12M,3,TSH_current,univariate,0.379,False
+12M,4,TSH_velocity,univariate,0.3618,False
+12M,5,T3T4_balance,univariate,0.2326,False
+12M,6,Hormone_load × Velocity_balance,2D,0.2152,False
+12M,7,Velocity_load,univariate,0.2035,False
+12M,8,Hormone_load × T3T4_balance,2D,0.1803,False
+12M,9,TSH_current × Velocity_load,2D,0.166,False
+12M,10,ThyroidW × HalfLife,2D,0.1599,True
+12M,11,TPOAb × FT4_0M,2D,0.1599,False
+12M,12,TGAb × FT4_0M,2D,0.1524,False
+12M,13,TPOAb × TSH_current,2D,0.1393,False
+12M,14,HalfLife × Hormone_load,2D,0.1276,False
+12M,15,TPOAb,univariate,0.1195,False
+12M,16,T3T4_balance × Velocity_load,2D,0.1187,False
+12M,17,TRAb,univariate,0.1139,False
+12M,18,log1p_DiseaseDuration_Months_Aug,univariate,0.0995,False
+12M,19,ThyroidW × Hormone_load,2D,0.0958,False
+12M,20,Hormone_load × Velocity_load,2D,0.0906,False
+12M,21,ThyroidW × T3T4_balance,2D,0.0865,False
+12M,22,TSH_velocity × Velocity_balance,2D,0.0854,False
+12M,23,FT4_0M × TSH_0M,2D,0.0776,False
+12M,24,ThyroidW × TSH_velocity,2D,0.0754,False
+12M,25,HalfLife × TSH_current,2D,0.0719,False
+12M,26,T3T4_balance × Velocity_balance,2D,0.0655,False
+12M,27,TSH_velocity × Velocity_load,2D,0.0585,False
+12M,28,TSH_current × Velocity_balance,2D,0.055,False
+12M,29,TSH_velocity × Hormone_load,2D,0.0532,False
+12M,30,Velocity_balance,univariate,0.0522,False
+12M,31,FT4_0M,univariate,0.0426,False
+12M,32,TGAb,univariate,0.0334,False
+12M,33,TSH_0M,univariate,0.026,False
+12M,34,Uptake24h,univariate,0.0204,False
+12M,35,HalfLife,univariate,0.0201,False
+12M,36,Sex,univariate,0.0183,False

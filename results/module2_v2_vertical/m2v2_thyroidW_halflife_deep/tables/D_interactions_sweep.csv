@@ -1,0 +1,6 @@
+interactions_setting,target_selected,target_global_rank,target_2d_only_rank,target_importance
+5,False,,,
+10,False,,,
+15,False,,,
+20,True,8.0,3.0,0.1773
+30,True,9.0,3.0,0.1117

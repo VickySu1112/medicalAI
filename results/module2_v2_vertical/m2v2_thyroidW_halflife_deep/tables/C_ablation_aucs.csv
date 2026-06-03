@@ -1,0 +1,8 @@
+setting,AUC,delta_vs_full
+"Full EBM (interactions=20, all terms)",0.8547,0.0
+Drop ThyroidW × HalfLife (2D only),0.8505,-0.0042
+Drop ThyroidW univariate only,0.8388,-0.0159
+Drop HalfLife univariate only,0.8547,-0.0
+Drop ThyroidW uni + 2D,0.8309,-0.0238
+Drop HalfLife uni + 2D,0.8499,-0.0048
+Drop ThyroidW uni + HalfLife uni + 2D (all related),0.8313,-0.0234

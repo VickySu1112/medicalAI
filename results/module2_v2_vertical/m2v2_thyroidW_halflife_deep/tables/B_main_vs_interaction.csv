@@ -1,0 +1,5 @@
+landmark,ThyroidW_uni_rank,ThyroidW_uni_imp,HalfLife_uni_rank,HalfLife_uni_imp,interaction_global_rank,interaction_imp,inter_div_TWuni,inter_div_HLuni
+1M,1,0.4658,16,0.0378,22,0.0286,0.061,0.757
+3M,2,0.3669,23,0.0338,20,0.0448,0.122,1.324
+6M,3,0.3645,36,0.025,8,0.1773,0.486,7.101
+12M,2,0.4735,35,0.0201,10,0.1599,0.338,7.945

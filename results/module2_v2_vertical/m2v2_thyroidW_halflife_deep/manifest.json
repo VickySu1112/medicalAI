@@ -1,0 +1,87 @@
+{
+  "口径": "corrected truth + median impute (time-safe), landmarks 1/3/6/12",
+  "target": [
+    "ThyroidW",
+    "HalfLife"
+  ],
+  "config": {
+    "interactions_for_global_ranking": 20,
+    "max_interaction_bins": 16,
+    "seed": 2025,
+    "sweep_settings": [
+      5,
+      10,
+      15,
+      20,
+      30
+    ]
+  },
+  "target_global_per_landmark": {
+    "1M": {
+      "rank": 22,
+      "imp": 0.02859591823670454
+    },
+    "3M": {
+      "rank": 20,
+      "imp": 0.0447913440815421
+    },
+    "6M": {
+      "rank": 8,
+      "imp": 0.1772561308306842
+    },
+    "12M": {
+      "rank": 10,
+      "imp": 0.15994603146477504
+    }
+  },
+  "ablation_6M": {
+    "Full EBM (interactions=20, all terms)": {
+      "setting": "Full EBM (interactions=20, all terms)",
+      "AUC": 0.8547,
+      "delta_vs_full": 0.0
+    },
+    "Drop ThyroidW × HalfLife (2D only)": {
+      "setting": "Drop ThyroidW × HalfLife (2D only)",
+      "AUC": 0.8505,
+      "delta_vs_full": -0.0042
+    },
+    "Drop ThyroidW univariate only": {
+      "setting": "Drop ThyroidW univariate only",
+      "AUC": 0.8388,
+      "delta_vs_full": -0.0159
+    },
+    "Drop HalfLife univariate only": {
+      "setting": "Drop HalfLife univariate only",
+      "AUC": 0.8547,
+      "delta_vs_full": -0.0
+    },
+    "Drop ThyroidW uni + 2D": {
+      "setting": "Drop ThyroidW uni + 2D",
+      "AUC": 0.8309,
+      "delta_vs_full": -0.0238
+    },
+    "Drop HalfLife uni + 2D": {
+      "setting": "Drop HalfLife uni + 2D",
+      "AUC": 0.8499,
+      "delta_vs_full": -0.0048
+    },
+    "Drop ThyroidW uni + HalfLife uni + 2D (all related)": {
+      "setting": "Drop ThyroidW uni + HalfLife uni + 2D (all related)",
+      "AUC": 0.8313,
+      "delta_vs_full": -0.0234
+    }
+  },
+  "outputs": {
+    "A_top12_figs": [
+      "figures/A_global_rank_1M.png",
+      "figures/A_global_rank_3M.png",
+      "figures/A_global_rank_6M.png",
+      "figures/A_global_rank_12M.png"
+    ],
+    "B_main_vs_interaction_fig": "figures/B_main_vs_interaction.png",
+    "C_ablation_fig": "figures/C_ablation.png",
+    "D_sweep_fig": "figures/D_interactions_sweep.png",
+    "E_patient_hist_fig": "figures/E_patient_contribution_hist.png",
+    "findings_md": "findings.md"
+  }
+}
