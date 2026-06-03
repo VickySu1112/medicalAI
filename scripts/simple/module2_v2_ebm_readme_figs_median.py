@@ -243,7 +243,7 @@ def fig_interaction_3d(out_path: Path) -> dict:
     ax.scatter(
         D["Av"][in_view], D["Bv"][in_view], D["zs"][in_view],
         s=7, c="#111111", alpha=0.40, depthshade=True,
-        label=f"训练样本(dev@{L}M,n={int(in_view.sum())})",
+        label=f"训练样本(dev@{L}M,可见 {int(in_view.sum())} / 总 {D['n_tr']};视图裁 1–99 分位去极端外推边)",
     )
 
     ax.set_xlim(D["xr"]); ax.set_ylim(D["yr"])
