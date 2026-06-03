@@ -32,7 +32,7 @@ M2 回答的是治疗后早期的临床问题——「3 / 6 个月时还要不�
 
 ### 产物
 
-loader 扩展（1/3/6/12M + corrected 真值）+ EBM-OOF 评估 + 插值对比实验 + **atlas_locf（47 图）** + 主 paper 重做（12M 入主图文版）+ prune 诊断 / 跨地标错例与变迁 / 原理教程 / 图解讲解 报告 + 可玩交互版（plotly）；全程落盘于工作日志 [`docs/worklog_m2_ebm_xland.md`](docs/worklog_m2_ebm_xland.md)。
+loader 扩展（1/3/6/12M + corrected 真值）+ EBM-OOF 评估 + 插值对比实验 + **atlas_median(47 图,主线 ★)** + atlas_locf(47 图,敏感性对照) + 主 paper 重做（12M 入主图文版）+ prune 诊断 / 跨地标错例与变迁 / 原理教程 / 图解讲解 报告 + 可玩交互版（plotly）；全程落盘于工作日志 [`docs/worklog_m2_ebm_xland.md`](docs/worklog_m2_ebm_xland.md)。
 
 ---
 
@@ -40,7 +40,7 @@ loader 扩展（1/3/6/12M + corrected 真值）+ EBM-OOF 评估 + 插值对比�
 
 各地标 EBM 分组重要性随时间迁移：解剖负荷 → 当期甲功水平在后期占主导，动量退居交互增量。
 
-![重要性时间迁移热图](results/module2_v2_vertical/m2v2_ebm_full_locf/figures/F41_GroupImportance_heatmap.png)
+![重要性时间迁移热图](results/module2_v2_vertical/m2v2_ebm_full_median/figures/F41_GroupImportance_heatmap.png)
 
 #### 风险驱动变迁表（bin16 · 原生重要性 mean&#124;Δlog-odds&#124; 排名）
 
@@ -59,9 +59,9 @@ loader 扩展（1/3/6/12M + corrected 真值）+ EBM-OOF 评估 + 插值对比�
 
 ### 图 2 · EBM vs persistence / naive（学习增量）
 
-逐地标 EBM 时间外 AUC 与 persistence / naive 基线对比；EBM−persistence 的 ΔAUC（配对 episode bootstrap）四地标均为正、6M/12M 的 95% CI 排除 0（1M +0.147 / 3M +0.109 / 6M +0.126 [.077,.182] / 12M +0.159 [.101,.213]），12M 增量最大。
+逐地标 EBM 时间外 AUC 与 persistence / naive 基线对比(median 主线点估计):**EBM − persistence 在 4 地标均为正,呈 U 形分布**——**1M +0.155**(EBM 0.704 − 持续力 0.547)/ **3M +0.078**(0.799 − 0.721)/ **6M +0.083**(0.858 − 0.775)/ **12M +0.153**(0.795 − 0.642)。**1M 与 12M 增量最大**(各 ≈ +0.15),3M / 6M 最小(TSH 信号本身就强,EBM 多看 14 特征只多挤出 0.08)。生理学解读:1M 时 HPT 反馈轴受抑、TSH 无信息 → EBM 借腺体重量 + 抗体撑场;12M 时 40% 脱落用 dev 中位数填,TSH 信号被均值回归稀释 → EBM 用其他 15 特征综合救场。
 
-![EBM vs persistence](results/module2_v2_vertical/m2v2_ebm_full_locf/figures/F38_EBM_vs_persistence.png)
+![EBM vs persistence](results/module2_v2_vertical/m2v2_ebm_full_median/figures/F38_EBM_vs_persistence.png)
 
 ### 表 1 · 插值方法对比（temporal AUC，按地标）
 
@@ -84,36 +84,69 @@ loader 扩展（1/3/6/12M + corrected 真值）+ EBM-OOF 评估 + 插值对比�
 
 > **为什么迁移到 bin16**：默认 ~62×62 交互网格对 1003 人次过细、多数格无人落入 → 交互 2D 查表近乎全外推；降到 `max_interaction_bins=16` 后网格 occupancy ~85–90%、每格有真实病人支撑，交互查表可读可信，而**单变量形状函数与判别 AUC 基本不受影响**（bins sweep 佐证）。核心评估原语与以下全部分析已统一 bin16；上方 F41/F38 等早期图集为默认 bin 产物，结论在 bin16 下一致。
 
-### 图 3 · 最重要交互项 3D 决策曲面（momentum-beyond-inertia）
+### 图 3 · 6M「激素负荷 × 动量负荷」3D 交互曲面（momentum-beyond-inertia）
 
-**6M 自动选中的 #1 交互**「FT3,FT4 综合水平 × 综合变化速度」的 3D 决策曲面（z=对复发 log-odds 的交互贡献，importance 0.224）。斜向山脊向「水平高 **且** 动量高（仍在快速回升）」角落抬升加码风险——同样的当期水平，「仍在上升」比「已回落」更危险，即 momentum-beyond-inertia。黑点=训练样本，密集处可信、角落无点处为正则外推。（注：该命名交互在 6M 被 GA2M 自动选为首位；12M 的自动首位交互则是「当期 TSH × 当期水平」，见上方风险变迁表——越靠终点越由最近一次甲功状态直接驱动。）
+**6M GA2M 自动选入交互(median 主线下 #3 命名交互,LOCF 对照下为 #1)**「FT3,FT4 综合水平 × 综合变化速度」的 3D 决策曲面（**importance = 0.110**、**|g|max = 0.56**、训练样本 dev@6M 总 802、视图内可见 770）。
 
-![最重要交互项3D决策曲面](results/module2_v2_vertical/m2v2_bin16_top_interaction_3d.png)
+**怎么读图**:
+- **X 轴(右后)**:激素负荷 = (zFT3 + zFT4)/√2,→ 越热(当期 FT3/FT4 偏高)
+- **Y 轴(左前)**:动量负荷 = (zΔFT3 + zΔFT4)/√2,→ 越正(回升 / 还在上涨)
+- **Z 轴(高低) + 颜色**:`g` = 该 (水平, 速度) 组合对复发 log-odds 的交互贡献,**红色推高复发风险 / 蓝色压低**
+- **黑点**:训练样本落格高度——**只看黑点密集处**,稀疏角落是正则化外推(不可信)
 
-### 图 4 · 降维整体风险景观 + 决策面（PCA · 6M · bin16）
+**四象限的临床读法**:
 
-全 16 维 live 特征 PCA 到 PC1×PC2 的整体鸟瞰：背景=dev OOF 概率决策面（蓝低危→红高危，仅样本凸包内、不外推，含 p=0.5 决策线），散点按预测对错四象限着色（命中 TP / 正确 TN / 误报 FP / 漏诊 FN）。决策面右上偏红、左下偏蓝，FN/FP 多落在 p≈0.5 过渡带。PC1+2 仅约 1/4 方差（26%），红蓝必然交叠——这是无监督降维「分不开」的诚实呈现（判别力在高维、应以形状函数为准；监督 LDA 仅 1 维即 OOF AUC≈0.86，详见可玩 HTML）。
+| 象限 | 水平 + 动量 | 交互 `g` | 临床含义 |
+|:--|:--|:--:|:--|
+| **右上深红平台** | 高 + 高(↑) | **+0.3 ~ +0.5** | 「FT3/FT4 已高 **且** 还在涨」= 高危治疗失败型 |
+| **左下深蓝平台** | 低 + 低(↓) | **−0.3 ~ −0.5** | 「FT3/FT4 已低 **且** 还在降」= 低危过度治愈型(已接近甲减) |
+| 右下 | 高 + 低(↓) | ≈ 0 | 「FT4 偏高但已回落」= 中等风险(恢复中) |
+| 左上 | 低 + 高(↑) | ≈ 0 | 「FT4 偏低但开始反弹」= 潜在复发预警 |
 
-![降维整体风险景观](results/module2_v2_vertical/m2v2_bin16_pca_landscape.png)
+**临床新洞见(median 主线)**:
+- 同样 **FT4 z=+2** 的两个 6M 复诊患者:**还在上涨** vs **已开始回落**,交互项产生的**额外风险差约 exp(0.8) ≈ 2.2 倍几率**(median 主线;LOCF 对照下 |g|max=0.76 → exp(1.52) ≈ 4.5 倍)
+- **临床操作**:6M 复诊不要只看「今天 FT4 多少」,要回看 3M → 6M 的轨迹方向。**FT4 偏高 + 还在涨**的患者建议立刻启动 2 次 RAI 讨论;**FT4 偏低 + 还在降**的患者可宣告愈合并降级随访
+- **importance 0.110 比 LOCF 对照下的 0.224 减半**:原因是 median 下 Hormone_load 主效应强化到 0.766(LOCF 0.32 的 2.4 倍),主效应抢分 → 交互的边际贡献相对减小。**这是诚实的口径修正,不是 momentum 概念失效**
 
-### 12M ≥ 6M（bin16 + LOCF 敏感性对照,非主线）
+![6M 激素负荷×动量负荷 3D 交互曲面（median 主线）](results/module2_v2_vertical/m2v2_bin16_top_interaction_3d_median.png)
 
-> **口径声明**：以下数字基于 **bin16 + LOCF** 敏感性口径（与上方 median 主线独立）。LOCF 在 12M 上 Δ=+0.105 主要来自结转 6M 真值给 12M 那 398 个脱落者（借力），非 12M 模型本身预测力提升；故 "12M ≥ 6M" 主要由 LOCF 结构所致。**主线 median 口径下,12M(0.795) < 6M(0.858),符合 lead-time 物理直觉**。
+### 图 4 · 6M PCA 风险景观 + 决策面（dev OOF）
 
-旧口径（退化读列）下「12M 不如 6M」，corrected+LOCF+bin16 后 **12M 在判别 / 增量 / 校准 / 稳定性几乎所有维度都 ≥ 6M**——旧结论部分是 bug 产物（current 退化）、部分是真实 lead-time 物理（median 口径下仍存在 12M ≤ 6M）。
+全 16 维 live 特征 PCA 到 PC1×PC2 的整体鸟瞰(median 主线下 **PC1+2 = 27% 方差**;**6M dev OOF AUC = 0.874**)。
 
-| 维度（temporal 除非注明） | 6M | 12M | 更强 |
-|:---|:---:|:---:|:---:|
-| OOF AUC | 0.904 | **0.919** | 12M |
-| Temporal AUC | 0.881 | **0.911** | 12M |
-| ΔAUC vs persistence（配对 boot 95%CI） | +0.126 [.077,.182] | **+0.159 [.101,.213]** | 12M（均排除 0）|
-| Temporal Brier（越低越好） | 0.130 | **0.121** | 12M |
-| OOF−Temporal gap（越小越稳） | 0.023 | **0.008** | 12M |
-| 校准 slope（理想=1） | 0.748 | **0.869** | 12M |
+**怎么读图**:
+- **背景渐变**:dev OOF 概率插值决策面(蓝低危 → 红高危,仅样本凸包内、不外推)
+- **黑色虚线**:**决策线 p = 0.5**(模型的阳/阴分界)
+- **散点四象限着色**(按阈值 0.5 预测对错):
+  - 🔵 **TN 正确未发**(真未发·报未发) **n = 569**
+  - 🟢 **TP 命中复发**(真复发·报复发) **n = 238**
+  - 🟠 **FP 误报**(真未发·报复发) **n = 60**
+  - 🔴 **FN 漏诊**(真复发·报未发) **n = 136 ← 红色放大,最危险的错误**
+- **PC1+2 = 27% 方差**意味着剩 73% 判别信号在更高维 → 红蓝必然交叠,**不要因为 2D 图看着乱就以为模型不行**(监督 LDA 仅 1 维 OOF AUC ≈ 0.86 反驳,详见可玩 HTML)
 
-为何反转：12M 更长窗口的当期甲功更接近 24M 终点、信号更直接（重要性主导更突出），dev→temporal 漂移更小。唯一对 6M 有利的细节：persistence 基线本身 6M temporal AUC（0.755）略高于 12M（0.751），但 EBM 在 12M 的增量更大。
+**3 个临床洞见**:
 
-![6M vs 12M 多维对比](results/module2_v2_vertical/m2v2_bin16_6m12m_panel.png)
+1. **整体分布合理但远不能完美分隔**:左下偏蓝、右上偏红——PC1+2 有信号,但 PCA 26-27% 方差先天限制 2D 表达。**6M EBM 真正的判别力在 16 维形状函数里,要看 47 图 atlas 而非 PCA 投影**
+
+2. **漏诊(FN n=136)是最危险错误**:
+   - 真复发 → 模型告知低危 → 患者放松警惕 → **错过 24M 之前 2 次 RAI 介入窗口** = 真正的临床伤害
+   - **136 / (136+238) = 36% 漏诊率** ← 这是 median 主线下的真实数字(LOCF 对照下 FN=98 仅 26%,差异来自 LOCF 借力)
+   - 这些红点**散布在整张图,不集中**——意味着 **FN 无可命名亚型**(不能用"老年女性 + 高 TPOAb"概括),是真正的特征天花板
+
+3. **大量错误集中在决策线 p ≈ 0.5 附近**:
+   - 黑色虚线周围聚集了大量 FN(红)和 FP(橙)——**模型不确定区**
+   - **临床操作化**:对 6M EBM 概率落在 [0.3, 0.7] 的患者特别谨慎,不能光凭模型说"高危"或"低危"就下结论,需要额外信息(全套化验复查 + 影像)
+   - 这正是 **EBM 论文「选择性预测」** 的依据:**弃权约 50% → 准确率 0.78 / NPV 0.84**,把决策线附近的不确定区交给临床医生人工判断
+
+**临床部署的诚实底线**:6M EBM 漏诊率 36%(median 主线下),意味着**模型说"低危"不等于"安全"** —— 即使 EBM 概率 < 0.5,患者仍应做 1 次额外随访作冗余确认,直至 24M 终点。
+
+![6M PCA 风险景观 + 决策面（median 主线）](results/module2_v2_vertical/m2v2_bin16_pca_landscape_median.png)
+
+### LOCF 敏感性对照(完整数据见产物目录,不在 README 主体展开)
+
+主线 median 口径下 **12M(0.795) < 6M(0.858)**,符合 lead-time 物理直觉。
+
+**LOCF 敏感性对照** 在 12M 上 Δ=+0.105 主要来自结转 6M 真值给 12M 那 398 个脱落者(借力),**非 12M 模型本身预测力提升**;6M LOCF 增益 +0.023 (CI 跨 0) 不显著。LOCF + bin16 下"12M ≥ 6M 全维度"反转的完整对比表(OOF AUC 0.904 → 0.919、Brier 0.130 → 0.121、校准 slope 0.748 → 0.869)与 `m2v2_bin16_6m12m_panel.png` 全维度对比图,**作为审计资料保留在产物目录** `results/module2_v2_vertical/m2v2_ebm_full_locf/` 与 `results/module2_v2_vertical/m2v2_bin16_*.png`,**README 主体不再展开**。
 
 ### 混淆矩阵跨地标深挖：弥散不可概括，唯一可命名是 FN-silent
 
@@ -124,11 +157,19 @@ bin16 + Youden@OOF 阈值，逐地标混淆与误判刻画：
 - **唯一可命名的系统性错误 = FN-silent「看似正常却复发」**：按甲功状态分层，**甲亢者几乎不漏诊**（Hyper FN 率 6M 0.016 / 12M 0.015），漏诊几乎全压在**甲功正常者**（Normal FN 率 1M 0.587→6M 0.461→12M 0.259）——化验已正常却仍走向复发的人最难抓；FN 相对 TP 的特征签名跨地标高度稳定（r=0.82）：FT3/FT4 已偏正常/偏低、腺体偏小。属现有特征集的天花板。
 - **个体跨地标轨迹 = 总体「越来越对」**：802 episodes 中持续判对 57.0%、**由错转对 20.8%**（信号积累，复发率高达 0.569）、反复 13.5%、由对转错 6.2%、**顽固持续错仅 2.5%**（当期 TSH≈0 持续甲亢抑制、甲状腺 ~45g、病程长）；**83.0% 的人随地标推进判得更准**，「由错转对」远多于「由对转错」（167 vs 50）。
 
+> **数据源说明**:本段数字基于 bin16 + LOCF 敏感性口径(漏诊率 / 12M NPV 0.925 / 轨迹百分比 57.0% / 20.8% 等);**结构性结论(错误弥散、FN-silent 子型唯一可命名、个体跨地标越来越对)在 median 主线下完全一致**,只是绝对数字略有变化(median 主线下 6M 漏诊率 36% 比 LOCF 26% 高 10 个百分点 — 详见上方图 4 PCA 风险景观 + EBM 论文 §3.4)。
+
 ![混淆亚型与轨迹](results/module2_v2_vertical/m2v2_bin16_confusion_subtypes.png)
 
-### 特征重要性迁移已覆盖 12M
+### 特征重要性迁移已覆盖 12M（median 主线数字）
 
-bin16 重要性迁移表（见上方「风险驱动变迁表」）已含全 4 地标：12M 由**当期甲功水平**（Hormone_load 1.08 + 当期 TSH 0.61）牢牢主导，唯一进 top5 的交互项「当期 TSH × 当期水平」也属当期状态——越靠终点越由「最近一次甲功」直接驱动。
+median 主线下 12M 重要性 top-6:**Hormone_load 0.542(#1)、甲状腺重量 0.474(#2)、当期 TSH 0.379(#3)、TSH 变化速度 0.362(#4)、「水平 × 落差」交互 0.268(#5)、T3T4 落差 0.233(#6)**。
+
+**两点关键变化(median vs LOCF)**:
+- **甲状腺重量在 12M 回升至 #2**(LOCF 下 12M ThyroidW 仅 #3)—— 远端时点单看当期甲功不够,腺体大小作为"恒定预后锚"再次显形,**提醒 12M 评估时要回看 0M 影像数据**
+- **TSH 速度上升到 #4**(LOCF 下 12M TSH 速度未进 top5)—— 反映 HPT 反馈轴恢复速率成为关键判定项,「TSH 回升正常多快」预测 24M 最终结局
+
+总趋势仍是「当期甲功水平」自 3M 起主导后期(median 主线下 3M / 6M / 12M 三时点 Hormone_load 均为 #1)。
 
 ---
 
@@ -169,7 +210,7 @@ bin16 重要性迁移表（见上方「风险驱动变迁表」）已含全 4 �
 |:---|:---|
 | M2 · v1（per-landmark 4-LR + Eval state，早期固定地标更新） | [Module2_早期固定地标长期风险更新.md](results/module2_early_landmark_updating/Module2_早期固定地标长期风险更新.md) |
 
-结果目录：[`results/module2_v2_vertical/`](results/module2_v2_vertical/)（含 `m2v2_ebm_full_locf/` 47 图主产物）· [`results/module2_v2_synthesis/`](results/module2_v2_synthesis/) · [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) · [`results/module2_v2_base/`](results/module2_v2_base/) · [`results/module2_v2_horizontal/`](results/module2_v2_horizontal/)
+结果目录：[`results/module2_v2_vertical/`](results/module2_v2_vertical/)（含 `m2v2_ebm_full_median/` 47 图主产物 ★ + `m2v2_ebm_full_locf/` LOCF 敏感性对照 47 图 + `m2v2_bin16_*_median.png` median 主线 bin16 深化 + `m2v2_bin16_*.png` LOCF 敏感性 bin16 深化）· [`results/module2_v2_synthesis/`](results/module2_v2_synthesis/) · [`results/module2_early_landmark_updating/`](results/module2_early_landmark_updating/) · [`results/module2_v2_base/`](results/module2_v2_base/) · [`results/module2_v2_horizontal/`](results/module2_v2_horizontal/)
 
 ---
 
